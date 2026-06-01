@@ -30,5 +30,3 @@ Construir una función en Python para unir, limpiar y transformar múltiples fue
 ## Próximos proyectos
 
 Este portafolio será ampliado con otros proyectos de limpieza de datos, pipelines ETL y análisis SQL.
-
-Actualizar README del portafolio
