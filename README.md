@@ -1,32 +1,55 @@
 # Portafolio de Ingeniería de Datos
 
-Este repositorio contiene proyectos prácticos de ingeniería de datos desarrollados con Python, pandas, SQL y flujos ETL.
+Este repositorio reúne proyectos prácticos de ingeniería de datos desarrollados durante mi formación en DataCamp.
 
-## Proyecto 1: Experimentos de Suplementos
+Los proyectos están enfocados en limpieza, transformación, integración de datos, construcción de pipelines ETL, revisión de código y preparación de datasets para análisis.
 
-Este proyecto integra datos de salud, consumo de suplementos, experimentos y perfiles de usuarios.
+---
 
-### Archivos principales
+## Proyectos destacados
 
-- `notebook.ipynb`: desarrollo del proyecto en Jupyter Notebook.
-- `user_health_data.csv`: datos de salud de los usuarios.
-- `supplement_usage.csv`: datos de consumo de suplementos.
-- `experiments.csv`: información de los experimentos.
-- `user_profiles.csv`: información de perfil de usuarios.
-- `schema.png`: esquema de relación entre tablas.
+| Proyecto | Descripción | Herramientas |
+|---|---|---|
+| Experimentos de Suplementos | Integración y limpieza de datos de salud, suplementos, experimentos y perfiles de usuarios. | Python, pandas |
+| Pipeline de Datos Retail | Construcción de un pipeline para procesar, limpiar, transformar y agregar datos de ventas retail. | Python, pandas, ETL |
+| Pipeline ETL de Energía | Desarrollo de un pipeline ETL para extraer, transformar y cargar datos relacionados con ventas y capacidad energética. | Python, pandas, ETL |
 
-### Objetivo
+---
 
-Construir una función en Python para unir, limpiar y transformar múltiples fuentes de datos en un DataFrame final listo para análisis.
+## Otros proyectos
 
-### Herramientas utilizadas
+| Proyecto | Descripción | Herramientas |
+|---|---|---|
+| Limpieza de Datos en Python | Limpieza, estandarización y preparación de datos para análisis. | Python, pandas |
+| Limpieza de Campaña Bancaria | Limpieza y transformación de datos de una campaña bancaria de marketing. | Python, pandas |
+| Revisión de Código en Python | Evaluación y mejora de código Python aplicando buenas prácticas, legibilidad y estructura. | Python, code review |
 
-- Python
-- pandas
-- Jupyter Notebook
-- DataCamp DataLab
-- GitHub
+---
 
-## Próximos proyectos
+## Habilidades aplicadas
 
-Este portafolio será ampliado con otros proyectos de limpieza de datos, pipelines ETL y análisis SQL.
+- Limpieza y transformación de datos
+- Integración de múltiples fuentes
+- Construcción de pipelines ETL
+- Manipulación de datos con pandas
+- Preparación de datasets para análisis
+- Revisión y mejora de código Python
+- Organización de proyectos en GitHub
+- Documentación técnica
+
+---
+
+## Estructura del repositorio
+
+```text
+data-engineering-portfolio/
+│
+├── 01-experimentos-suplementos/
+├── 02-limpieza-datos-python/
+├── 03-pipeline-datos-retail/
+├── 04-limpieza-campana-bancaria/
+├── 05-pipeline-etl-energia/
+├── 06-revision-codigo-python/
+├── README.md
+├── .gitignore
+└── LICENSE
