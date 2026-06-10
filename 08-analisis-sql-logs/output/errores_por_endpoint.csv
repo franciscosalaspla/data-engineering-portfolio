@@ -1,0 +1,5 @@
+endpoint,total_errors
+/api/search,2
+/api/checkout,1
+/api/reports,1
+/api/export,1

@@ -1,0 +1,10 @@
+endpoint,total_requests,avg_response_time_ms,max_response_time_ms,performance_rank
+/api/export,1,2500.0,2500,1
+/api/reports,2,1975.0,3000,2
+/api/checkout,2,1350.0,1800,3
+/api/search,6,1143.33,2600,4
+/api/cart,2,310.0,320,5
+/api/products,3,226.67,240,6
+/login,1,180.0,180,7
+/home,2,110.0,120,8
+/logout,1,90.0,90,9

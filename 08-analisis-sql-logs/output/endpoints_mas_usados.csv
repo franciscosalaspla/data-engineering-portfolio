@@ -1,0 +1,10 @@
+endpoint,total_requests
+/api/search,6
+/api/products,3
+/api/cart,2
+/api/checkout,2
+/api/reports,2
+/home,2
+/api/export,1
+/login,1
+/logout,1
