@@ -121,3 +121,14 @@ top_products.to_csv("output/top_products.csv", index=False)
 sales_by_month.to_csv("output/sales_by_month.csv", index=False)
 
 print("\nArchivos guardados correctamente en la carpeta output/")
+
+# 15. Comparar tamaño CSV vs Parquet
+
+import os
+
+csv_size = os.path.getsize("output/clean_orders.csv")
+parquet_size = os.path.getsize("output/clean_orders.parquet")
+
+print("\nComparación de tamaño de archivos:")
+print(f"CSV: {csv_size} bytes")
+print(f"Parquet: {parquet_size} bytes")
