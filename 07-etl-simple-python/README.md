@@ -35,7 +35,6 @@ A partir de los datos de órdenes, se responden preguntas como:
 - Git / GitHub
 - GitHub Codespaces
 
-````markdown
 ## Estructura del proyecto
 
 ```text
@@ -53,3 +52,4 @@ A partir de los datos de órdenes, se responden preguntas como:
 │   └── etl.py
 ├── README.md
 └── requirements.txt
+```
