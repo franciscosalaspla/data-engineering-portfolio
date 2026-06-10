@@ -1,0 +1,9 @@
+order_id,customer_id,product,category,quantity,unit_price,order_date,country,total_sales
+1001,C001,Laptop,Electronics,1,750000.0,2025-01-10,Chile,750000.0
+1002,C002,Mouse,Electronics,2,15000.0,2025-01-11,Chile,30000.0
+1003,C003,Chair,Furniture,1,85000.0,2025-01-15,Peru,85000.0
+1004,C001,Keyboard,Electronics,1,25000.0,2025-02-01,Chile,25000.0
+1005,C004,Desk,Furniture,1,120000.0,2025-02-05,Argentina,120000.0
+1006,C005,Monitor,Electronics,2,180000.0,2025-02-10,Chile,360000.0
+1007,C006,Notebook,Office,5,3000.0,1900-01-01,Chile,15000.0
+1009,C007,Laptop,Electronics,1,230000.0,2025-03-05,Chile,230000.0
