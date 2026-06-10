@@ -35,9 +35,6 @@ A partir de los datos de órdenes, se responden preguntas como:
 - Git / GitHub
 - GitHub Codespaces
 
-
-Entonces corrige esa parte para que quede así:
-
 ````markdown
 ## Estructura del proyecto
 
