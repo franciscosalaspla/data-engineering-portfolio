@@ -154,7 +154,3 @@ La ruta continuará incorporando proyectos de mayor complejidad:
 * Procesamiento con PySpark.
 * Databricks y Delta Lake.
 * Data Lake con arquitectura Medallion.
-
-├── README.md
-├── .gitignore
-└── LICENSE
