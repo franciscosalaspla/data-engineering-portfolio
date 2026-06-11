@@ -1,0 +1,8 @@
+customer_id,customer_name,total_sales,sales_rank
+C001,María García,2950.0,1
+C004,Carlos Díaz,1850.0,2
+C002,Juan Pérez,1200.0,3
+C007,Sofía Rojas,1100.0,4
+C003,Ana López,1070.0,5
+C006,Pedro Silva,290.0,6
+C005,Laura Torres,290.0,6

@@ -1,0 +1,21 @@
+order_id,customer_id,customer_name,order_date,category,product,sales
+1001,C001,María García,2024-01-05,Electronics,Laptop,1200
+1002,C002,Juan Pérez,2024-01-08,Electronics,Mouse,80
+1003,C003,Ana López,2024-01-12,Furniture,Chair,300
+1004,C001,María García,2024-02-03,Electronics,Keyboard,150
+1005,C004,Carlos Díaz,2024-02-10,Furniture,Desk,700
+1006,C002,Juan Pérez,2024-02-15,Electronics,Monitor,500
+1007,C005,Laura Torres,2024-02-20,Clothing,Jacket,200
+1008,C003,Ana López,2024-03-02,Furniture,Lamp,120
+1009,C001,María García,2024-03-08,Electronics,Tablet,600
+1010,C006,Pedro Silva,2024-03-12,Clothing,Shoes,180
+1011,C004,Carlos Díaz,2024-03-18,Furniture,Sofa,900
+1012,C002,Juan Pérez,2024-03-22,Electronics,Headphones,220
+1013,C007,Sofía Rojas,2024-04-01,Electronics,Camera,800
+1014,C005,Laura Torres,2024-04-06,Clothing,Shirt,90
+1015,C003,Ana López,2024-04-10,Furniture,Table,650
+1016,C001,María García,2024-04-15,Electronics,Phone,1000
+1017,C006,Pedro Silva,2024-04-18,Clothing,Pants,110
+1018,C004,Carlos Díaz,2024-05-02,Furniture,Shelf,250
+1019,C007,Sofía Rojas,2024-05-08,Electronics,Speaker,300
+1020,C002,Juan Pérez,2024-05-15,Electronics,Smartwatch,400
