@@ -1,0 +1,9 @@
+employee_id,employee_name,department_id,manager_id,hire_date
+1,María García,10,5,2022-01-15
+2,Juan Pérez,20,5,2021-03-10
+3,Ana López,10,1,2023-06-01
+4,Carlos Díaz,,5,2020-09-20
+5,Laura Torres,30,,2019-11-05
+6,Pedro Silva,40,2,2022-07-18
+7,Sofía Rojas,20,2,2023-02-14
+8,Diego Muñoz,50,5,2021-12-01

@@ -1,0 +1,9 @@
+employee_id,employee_name,department_name,salary,effective_date
+1,María García,Engineering,2500000,2024-01-01
+2,Juan Pérez,Sales,1800000,2024-01-01
+3,Ana López,Engineering,1600000,2024-01-01
+5,Laura Torres,HR,3200000,2024-01-01
+6,Pedro Silva,Finance,2100000,2024-01-01
+7,Sofía Rojas,Sales,1400000,2024-01-01
+4,Carlos Díaz,,1500000,2024-01-01
+8,Diego Muñoz,,,
