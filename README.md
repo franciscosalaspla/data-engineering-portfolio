@@ -4,9 +4,10 @@ Portfolio práctico de proyectos de Ingeniería de Datos enfocado en ETL, SQL, A
 
 ## Contacto
 
-* LinkedIn: https://bit.ly/4u9E6eU
-* GitHub: https://bit.ly/4vouAFH
+* LinkedIn: [https://bit.ly/4u9E6eU](https://bit.ly/4u9E6eU)
+* GitHub: [https://bit.ly/4vouAFH](http://bit.ly/4vouAFH)
 * Email: [franciscosalaspla@gmail.com](mailto:franciscosalaspla@gmail.com)
+* CV: [Descargar CV](./CV_Francisco_Salas.pdf)
 
 ## Perfil
 
