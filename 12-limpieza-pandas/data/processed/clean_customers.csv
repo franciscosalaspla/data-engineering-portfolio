@@ -1,0 +1,35 @@
+customer_id,first_name,last_name,email,phone,birth_date,city,country,postal_code,segment,registration_date,last_login,is_verified,accepts_marketing
+1,camila,fernández,camila.fernández1@email.com,+1 775-399-3765,1988-03-10,buenos aires,méxico,62341.0,gold,2020-09-21,2021-10-09,False,0.0
+2,valentina,ramírez,valentina.ramírez2@email.com,+1 822-519-6673,1986-03-12,mendoza,chile,70174.0,gold,2021-10-17,2022-10-31,True,0.0
+3,martín,pérez,martín.pérez3@email.com,+1 357-298-3954,1960-03-07,salta,argentina,31023.0,platinum,,,True,1.0
+4,,,,+1 491-198-2280,1995-06-13,buenos aires,argentina,52142.0,platinum,2022-10-06,2022-11-27,True,1.0
+5,,martínez,,,1984-11-08,rosario,chile,11531.0,bronze,2021-08-10,,False,1.0
+6,lucas,lópez,lucas.lópez6@email.com,+1 246-215-1409,2000-10-21,tucumán,colombia,84057.0,gold,2023-05-12,2025-06-12,False,0.0
+7,gabriel,pérez,gabriel.pérez7@email.com,+1 901-157-6128,1993-04-15,tucumán,perú,29939.0,gold,2026-10-07,,True,1.0
+8,lucas,torres,lucas.torres8@email.com,+1 358-544-6220,1989-12-31,la plata,méxico,13810.0,gold,2023-11-29,2023-12-31,True,1.0
+9,laura,lópez,laura.lópez9@email.com,+1 322-844-3393,1977-10-09,buenos aires,argentina,69273.0,platinum,2021-02-25,2026-01-14,True,0.0
+10,martín,rodríguez,martín.rodríguez10@email.com,+1 737-876-7288,1960-01-28,salta,argentina,34432.0,silver,2022-03-04,2022-03-14,True,1.0
+11,juan,torres,juan.torres11@email.com,,1975-06-12,la plata,méxico,35898.0,platinum,2024-03-04,2024-03-08,True,1.0
+12,laura,sánchez,laura.sánchez12@email.com,+1 835-468-6603,1974-03-30,buenos aires,uruguay,18493.0,gold,2020-09-13,2025-03-16,,1.0
+13,martín,ramírez,martín.ramírez13@email.com,+1 224-533-7882,1995-04-17,,perú,40020.0,gold,2022-07-07,2025-07-03,True,0.0
+14,ana,martínez,ana.martínez14@email.com,+1 970-737-8520,1960-10-22,córdoba,argentina,21273.0,bronze,2024-02-17,2026-02-07,True,1.0
+15,valentina,,valentina.gonzález15@email.com,+1 416-108-9295,1982-12-21,santa fe,méxico,10604.0,bronze,2023-05-24,2024-02-12,False,1.0
+16,,garcía,carlos.garcía16@email.com,+1 565-444-2878,1997-10-17,neuquén,perú,48683.0,gold,2022-11-30,2024-02-24,False,1.0
+17,,sánchez,valentina.sánchez17@email.com,+1 576-240-2892,2026-10-24,mar del plata,argentina,47072.0,platinum,04/20/2024,2025-09-23,True,1.0
+18,gabriel,martínez,gabriel.martínez18@email.com,,1981-05-12,mar del plata,colombia,,gold,2021-04-28,,True,1.0
+19,carlos,,carlos.lópez19@email.com,+1 742-294-1546,1981-05-12,neuquén,colombia,19237.0,platinum,2021-07-05,2023-01-16,True,0.0
+20,lucía,sánchez,lucía.sánchez20@email.com,+1 337-118-5292,1981-06-19,neuquén,,17973.0,platinum,2023-08-13,2026-03-18,True,1.0
+21,mateo,garcía,mateo.garcía21@email.com,+1 436-475-7808,1967-02-15,buenos aires,méxico,51558.0,bronze,2020-10-16,2024-12-15,True,1.0
+22,camila,rodríguez,,+1 900-563-2257,1998-08-16,salta,colombia,76431.0,bronze,2024-04-15,2025-04-02,False,0.0
+23,lucas,lópez,lucas.lópez23@email.com,+1 392-288-9702,1989-02-06,la plata,uruguay,32878.0,,2023-03-24,2024-06-16,False,0.0
+24,mateo,sánchez,mateo.sánchez24@email.com,+1 744-372-6535,1972-05-25,córdoba,perú,65570.0,platinum,2022-06-23,  2023-05-17  ,True,0.0
+25,gabriel,garcía,gabriel.garcía25@email.com,+1 992-206-5168,1989-08-08,salta,argentina,28778.0,silver,,2024-03-25,False,1.0
+26,,ramírez,mateo.ramírez26@email.com,+1 668-192-6239,1964-12-30,santa fe,argentina,90680.0,bronze,2023-06-13,2025-10-10,True,0.0
+27,martín,garcía,martín.garcía27@email.com,+1 712-887-1155,2027-05-02,,argentina,47992.0,bronze,2020-10-13,2025-11-08,True,1.0
+28,ana,lópez,ana.lópez28@email.com,+1 896-740-2347,1969-05-04,santa fe,,69609.0,silver,2024-04-30,2024-11-08,True,0.0
+29,pedro,garcía,pedro.garcía29@email.com,+1 653-781-5092,1992-04-08,tucumán,argentina,58770.0,silver,2020-10-24,2025-09-15,False,1.0
+30,lucía,fernández,lucía.fernández30@email.com,+1 577-654-5860,2000-09-04,,colombia,89961.0,platinum,,2026-04-14,False,1.0
+31,maría,rodríguez,maría.rodríguez31@email.com,+1 827-818-1588,1995-07-19,neuquén,méxico,70763.0,platinum,2021-01-23,2024-01-09,True,1.0
+32,pedro,gonzález,pedro.gonzález32@email.com,+1 652-186-3054,1961-03-14,córdoba,chile,30617.0,bronze,,2023-01-14,False,1.0
+33,maría,fernández,maría.fernández33@email.com,+1 334-685-6515,1972-09-02,buenos aires,perú,13895.0,,2023-12-08,  2024-08-13  ,True,
+34,maría,ramírez,maría.ramírez34@email.com,+1 797-993-7753,1994-11-22,buenos aires,argentina,18361.0,gold,2023-09-12,2025-12-23,True,1.0

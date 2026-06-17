@@ -1,0 +1,4 @@
+table,initial_rows,final_rows,removed_rows
+customers,35,34,1
+orders,103,100,3
+reviews,103,100,3

@@ -1,0 +1,10 @@
+supplier_id,supplier_name,contact_name,email,phone,address,rating,is_active
+1,,Ana Martínez,contact@distribuidoranorte.com,+1 740-312-9787,8052 Córdoba,4.1,true
+2,Importadora Sur,Ana Martínez,contact@importadorasur.com,+1 509-786-8276,,3.5,true
+3,Mayorista Central,Ana Martínez,,+1 648-336-5640,8726 Córdoba,3.9,true
+4,Logística Express,Ana Martínez,contact@logísticaexpress.com,+1 342-909-6948,5905 Córdoba,3.7,true
+5,  Proveedores Unidos  ,Ana Martínez,contact@proveedoresunidos.com,+1 977-884-5875,6888 Salta,3.7,true
+6,Global Supply,Juan Pérez,contact@globalsupply.com,+1 879-932-6016,346 Santa Fe,4.2,true
+7,FastImport,Carlos López,,+1 445-522-5415,8832 La Plata,3.7,true
+8,QualitySource,Ana Martínez,contact@qualitysource.com,+1 922-778-8618,936 Mar del Plata,5,false
+8,QualitySource,Ana Martínez,contact@qualitysource.com,+1 922-778-8618,936 Mar del Plata,5,false
