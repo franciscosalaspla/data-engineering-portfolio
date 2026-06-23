@@ -1,0 +1,17 @@
+table,expectation,column,severity,success,unexpected_count,unexpected_percent
+customers,expect_column_values_to_not_be_null,customer_id,critical,True,0,0.0
+customers,expect_column_values_to_be_unique,customer_id,critical,False,1,2.86
+customers,expect_column_values_to_not_be_null,email,warning,False,3,8.57
+orders,expect_column_values_to_not_be_null,order_id,critical,True,0,0.0
+orders,expect_column_values_to_be_unique,order_id,critical,False,3,2.91
+orders,expect_column_values_to_not_be_null,customer_id,critical,False,6,5.83
+orders,expect_column_values_to_be_between,total_amount,critical,False,10,9.71
+order_items,expect_column_values_to_not_be_null,order_item_id,critical,True,0,0.0
+order_items,expect_column_values_to_be_unique,order_item_id,critical,False,9,2.82
+order_items,expect_column_values_to_not_be_null,order_id,critical,False,33,10.34
+order_items,expect_column_values_to_not_be_null,product_id,critical,False,16,5.02
+order_items,expect_column_values_to_be_between,quantity,critical,False,28,8.78
+order_items,expect_column_values_to_be_between,subtotal,critical,False,29,9.09
+products,expect_column_values_to_not_be_null,product_id,critical,True,0,0.0
+products,expect_column_values_to_be_unique,product_id,critical,False,1,4.76
+products,expect_column_values_to_not_be_null,product_name,warning,False,1,4.76

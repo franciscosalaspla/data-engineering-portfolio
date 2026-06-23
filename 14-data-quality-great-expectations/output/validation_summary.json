@@ -1,0 +1,9 @@
+{
+    "pipeline_status": "FAILED",
+    "total_expectations": 16,
+    "passed_expectations": 4,
+    "failed_expectations": 12,
+    "critical_failures": 10,
+    "warning_failures": 2,
+    "success_rate": 25.0
+}
