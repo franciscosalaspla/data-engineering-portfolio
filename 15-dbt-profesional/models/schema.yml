@@ -1,0 +1,80 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: "Modelo staging de clientes desde CSV crudo."
+    columns:
+      - name: customer_id
+        tests:
+          - not_null
+
+  - name: stg_orders
+    description: "Modelo staging de órdenes desde CSV crudo."
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+      - name: customer_id
+        tests:
+          - not_null
+
+  - name: stg_order_items
+    description: "Modelo staging de detalle de órdenes desde CSV crudo."
+    columns:
+      - name: order_item_id
+        tests:
+          - not_null
+      - name: order_id
+        tests:
+          - not_null
+      - name: product_id
+        tests:
+          - not_null
+
+  - name: stg_products
+    description: "Modelo staging de productos desde CSV crudo."
+    columns:
+      - name: product_id
+        tests:
+          - not_null
+
+  - name: dim_customers
+    description: "Dimensión limpia de clientes."
+    columns:
+      - name: customer_id
+        tests:
+          - not_null
+          - unique
+
+  - name: dim_products
+    description: "Dimensión limpia de productos."
+    columns:
+      - name: product_id
+        tests:
+          - not_null
+          - unique
+
+  - name: fct_order_items
+    description: "Tabla de hechos de items vendidos."
+    columns:
+      - name: order_item_id
+        tests:
+          - not_null
+          - unique
+      - name: order_id
+        tests:
+          - not_null
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: product_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_products')
+                field: product_id

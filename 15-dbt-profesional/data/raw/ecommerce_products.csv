@@ -1,0 +1,22 @@
+product_id,sku,product_name,description,category_id,brand_id,supplier_id,price,cost,weight_kg,is_active,created_at,updated_at
+1,SKU-000001,Pro Artículo 1,Descripción detallada del producto 1,6,2,3,274.4,159.15,39.8,true,2022/04/13,2025-06-10
+2,  SKU-000002  ,Pro Equipo 2,Descripción detallada del producto 2,4,11,100001,371.12,233.81,43.3,true,2023-09-30,2024-06-07
+3,SKU-000003,Elite Kit 3,Descripción detallada del producto 3,5,5,1,,163.98,11.8,false,2022-09-09,2024-03-04
+4,SKU-000004,Max Artículo 4,Descripción detallada del producto 4,8,9,100002,265.54,119.49,6.9,true,2022-06-18,2024-03-30
+5,SKU-000005,Max Herramienta 5,Descripción detallada del producto 5,1,10,2,223.43,,45.7,true,2023-02-18,2024-10-19
+6,SKU-000006,Smart Equipo 6,Descripción detallada del producto 6,2,4,3,77.96,45.22,5.3,true,2023-08-13,12-12-2025
+7,SKU-000007,Premium Widget 7,Descripción detallada del producto 7,5,14,5,,38.77,,true,2022-11-04,2025-03-31
+8,SKU-000008,Mini Artículo 8,Descripción detallada del producto 8,2,2,,124.4,77.13,14,true,2023-06-23,
+9,,Elite Producto 9,Descripción detallada del producto 9,10,12,5,19.67,10.43,26.2,true,2022-08-26,2025-06-28
+10,,Pro Equipo 10,Descripción detallada del producto 10,9,2,4,240.13,153.68,21.9,false,2022-12-13,2024/06/19
+11,SKU-000011,,Descripción detallada del producto 11,8,10,3,300.55,123.23,23.1,true,2023-07-08,
+12,SKU-000012,Básico Artículo 12,Descripción detallada del producto 12,8,,4,289.57,170.85,,true,2022-02-09,2025-04-26
+13,SKU-000013,Super Widget 13,Descripción detallada del producto 13,9,11,2,95.19,40.93,46.3,true,2023-10-29,2025-03-31
+14,SKU-000014,Premium Herramienta 14,Descripción detallada del producto 14,,2,6,235.77,157.97,,true,2023-07-17,2026-03-30
+15,,Smart Widget 15,Descripción detallada del producto 15,1,11,4,499.83,349.88,22.4,true,,2025-01-09
+16,SKU-000016,Super Equipo 16,Descripción detallada del producto 16,10,12,6,83.92,36.09,1.2,true,2022-01-16,2025-10-19
+17,SKU-000017,Super Herramienta 17,Descripción detallada del producto 17,4,7,3,223.89,102.99,13.2,true,2022-02-18,2024-03-10
+18,SKU-000018,Elite Herramienta 18,Descripción detallada del producto 18,4,5,7,85.89,36.07,,true,2022-06-24,2024-06-30
+19,SKU-000019,Super Kit 19,Descripción detallada del producto 19,7,3,100002,404.68,174.01,48.2,true,2023-05-26,2026-06-06
+20,SKU-000020,Max Producto 20,Descripción detallada del producto 20,8,3,1,135.8,61.11,41.3,true,2022-05-30,2025-08-24
+3,SKU-000003,Elite Kit 3,Descripción detallada del producto 3,5,5,1,,163.98,11.8,false,2022-09-09,2026-10-21

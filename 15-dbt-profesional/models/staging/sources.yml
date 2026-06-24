@@ -1,0 +1,12 @@
+version: 2
+
+sources:
+  - name: raw_ecommerce
+    description: "Archivos CSV crudos de e-commerce usados como fuente del proyecto dbt."
+    meta:
+      external_location: "data/raw/{name}.csv"
+    tables:
+      - name: ecommerce_customers
+      - name: ecommerce_orders
+      - name: ecommerce_order_items
+      - name: ecommerce_products

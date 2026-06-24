@@ -1,0 +1,6 @@
+target/
+logs/
+dbt_packages/
+output/*.duckdb
+output/*.wal
+.user.yml
