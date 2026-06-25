@@ -1,0 +1,28 @@
+{
+    "pipeline_name": "ecommerce_orchestration_pipeline",
+    "generated_at": "2026-06-25T05:31:56.850904+00:00",
+    "pipeline_status": "FAILED",
+    "steps": {
+        "validate_raw_files": "PASSED",
+        "run_data_quality_checks": "FAILED",
+        "dbt_run": "PASSED",
+        "dbt_test": "FAILED"
+    },
+    "failed_steps": [
+        "run_data_quality_checks",
+        "dbt_test"
+    ],
+    "notes": [
+        "The pipeline is designed to expose data quality issues instead of hiding them.",
+        "dbt test can fail because staging models expose real data quality issues.",
+        "Known dbt test failure: stg_order_items.order_id has 33 nulls.",
+        "Known dbt test failure: stg_order_items.product_id has 16 nulls.",
+        "Known dbt test failure: stg_orders.customer_id has 6 nulls."
+    ],
+    "outputs": {
+        "raw_files_validation": "output/raw_files_validation.json",
+        "data_quality_summary": "../14-data-quality-great-expectations/output/validation_summary.json",
+        "dbt_run_result": "output/dbt_run_result.json",
+        "dbt_test_result": "output/dbt_test_result.json"
+    }
+}

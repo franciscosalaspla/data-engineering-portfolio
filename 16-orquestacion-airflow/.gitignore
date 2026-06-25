@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+logs/
+.airflow/
+dbt_packages/
+*.db
+*.sqlite
+*.duckdb
+*.wal

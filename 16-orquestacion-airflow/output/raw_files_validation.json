@@ -1,0 +1,99 @@
+{
+    "status": "PASSED",
+    "total_files": 4,
+    "passed_files": 4,
+    "failed_files": 0,
+    "results": [
+        {
+            "file": "ecommerce_customers.csv",
+            "path": "/workspaces/data-engineering-portfolio/15-dbt-profesional/data/raw/ecommerce_customers.csv",
+            "exists": true,
+            "size_bytes": 4491,
+            "rows": 35,
+            "columns": [
+                "customer_id",
+                "first_name",
+                "last_name",
+                "email",
+                "phone",
+                "birth_date",
+                "city",
+                "country",
+                "postal_code",
+                "segment",
+                "registration_date",
+                "last_login",
+                "is_verified",
+                "accepts_marketing"
+            ],
+            "missing_columns": [],
+            "status": "PASSED"
+        },
+        {
+            "file": "ecommerce_orders.csv",
+            "path": "/workspaces/data-engineering-portfolio/15-dbt-profesional/data/raw/ecommerce_orders.csv",
+            "exists": true,
+            "size_bytes": 10006,
+            "rows": 103,
+            "columns": [
+                "order_id",
+                "order_number",
+                "customer_id",
+                "order_date",
+                "status",
+                "subtotal",
+                "discount_percent",
+                "shipping_cost",
+                "tax_amount",
+                "total_amount",
+                "payment_method",
+                "shipping_method",
+                "promotion_id",
+                "notes"
+            ],
+            "missing_columns": [],
+            "status": "PASSED"
+        },
+        {
+            "file": "ecommerce_order_items.csv",
+            "path": "/workspaces/data-engineering-portfolio/15-dbt-profesional/data/raw/ecommerce_order_items.csv",
+            "exists": true,
+            "size_bytes": 7680,
+            "rows": 319,
+            "columns": [
+                "order_item_id",
+                "order_id",
+                "product_id",
+                "quantity",
+                "unit_price",
+                "subtotal"
+            ],
+            "missing_columns": [],
+            "status": "PASSED"
+        },
+        {
+            "file": "ecommerce_products.csv",
+            "path": "/workspaces/data-engineering-portfolio/15-dbt-profesional/data/raw/ecommerce_products.csv",
+            "exists": true,
+            "size_bytes": 2549,
+            "rows": 21,
+            "columns": [
+                "product_id",
+                "sku",
+                "product_name",
+                "description",
+                "category_id",
+                "brand_id",
+                "supplier_id",
+                "price",
+                "cost",
+                "weight_kg",
+                "is_active",
+                "created_at",
+                "updated_at"
+            ],
+            "missing_columns": [],
+            "status": "PASSED"
+        }
+    ]
+}
