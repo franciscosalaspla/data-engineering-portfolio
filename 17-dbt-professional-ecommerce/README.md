@@ -1,24 +1,26 @@
-# Proyecto 17 - dbt Professional Ecommerce
+# Proyecto 17 - dbt Profesional para E-commerce
 
-## 1. Valor del proyecto
+## Valor del proyecto
 
-Este proyecto demuestra como construir un flujo profesional de Analytics Engineering con dbt y DuckDB para transformar datos crudos de e-commerce en modelos confiables para reporting.
+Este proyecto demuestra cómo construir un flujo profesional de Analytics Engineering con dbt y DuckDB para transformar datos crudos de e-commerce en modelos analíticos confiables.
 
-El valor de negocio esta en convertir archivos transaccionales simples en una capa analitica documentada, testeada y mantenible. Este tipo de proyecto permite responder preguntas como:
+El valor de negocio está en convertir archivos transaccionales simples en una capa de datos documentada, testeada y lista para reporting. Con este enfoque, un equipo puede responder preguntas como:
 
 ```text
-Cuanto revenue genera cada cliente?
-Que productos tienen mayor margen?
-Que ordenes estan completas, pendientes, canceladas o devueltas?
-Como mantener historial de cambios de clientes?
-Como cargar una fact table de forma incremental?
+¿Cuánto revenue genera cada cliente?
+¿Qué productos tienen mayor margen?
+¿Qué órdenes están completas, pendientes, canceladas o devueltas?
+¿Cómo conservar el historial de cambios de clientes?
+¿Cómo cargar una tabla de hechos de forma incremental?
 ```
 
-## 2. Resumen ejecutivo
+Este tipo de arquitectura permite reducir errores en reportes, mejorar la trazabilidad de las transformaciones y separar claramente datos crudos, lógica de negocio y modelos finales de consumo.
 
-Se construyo un proyecto dbt completo usando DuckDB como motor local.
+## Resumen ejecutivo
 
-El flujo implementa:
+Se construyó un proyecto dbt completo usando DuckDB como motor analítico local.
+
+El flujo implementa la arquitectura:
 
 ```text
 seeds raw
@@ -26,16 +28,25 @@ seeds raw
    -> intermediate
    -> marts
    -> snapshots
-   -> tests y documentacion
+   -> tests y documentación
 ```
 
-El proyecto incluye datos seed, modelos SQL con `ref()`, logica Jinja, tests de calidad, documentacion en `schema.yml`, snapshot SCD Type 2 y una fact table incremental.
+El proyecto incluye:
 
-## 3. Caso de negocio
+* Datos seed para simular fuentes crudas.
+* Modelos SQL con `ref()` y configuración Jinja.
+* Capa staging, intermediate y marts.
+* Tests de calidad de datos en `schema.yml`.
+* Documentación automática de modelos y columnas.
+* Snapshot SCD Type 2 para clientes.
+* Fact table incremental para órdenes.
+* Ejecución validada con `dbt build` exitoso.
 
-La empresa simulada es un e-commerce que vende productos de tecnologia, hogar, accesorios y muebles.
+## Caso de negocio
 
-Los datos operacionales llegan en tres archivos:
+La empresa simulada es un e-commerce que vende productos de tecnología, hogar, accesorios y muebles.
+
+Los datos operacionales llegan en tres archivos CSV:
 
 ```text
 raw_orders.csv
@@ -43,9 +54,11 @@ raw_customers.csv
 raw_products.csv
 ```
 
-Estos datos sirven para registrar operaciones, pero no estan listos para analisis. El proyecto crea una capa analitica que permite medir revenue, costo, margen, comportamiento de clientes y ventas por producto.
+Estos archivos registran órdenes, clientes y productos, pero no están listos para análisis directo. El proyecto transforma esas fuentes en modelos analíticos que permiten medir revenue, costo, margen, comportamiento de clientes y ventas por producto.
 
-## 4. Arquitectura dbt
+El objetivo es construir una base confiable para dashboards, reportes financieros y análisis de performance comercial.
+
+## Arquitectura dbt
 
 ```text
 17-dbt-professional-ecommerce/
@@ -65,19 +78,21 @@ Estos datos sirven para registrar operaciones, pero no estan listos para analisi
 `-- README.md
 ```
 
-DuckDB permite ejecutar el proyecto localmente sin depender de un warehouse cloud. dbt aporta estructura, dependencias entre modelos, testing y documentacion automatica.
+DuckDB permite ejecutar el proyecto localmente sin depender de un Data Warehouse cloud. dbt aporta estructura, dependencias entre modelos, tests, documentación y una forma ordenada de transformar datos con SQL.
 
-## 5. Flujo staging -> intermediate -> marts
+## Flujo staging → intermediate → marts
 
 ### Staging
 
-La capa staging es 1:1 con los seeds. Solo realiza limpieza basica:
+La capa staging es 1:1 con los seeds. Su responsabilidad es mantener una representación limpia y tipada de la fuente, sin incorporar lógica de negocio pesada.
+
+Transformaciones aplicadas:
 
 ```text
 cast de tipos
 trim de textos
-lowercase para emails y status
-estandarizacion de nombres
+lowercase para emails, segmentos y status
+estandarización de nombres
 ```
 
 Modelos:
@@ -90,7 +105,7 @@ stg_products
 
 ### Intermediate
 
-La capa intermediate concentra joins y logica de negocio.
+La capa intermediate concentra joins y lógica de negocio reutilizable.
 
 Modelos:
 
@@ -99,7 +114,7 @@ int_orders_enriched
 int_customer_order_history
 ```
 
-Aqui se calculan:
+Aquí se calculan métricas y atributos preparados para marts:
 
 ```text
 revenue = quantity * unit_price
@@ -111,7 +126,7 @@ historial agregado por cliente
 
 ### Marts
 
-La capa marts expone modelos finales para consumo analitico:
+La capa marts expone modelos finales para consumo analítico:
 
 ```text
 fct_orders
@@ -119,17 +134,17 @@ dim_customers
 dim_products
 ```
 
-Estos modelos estan listos para BI, reporting o analisis exploratorio.
+Estos modelos están listos para BI, reporting, análisis exploratorio o consumo por otros procesos analíticos.
 
-## 6. Seeds utilizados
+## Seeds utilizados
 
 Los seeds simulan tablas crudas de e-commerce:
 
-| Seed | Descripcion |
+| Seed | Descripción |
 | --- | --- |
-| `raw_orders.csv` | Ordenes transaccionales con cliente, producto, fecha, cantidad, precio, status y updated_at |
-| `raw_customers.csv` | Clientes con pais, segmento y timestamp de actualizacion |
-| `raw_products.csv` | Catalogo de productos con categoria, costo unitario y flag activo |
+| `raw_orders.csv` | Órdenes transaccionales con cliente, producto, fecha, cantidad, precio, status y `updated_at` |
+| `raw_customers.csv` | Clientes con país, segmento y timestamp de actualización |
+| `raw_products.csv` | Catálogo de productos con categoría, costo unitario y flag activo |
 
 Los seeds se cargan con:
 
@@ -137,45 +152,47 @@ Los seeds se cargan con:
 dbt seed --profiles-dir .
 ```
 
-## 7. Modelos creados
+## Modelos creados
 
-| Capa | Modelo | Proposito |
+| Capa | Modelo | Propósito |
 | --- | --- | --- |
-| staging | `stg_orders` | Limpieza y tipado de ordenes |
+| staging | `stg_orders` | Limpieza y tipado de órdenes |
 | staging | `stg_customers` | Limpieza y tipado de clientes |
 | staging | `stg_products` | Limpieza y tipado de productos |
-| intermediate | `int_orders_enriched` | Join de ordenes, clientes y productos con metricas |
-| intermediate | `int_customer_order_history` | Agregados historicos por cliente |
-| marts | `fct_orders` | Fact table incremental de ordenes |
-| marts | `dim_customers` | Dimension de clientes para analisis |
-| marts | `dim_products` | Dimension de productos para analisis |
+| intermediate | `int_orders_enriched` | Join de órdenes, clientes y productos con métricas de negocio |
+| intermediate | `int_customer_order_history` | Agregados históricos por cliente |
+| marts | `fct_orders` | Fact table incremental de órdenes |
+| marts | `dim_customers` | Dimensión de clientes para análisis |
+| marts | `dim_products` | Dimensión de productos para análisis |
 
-## 8. Tests de calidad de datos
+## Tests de calidad de datos
 
-El proyecto incluye tests en `schema.yml` para validar:
+El proyecto incluye tests en `schema.yml` para validar reglas críticas de calidad:
 
 ```text
 unique y not_null en primary keys
 relationships en foreign keys
 accepted_values en status, customer_segment y active_flag
-not_null en campos criticos como order_date, quantity, unit_price y revenue
+not_null en campos críticos como order_date, quantity, unit_price y revenue
 ```
 
-Ejemplos de reglas:
+Ejemplos de reglas implementadas:
 
 ```text
-fct_orders.order_id debe ser unico y no nulo
+fct_orders.order_id debe ser único y no nulo
 fct_orders.customer_id debe existir en dim_customers
 fct_orders.product_id debe existir en dim_products
 stg_orders.status solo acepta completed, pending, cancelled o returned
 dim_customers.customer_segment solo acepta consumer, corporate, enterprise o small_business
 ```
 
-## 9. Snapshot SCD Type 2
+Estas validaciones ayudan a detectar errores antes de que los modelos sean usados en reportes o análisis de negocio.
+
+## Snapshot SCD Type 2
 
 El snapshot `customers_snapshot` mantiene historial de cambios de clientes.
 
-Configuracion principal:
+Configuración principal:
 
 ```text
 unique_key = customer_id
@@ -192,11 +209,11 @@ country
 customer_segment
 ```
 
-En un escenario real, esto ayuda a responder preguntas historicas sin sobrescribir informacion anterior.
+En un escenario real, este patrón permite analizar la evolución histórica de clientes sin sobrescribir información anterior.
 
-## 10. Modelo incremental
+## Modelo incremental
 
-`fct_orders` esta configurado como modelo incremental:
+`fct_orders` está configurado como modelo incremental:
 
 ```sql
 materialized='incremental'
@@ -213,9 +230,9 @@ where updated_at > (
 )
 ```
 
-Esto evita reprocesar toda la fact table cuando solo llegan ordenes nuevas o actualizadas.
+Esto evita reprocesar toda la fact table cuando solo llegan órdenes nuevas o actualizadas.
 
-## 11. Como ejecutar el proyecto
+## Cómo ejecutar el proyecto
 
 Desde la carpeta del proyecto:
 
@@ -241,9 +258,9 @@ dbt build
 dbt docs generate
 ```
 
-Si se ejecuta sin `--profiles-dir .`, copiar o adaptar `profiles.yml` al directorio dbt local del usuario.
+Si se ejecuta sin `--profiles-dir .`, se debe copiar o adaptar `profiles.yml` al directorio local de perfiles de dbt.
 
-## 12. Outputs esperados
+## Outputs esperados
 
 dbt genera una base local DuckDB:
 
@@ -270,53 +287,53 @@ marts.dim_products
 snapshots.customers_snapshot
 ```
 
-La documentacion se genera en:
+La documentación se genera en:
 
 ```text
 target/
 ```
 
-`target/` y la base `.duckdb` son artefactos generados y no deberian versionarse.
+`target/` y la base `.duckdb` son artefactos generados y no deberían versionarse.
 
-## 13. Decisiones tecnicas
+## Decisiones técnicas
 
-| Decision | Motivo |
+| Decisión | Motivo |
 | --- | --- |
 | DuckDB como adapter | Permite ejecutar dbt localmente sin infraestructura cloud |
-| Seeds como fuente | Facilita reproducibilidad en GitHub y entrevistas |
-| Staging 1:1 | Mantiene separacion clara entre limpieza tecnica y logica de negocio |
-| Intermediate para joins | Evita duplicar logica compleja en marts |
-| Marts como tablas finales | Entrega modelos listos para consumo analitico |
-| Snapshot SCD2 | Demuestra manejo de historicos de dimensiones |
-| Fact incremental | Demuestra patron comun de carga eficiente |
-| Tests en schema.yml | Documenta reglas de calidad junto al modelo |
+| Seeds como fuente | Facilita reproducibilidad en GitHub y entrevistas técnicas |
+| Staging 1:1 | Mantiene separación clara entre limpieza técnica y lógica de negocio |
+| Intermediate para joins | Evita duplicar lógica compleja en marts |
+| Marts como tablas finales | Entrega modelos listos para consumo analítico |
+| Snapshot SCD Type 2 | Demuestra manejo de historial en dimensiones |
+| Fact incremental | Demuestra un patrón común de carga eficiente |
+| Tests en `schema.yml` | Documenta reglas de calidad junto al modelo |
 
-## 14. Como explicarlo en entrevista
+## Cómo explicarlo en entrevista
 
-Construiria la explicacion asi:
+Una forma clara de explicar el proyecto:
 
 ```text
-Implemente un proyecto dbt profesional para un caso de e-commerce usando DuckDB.
-Parti desde seeds que simulan datos raw de ordenes, clientes y productos.
-Separe el flujo en staging, intermediate y marts para mantener una arquitectura clara.
+Implementé un proyecto dbt profesional para un caso de e-commerce usando DuckDB.
+Partí desde seeds que simulan datos raw de órdenes, clientes y productos.
+Separé el flujo en staging, intermediate y marts para mantener una arquitectura clara.
 En staging hice limpieza liviana y casteo de tipos.
-En intermediate agregue joins y logica de negocio para calcular revenue, cost y margin.
-En marts cree una fact table incremental y dimensiones listas para reporting.
-Tambien agregue tests de calidad, documentacion automatica y un snapshot SCD Type 2 para historizar cambios de clientes.
+En intermediate agregué joins y lógica de negocio para calcular revenue, cost y margin.
+En marts creé una fact table incremental y dimensiones listas para reporting.
+También agregué tests de calidad, documentación automática y un snapshot SCD Type 2 para historizar cambios de clientes.
 ```
 
-Puntos tecnicos defendibles:
+Puntos técnicos defendibles:
 
 ```text
-Por que staging debe ser 1:1 con la fuente.
-Por que la logica de negocio vive en intermediate.
-Como funciona ref() para dependencias entre modelos.
-Como dbt test protege la calidad de datos.
-Como updated_at permite carga incremental.
-Como un snapshot SCD2 conserva historia de cambios.
+Por qué staging debe ser 1:1 con la fuente.
+Por qué la lógica de negocio vive en intermediate.
+Cómo funciona ref() para dependencias entre modelos.
+Cómo dbt test protege la calidad de datos.
+Cómo updated_at permite carga incremental.
+Cómo un snapshot SCD Type 2 conserva historia de cambios.
 ```
 
-## 15. Mejoras futuras
+## Mejoras futuras
 
 Posibles extensiones:
 
@@ -324,8 +341,8 @@ Posibles extensiones:
 Agregar sources.yml si los datos vienen desde un warehouse real.
 Separar ambientes dev/prod en profiles.yml.
 Agregar exposures para dashboards BI.
-Agregar macros reutilizables para normalizacion de status.
-Agregar tests custom para revenue, cost y margin positivos.
+Agregar macros reutilizables para normalización de status.
+Agregar tests custom para validar revenue, cost y margin positivos.
 Agregar CI con dbt build en GitHub Actions.
 Migrar el proyecto a BigQuery, Snowflake o Databricks.
 Agregar freshness checks para fuentes reales.
