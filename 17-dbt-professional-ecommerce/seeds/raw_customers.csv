@@ -1,0 +1,9 @@
+customer_id,customer_name,email,country,customer_segment,updated_at
+C001,Ana Torres,ana.torres@example.com,Chile,consumer,2026-01-03 09:00:00
+C002,Carlos Rivas,carlos.rivas@example.com,Chile,corporate,2026-01-04 10:30:00
+C003,Mariana Soto,mariana.soto@example.com,Peru,consumer,2026-01-05 12:15:00
+C004,Global Retail SpA,contacto@globalretail.example.com,Chile,enterprise,2026-01-06 13:45:00
+C005,Pedro Diaz,pedro.diaz@example.com,Colombia,consumer,2026-01-07 11:10:00
+C006,Lucia Gomez,lucia.gomez@example.com,Mexico,small_business,2026-01-08 16:20:00
+C007,Andes Wholesale,ventas@andeswholesale.example.com,Chile,corporate,2026-01-09 17:30:00
+C008,Sofia Morales,sofia.morales@example.com,Argentina,consumer,2026-01-10 08:25:00

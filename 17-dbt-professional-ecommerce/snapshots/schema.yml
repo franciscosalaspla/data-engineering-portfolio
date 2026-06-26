@@ -1,0 +1,22 @@
+version: 2
+
+snapshots:
+  - name: customers_snapshot
+    description: "Snapshot SCD Type 2 que conserva cambios historicos de clientes usando customer_id y updated_at."
+    columns:
+      - name: customer_id
+        description: "Clave de negocio usada como unique_key del snapshot."
+        data_tests:
+          - not_null
+      - name: customer_name
+        description: "Nombre historizado del cliente."
+      - name: email
+        description: "Email historizado del cliente."
+      - name: country
+        description: "Pais historizado del cliente."
+      - name: customer_segment
+        description: "Segmento historizado del cliente."
+      - name: updated_at
+        description: "Campo timestamp usado para detectar cambios."
+        data_tests:
+          - not_null

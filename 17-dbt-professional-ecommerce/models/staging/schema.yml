@@ -1,0 +1,142 @@
+version: 2
+
+seeds:
+  - name: raw_orders
+    description: "Seed con ordenes crudas de e-commerce usado como fuente operacional simulada."
+    columns:
+      - name: order_id
+        description: "Identificador unico de la orden en el sistema transaccional."
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Identificador del cliente asociado a la orden."
+        data_tests:
+          - not_null
+      - name: product_id
+        description: "Identificador del producto vendido."
+        data_tests:
+          - not_null
+
+  - name: raw_customers
+    description: "Seed con clientes crudos de e-commerce."
+    columns:
+      - name: customer_id
+        description: "Identificador unico del cliente."
+        data_tests:
+          - unique
+          - not_null
+
+  - name: raw_products
+    description: "Seed con catalogo crudo de productos."
+    columns:
+      - name: product_id
+        description: "Identificador unico del producto."
+        data_tests:
+          - unique
+          - not_null
+
+models:
+  - name: stg_orders
+    description: "Modelo staging 1:1 sobre raw_orders. Limpia nombres, castea tipos y estandariza status."
+    columns:
+      - name: order_id
+        description: "Primary key de la orden."
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Foreign key hacia clientes."
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+      - name: product_id
+        description: "Foreign key hacia productos."
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_products')
+              field: product_id
+      - name: order_date
+        description: "Fecha de la orden casteada como date."
+        data_tests:
+          - not_null
+      - name: quantity
+        description: "Cantidad de unidades compradas."
+        data_tests:
+          - not_null
+      - name: unit_price
+        description: "Precio unitario de venta."
+        data_tests:
+          - not_null
+      - name: status
+        description: "Estado de la orden normalizado en minusculas."
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['completed', 'pending', 'cancelled', 'returned']
+      - name: updated_at
+        description: "Timestamp de ultima actualizacion de la orden."
+        data_tests:
+          - not_null
+
+  - name: stg_customers
+    description: "Modelo staging 1:1 sobre raw_customers. Estandariza textos, emails y tipos."
+    columns:
+      - name: customer_id
+        description: "Primary key del cliente."
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_name
+        description: "Nombre del cliente."
+        data_tests:
+          - not_null
+      - name: email
+        description: "Email del cliente estandarizado en minusculas."
+        data_tests:
+          - not_null
+      - name: country
+        description: "Pais del cliente."
+        data_tests:
+          - not_null
+      - name: customer_segment
+        description: "Segmento comercial del cliente."
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['consumer', 'corporate', 'enterprise', 'small_business']
+      - name: updated_at
+        description: "Timestamp de ultima actualizacion del cliente."
+        data_tests:
+          - not_null
+
+  - name: stg_products
+    description: "Modelo staging 1:1 sobre raw_products. Estandariza catalogo de productos y flag activo."
+    columns:
+      - name: product_id
+        description: "Primary key del producto."
+        data_tests:
+          - unique
+          - not_null
+      - name: product_name
+        description: "Nombre del producto."
+        data_tests:
+          - not_null
+      - name: category
+        description: "Categoria comercial del producto."
+        data_tests:
+          - not_null
+      - name: unit_cost
+        description: "Costo unitario del producto."
+        data_tests:
+          - not_null
+      - name: active_flag
+        description: "Indicador booleano de producto activo."
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+              quote: false
