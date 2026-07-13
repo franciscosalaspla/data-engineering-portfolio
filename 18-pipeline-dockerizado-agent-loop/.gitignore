@@ -1,0 +1,9 @@
+logs/
+target/
+*.duckdb
+*.duckdb.wal
+__pycache__/
+**/__pycache__/
+*.pyc
+output/*.json
+!output/.gitkeep

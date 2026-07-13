@@ -1,0 +1,18 @@
+services:
+  pipeline:
+    build:
+      context: ..
+      dockerfile: 18-pipeline-dockerizado-agent-loop/Dockerfile
+    container_name: dbt_ecommerce_agent_loop
+    env_file:
+      - .env.example
+    volumes:
+      - ./output:/workspace/18-pipeline-dockerizado-agent-loop/output
+    command: >
+      sh -c "python app/health_check.py && python app/run_pipeline.py"
+    healthcheck:
+      test: ["CMD", "python", "app/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
