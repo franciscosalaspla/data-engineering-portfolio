@@ -92,6 +92,7 @@ Pipeline ETL simple para procesar datos de e-commerce. El proyecto carga datos d
 | [04 - Limpieza de Campaña Bancaria](./04-limpieza-campana-bancaria) | Limpieza y transformación de datos de una campaña bancaria de marketing                    | Python, pandas      |
 | [05 - Pipeline ETL de Energía](./05-pipeline-etl-energia)           | Pipeline ETL para extraer, transformar y cargar datos de energía                           | Python, pandas, ETL |
 | [06 - Revisión de Código en Python](./06-revision-codigo-python)    | Evaluación y mejora de código Python aplicando buenas prácticas                            | Python, code review |
+| [17 - dbt Profesional E-commerce](./17-dbt-professional-ecommerce)  | Proyecto dbt completo con seeds, staging, intermediate, marts, tests, snapshot SCD Type 2 y modelo incremental | dbt, DuckDB, SQL |
 
 ## Habilidades aplicadas
 
@@ -119,6 +120,7 @@ data-engineering-portfolio/
 ├── 07-etl-simple-python/
 ├── 08-analisis-sql-logs/
 ├── 09-pipeline-api-rest/
+├── 17-dbt-professional-ecommerce/
 ├── README.md
 ├── .gitignore
 └── LICENSE

@@ -1,0 +1,65 @@
+name: ecommerce_analytics
+version: "1.0.0"
+config-version: 2
+
+profile: ecommerce_analytics
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+snapshot-paths: ["snapshots"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+seeds:
+  ecommerce_analytics:
+    +schema: raw
+    raw_orders:
+      +column_types:
+        order_id: varchar
+        customer_id: varchar
+        product_id: varchar
+        order_date: date
+        quantity: integer
+        unit_price: decimal(12, 2)
+        status: varchar
+        updated_at: timestamp
+    raw_customers:
+      +column_types:
+        customer_id: varchar
+        customer_name: varchar
+        email: varchar
+        country: varchar
+        customer_segment: varchar
+        updated_at: timestamp
+    raw_products:
+      +column_types:
+        product_id: varchar
+        product_name: varchar
+        category: varchar
+        unit_cost: decimal(12, 2)
+        active_flag: boolean
+
+models:
+  ecommerce_analytics:
+    staging:
+      +materialized: view
+      +schema: staging
+    intermediate:
+      +materialized: view
+      +schema: intermediate
+    marts:
+      +schema: marts
+      dim_customers:
+        +materialized: table
+      dim_products:
+        +materialized: table
+
+snapshots:
+  ecommerce_analytics:
+    +target_schema: snapshots
