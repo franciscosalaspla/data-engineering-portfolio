@@ -36,22 +36,25 @@ def maybe_messy_text(value: str, row_number: int) -> str:
 
 def build_branches() -> list[dict]:
     branches = [
-        ("BR001", "Sucursal Centro", "Santiago", "Metropolitana", "active"),
-        ("BR002", "Sucursal Providencia", "Santiago", "Metropolitana", "active"),
-        ("BR003", "Sucursal Valparaiso", "Valparaiso", "Valparaiso", "active"),
-        ("BR004", "Sucursal Concepcion", "Concepcion", "Biobio", "active"),
-        ("BR005", "Sucursal La Serena", "La Serena", "Coquimbo", "inactive"),
-        ("BR006", "Sucursal Antofagasta", "Antofagasta", "Antofagasta", "active"),
+        ("BR001", "Sucursal Centro", "Santiago", "Av. Principal 100", "true"),
+        ("BR002", "Sucursal Providencia", "Santiago", "Av. Providencia 2200", "true"),
+        ("BR003", "Sucursal Valparaiso", "Valparaiso", "Calle Puerto 455", "true"),
+        ("BR004", "Sucursal Concepcion", "Concepcion", "Av. Bio Bio 810", "true"),
+        ("BR005", "Sucursal La Serena", "La Serena", "Ruta Norte 300", "false"),
+        ("BR006", "Sucursal Antofagasta", "Antofagasta", "Av. Minera 710", "true"),
     ]
     rows = []
-    for index, (branch_id, name, city, region, status) in enumerate(branches, start=1):
+    for index, (branch_id, name, city, address, is_active) in enumerate(branches, start=1):
         rows.append(
             {
                 "branch_id": branch_id,
                 "branch_name": maybe_messy_text(name, index),
                 "city": maybe_messy_text(city, index),
-                "region": maybe_messy_text(region, index),
-                "branch_status": status,
+                "address": maybe_messy_text(address, index),
+                "phone": f"+5622300{index:04d}",
+                "manager_id": f"E{index:05d}",
+                "opened_date": f"201{index}-01-15",
+                "is_active": is_active,
             }
         )
 
@@ -63,26 +66,35 @@ def build_customers(row_count: int = 120) -> list[dict]:
     first_names = ["Ana", "Luis", "Camila", "Jorge", "Valentina", "Diego", "Paula"]
     last_names = ["Rojas", "Perez", "Gonzalez", "Silva", "Munoz", "Contreras"]
     cities = ["Santiago", "Valparaiso", "Concepcion", "La Serena", "Antofagasta"]
-    segments = ["retail", "premium", "sme", "corporate", "Preferente"]
 
     rows = []
     for customer_number in range(1, row_count + 1):
         first_name = random.choice(first_names)
         last_name = random.choice(last_names)
         customer_id = f"C{customer_number:05d}"
+        registered_at = datetime(2021, 1, 1) + timedelta(days=random.randint(0, 1200))
+        born_at = datetime(1965, 1, 1) + timedelta(days=random.randint(0, 12000))
         row = {
             "customer_id": customer_id,
-            "customer_name": maybe_messy_text(f"{first_name} {last_name}", customer_number),
+            "first_name": maybe_messy_text(first_name, customer_number),
+            "last_name": maybe_messy_text(last_name, customer_number),
+            "dni": f"{random.randint(8_000_000, 25_000_000)}-{random.randint(0, 9)}",
             "email": f"{first_name.lower()}.{last_name.lower()}{customer_number}@example.com",
+            "phone": f"+569{random.randint(10000000, 99999999)}",
+            "address": f"Calle {random.randint(100, 9999)}",
             "city": maybe_messy_text(random.choice(cities), customer_number),
-            "country": "Chile",
-            "customer_segment": maybe_messy_text(random.choice(segments), customer_number),
-            "customer_status": random.choice(["active", "active", "active", "inactive", "blocked"]),
+            "birth_date": born_at.strftime("%Y-%m-%d"),
+            "registration_date": registered_at.strftime("%Y-%m-%d"),
+            "credit_score": random.randint(300, 850),
+            "is_vip": random.choice(["true", "false", "1", "0", "yes", "no", ""]),
+            "preferred_branch_id": f"BR{random.randint(1, 6):03d}",
         }
         if customer_number % 41 == 0:
             row["email"] = ""
         if customer_number % 59 == 0:
-            row["customer_segment"] = "  unknown_segment  "
+            row["is_vip"] = ""
+        if customer_number % 61 == 0:
+            row["preferred_branch_id"] = ""
         rows.append(row)
 
     rows.append(rows[10].copy())
@@ -90,7 +102,7 @@ def build_customers(row_count: int = 120) -> list[dict]:
 
 
 def build_accounts(row_count: int = 180) -> list[dict]:
-    account_types = ["checking", "savings", "credit", "investment"]
+    account_types = ["AT001", "AT002", "AT003", "AT004"]
     account_statuses = ["active", "active", "active", "inactive", "frozen"]
     rows = []
 
@@ -99,14 +111,18 @@ def build_accounts(row_count: int = 180) -> list[dict]:
         row = {
             "account_id": f"A{account_number:06d}",
             "customer_id": f"C{random.randint(1, 120):05d}",
-            "branch_id": f"BR{random.randint(1, 6):03d}",
-            "account_type": maybe_messy_text(random.choice(account_types), account_number),
-            "open_date": opened_at.strftime("%Y-%m-%d"),
+            "account_type_id": maybe_messy_text(random.choice(account_types), account_number),
+            "account_number": f"00{random.randint(10_000_000, 99_999_999)}",
+            "cbu": f"{random.randint(10**21, 10**22 - 1)}",
             "balance": round(random.uniform(-50000, 25000000), 2),
-            "account_status": random.choice(account_statuses),
+            "opened_date": opened_at.strftime("%Y-%m-%d"),
+            "status": random.choice(account_statuses),
+            "last_activity_date": (opened_at + timedelta(days=random.randint(0, 900))).strftime(
+                "%Y-%m-%d"
+            ),
         }
         if account_number % 67 == 0:
-            row["branch_id"] = ""
+            row["account_type_id"] = ""
         if account_number % 73 == 0:
             row["balance"] = ""
         rows.append(row)
@@ -119,7 +135,6 @@ def build_transactions(row_count: int = 1200) -> list[dict]:
     transaction_types = ["deposit", "withdrawal", "payment", "transfer", "fee", "ChargeBack"]
     channels = ["mobile_app", "web", "atm", "branch", "POS", "  call_center  "]
     statuses = ["completed", "completed", "completed", "pending", "failed", "REVERSED"]
-    currencies = ["CLP", "USD"]
     descriptions = ["salary", "card payment", "atm cash", "wire transfer", "loan payment"]
 
     rows = []
@@ -133,13 +148,14 @@ def build_transactions(row_count: int = 1200) -> list[dict]:
         row = {
             "transaction_id": f"T{transaction_number:08d}",
             "account_id": f"A{random.randint(1, 180):06d}",
-            "transaction_timestamp": transaction_ts.strftime("%Y-%m-%d %H:%M:%S"),
             "transaction_type": maybe_messy_text(random.choice(transaction_types), transaction_number),
-            "channel": maybe_messy_text(random.choice(channels), transaction_number),
             "amount": amount,
-            "currency": random.choice(currencies),
-            "status": maybe_messy_text(random.choice(statuses), transaction_number),
+            "balance_after": round(random.uniform(-100000, 30000000), 2),
+            "transaction_date": transaction_ts.strftime("%Y-%m-%d %H:%M:%S"),
             "description": random.choice(descriptions),
+            "reference_number": f"REF{transaction_number:09d}",
+            "channel": maybe_messy_text(random.choice(channels), transaction_number),
+            "status": maybe_messy_text(random.choice(statuses), transaction_number),
         }
 
         if transaction_number % 89 == 0:
@@ -147,7 +163,7 @@ def build_transactions(row_count: int = 1200) -> list[dict]:
         if transaction_number % 101 == 0:
             row["amount"] = ""
         if transaction_number % 113 == 0:
-            row["transaction_timestamp"] = "invalid_date"
+            row["transaction_date"] = "invalid_date"
         if transaction_number % 127 == 0:
             row["channel"] = "  unknown_channel  "
         rows.append(row)
@@ -164,19 +180,34 @@ def generate_sample_data(overwrite: bool = False) -> dict:
     files = {
         "branches": (
             BRANCHES_FILE,
-            ["branch_id", "branch_name", "city", "region", "branch_status"],
+            [
+                "branch_id",
+                "branch_name",
+                "city",
+                "address",
+                "phone",
+                "manager_id",
+                "opened_date",
+                "is_active",
+            ],
             build_branches(),
         ),
         "customers": (
             CUSTOMERS_FILE,
             [
                 "customer_id",
-                "customer_name",
+                "first_name",
+                "last_name",
+                "dni",
                 "email",
+                "phone",
+                "address",
                 "city",
-                "country",
-                "customer_segment",
-                "customer_status",
+                "birth_date",
+                "registration_date",
+                "credit_score",
+                "is_vip",
+                "preferred_branch_id",
             ],
             build_customers(),
         ),
@@ -185,11 +216,13 @@ def generate_sample_data(overwrite: bool = False) -> dict:
             [
                 "account_id",
                 "customer_id",
-                "branch_id",
-                "account_type",
-                "open_date",
+                "account_type_id",
+                "account_number",
+                "cbu",
                 "balance",
-                "account_status",
+                "opened_date",
+                "status",
+                "last_activity_date",
             ],
             build_accounts(),
         ),
@@ -198,13 +231,14 @@ def generate_sample_data(overwrite: bool = False) -> dict:
             [
                 "transaction_id",
                 "account_id",
-                "transaction_timestamp",
                 "transaction_type",
-                "channel",
                 "amount",
-                "currency",
-                "status",
+                "balance_after",
+                "transaction_date",
                 "description",
+                "reference_number",
+                "channel",
+                "status",
             ],
             build_transactions(),
         ),

@@ -32,6 +32,8 @@ finanzas_customers.csv
 finanzas_branches.csv
 ```
 
+El pipeline espera los headers reales exportados por la plataforma. En particular, `transaction_date`, `amount`, `channel` y `status` vienen desde `finanzas_transactions.csv`; `customer_name` se deriva desde `first_name` y `last_name`; `customer_segment` se deriva desde `is_vip`; y la sucursal se obtiene desde `customers.preferred_branch_id -> branches.branch_id`. Como `branches` no contiene región, se usa `city` como campo geográfico.
+
 Los CSV reales deben copiarse en:
 
 ```text

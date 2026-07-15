@@ -5,12 +5,10 @@ from typing import Any
 from pyspark.sql import DataFrame, SparkSession, Window
 from pyspark.sql import functions as F
 from pyspark.sql.types import (
-    DateType,
     DoubleType,
     StringType,
     StructField,
     StructType,
-    TimestampType,
 )
 
 
@@ -26,13 +24,14 @@ TRANSACTIONS_SCHEMA = StructType(
     [
         StructField("transaction_id", StringType(), True),
         StructField("account_id", StringType(), True),
-        StructField("transaction_timestamp", StringType(), True),
         StructField("transaction_type", StringType(), True),
-        StructField("channel", StringType(), True),
         StructField("amount", DoubleType(), True),
-        StructField("currency", StringType(), True),
-        StructField("status", StringType(), True),
+        StructField("balance_after", DoubleType(), True),
+        StructField("transaction_date", StringType(), True),
         StructField("description", StringType(), True),
+        StructField("reference_number", StringType(), True),
+        StructField("channel", StringType(), True),
+        StructField("status", StringType(), True),
     ]
 )
 
@@ -40,23 +39,31 @@ ACCOUNTS_SCHEMA = StructType(
     [
         StructField("account_id", StringType(), True),
         StructField("customer_id", StringType(), True),
-        StructField("branch_id", StringType(), True),
-        StructField("account_type", StringType(), True),
-        StructField("open_date", StringType(), True),
+        StructField("account_type_id", StringType(), True),
+        StructField("account_number", StringType(), True),
+        StructField("cbu", StringType(), True),
         StructField("balance", DoubleType(), True),
-        StructField("account_status", StringType(), True),
+        StructField("opened_date", StringType(), True),
+        StructField("status", StringType(), True),
+        StructField("last_activity_date", StringType(), True),
     ]
 )
 
 CUSTOMERS_SCHEMA = StructType(
     [
         StructField("customer_id", StringType(), True),
-        StructField("customer_name", StringType(), True),
+        StructField("first_name", StringType(), True),
+        StructField("last_name", StringType(), True),
+        StructField("dni", StringType(), True),
         StructField("email", StringType(), True),
+        StructField("phone", StringType(), True),
+        StructField("address", StringType(), True),
         StructField("city", StringType(), True),
-        StructField("country", StringType(), True),
-        StructField("customer_segment", StringType(), True),
-        StructField("customer_status", StringType(), True),
+        StructField("birth_date", StringType(), True),
+        StructField("registration_date", StringType(), True),
+        StructField("credit_score", DoubleType(), True),
+        StructField("is_vip", StringType(), True),
+        StructField("preferred_branch_id", StringType(), True),
     ]
 )
 
@@ -65,8 +72,11 @@ BRANCHES_SCHEMA = StructType(
         StructField("branch_id", StringType(), True),
         StructField("branch_name", StringType(), True),
         StructField("city", StringType(), True),
-        StructField("region", StringType(), True),
-        StructField("branch_status", StringType(), True),
+        StructField("address", StringType(), True),
+        StructField("phone", StringType(), True),
+        StructField("manager_id", StringType(), True),
+        StructField("opened_date", StringType(), True),
+        StructField("is_active", StringType(), True),
     ]
 )
 
@@ -117,22 +127,28 @@ def count_duplicates(df: DataFrame, subset: list[str]) -> int:
 
 def clean_transactions(df: DataFrame) -> DataFrame:
     parsed_timestamp = F.coalesce(
-        F.to_timestamp("transaction_timestamp", "yyyy-MM-dd HH:mm:ss"),
-        F.to_timestamp("transaction_timestamp", "yyyy-MM-dd"),
-        F.to_timestamp("transaction_timestamp", "dd/MM/yyyy HH:mm:ss"),
+        F.to_timestamp("transaction_date_raw", "yyyy-MM-dd HH:mm:ss"),
+        F.to_timestamp("transaction_date_raw", "yyyy-MM-dd"),
+        F.to_timestamp("transaction_date_raw", "yyyy-MM-dd'T'HH:mm:ss"),
+        F.to_timestamp("transaction_date_raw", "dd/MM/yyyy HH:mm:ss"),
+        F.to_timestamp("transaction_date_raw", "dd/MM/yyyy"),
+        F.to_timestamp("transaction_date_raw", "MM/dd/yyyy HH:mm:ss"),
+        F.to_timestamp("transaction_date_raw", "MM/dd/yyyy"),
+        F.to_timestamp("transaction_date_raw"),
     )
 
     return (
         df.select(
             null_if_empty("transaction_id").alias("transaction_id"),
             null_if_empty("account_id").alias("account_id"),
-            F.col("transaction_timestamp"),
+            null_if_empty("transaction_date").alias("transaction_date_raw"),
             clean_text("transaction_type").alias("transaction_type"),
             clean_text("channel").alias("channel"),
             F.col("amount").cast(DoubleType()).alias("amount"),
-            clean_text("currency").alias("currency"),
+            F.col("balance_after").cast(DoubleType()).alias("balance_after"),
             clean_text("status").alias("status"),
             F.trim(F.col("description")).alias("description"),
+            null_if_empty("reference_number").alias("reference_number"),
         )
         .withColumn("transaction_ts", parsed_timestamp)
         .withColumn("transaction_date", F.to_date(F.col("transaction_ts")))
@@ -162,10 +178,11 @@ def clean_transactions(df: DataFrame) -> DataFrame:
             "channel",
             "amount",
             "amount_abs",
-            "currency",
+            "balance_after",
             "status",
             "risk_flag",
             "description",
+            "reference_number",
         )
     )
 
@@ -175,30 +192,39 @@ def clean_accounts(df: DataFrame) -> DataFrame:
         df.select(
             null_if_empty("account_id").alias("account_id"),
             null_if_empty("customer_id").alias("customer_id"),
-            null_if_empty("branch_id").alias("branch_id"),
-            clean_text("account_type").alias("account_type"),
-            F.to_date("open_date", "yyyy-MM-dd").alias("open_date"),
+            null_if_empty("account_type_id").alias("account_type_id"),
+            null_if_empty("account_number").alias("account_number"),
+            null_if_empty("cbu").alias("cbu"),
+            F.to_date("opened_date", "yyyy-MM-dd").alias("opened_date"),
             F.col("balance").cast(DoubleType()).alias("balance"),
-            clean_text("account_status").alias("account_status"),
+            clean_text("status").alias("account_status"),
+            F.to_date("last_activity_date", "yyyy-MM-dd").alias("last_activity_date"),
         )
         .filter(F.col("account_id").isNotNull())
         .filter(F.col("customer_id").isNotNull())
-        .filter(F.col("branch_id").isNotNull())
         .dropDuplicates(["account_id"])
-        .fillna({"account_type": "unknown", "account_status": "unknown"})
+        .fillna({"account_type_id": "unknown", "account_status": "unknown"})
     )
 
 
 def clean_customers(df: DataFrame) -> DataFrame:
+    is_vip_normalized = clean_text("is_vip")
+
     return (
         df.select(
             null_if_empty("customer_id").alias("customer_id"),
-            F.trim(F.col("customer_name")).alias("customer_name"),
+            F.trim(F.concat_ws(" ", null_if_empty("first_name"), null_if_empty("last_name"))).alias(
+                "customer_name"
+            ),
             clean_text("email").alias("email"),
             clean_text("city").alias("customer_city"),
-            clean_text("country").alias("country"),
-            clean_text("customer_segment").alias("customer_segment"),
-            clean_text("customer_status").alias("customer_status"),
+            F.col("credit_score").cast(DoubleType()).alias("credit_score"),
+            is_vip_normalized.alias("is_vip"),
+            null_if_empty("preferred_branch_id").alias("preferred_branch_id"),
+            F.when(is_vip_normalized.isin("true", "1", "yes"), F.lit("vip"))
+            .when(is_vip_normalized.isin("false", "0", "no"), F.lit("standard"))
+            .otherwise(F.lit("unknown"))
+            .alias("customer_segment"),
         )
         .filter(F.col("customer_id").isNotNull())
         .dropDuplicates(["customer_id"])
@@ -207,9 +233,7 @@ def clean_customers(df: DataFrame) -> DataFrame:
                 "customer_name": "Unknown Customer",
                 "email": "unknown",
                 "customer_city": "unknown",
-                "country": "unknown",
                 "customer_segment": "unknown",
-                "customer_status": "unknown",
             }
         )
     )
@@ -221,8 +245,8 @@ def clean_branches(df: DataFrame) -> DataFrame:
             null_if_empty("branch_id").alias("branch_id"),
             F.trim(F.col("branch_name")).alias("branch_name"),
             clean_text("city").alias("branch_city"),
-            clean_text("region").alias("region"),
-            clean_text("branch_status").alias("branch_status"),
+            F.trim(F.col("address")).alias("branch_address"),
+            clean_text("is_active").alias("is_active"),
         )
         .filter(F.col("branch_id").isNotNull())
         .dropDuplicates(["branch_id"])
@@ -230,8 +254,8 @@ def clean_branches(df: DataFrame) -> DataFrame:
             {
                 "branch_name": "Unknown Branch",
                 "branch_city": "unknown",
-                "region": "unknown",
-                "branch_status": "unknown",
+                "branch_address": "unknown",
+                "is_active": "unknown",
             }
         )
     )
@@ -246,8 +270,7 @@ def build_enriched_transactions(
     accounts_selected = accounts.select(
         "account_id",
         "customer_id",
-        "branch_id",
-        "account_type",
+        "account_type_id",
         "account_status",
         "balance",
     )
@@ -255,15 +278,14 @@ def build_enriched_transactions(
         "customer_id",
         "customer_name",
         "customer_segment",
-        "customer_status",
         "customer_city",
+        "preferred_branch_id",
     )
     branches_selected = branches.select(
         "branch_id",
         "branch_name",
         "branch_city",
-        "region",
-        "branch_status",
+        "is_active",
     )
 
     account_window = (
@@ -275,6 +297,7 @@ def build_enriched_transactions(
     return (
         transactions.join(accounts_selected, on="account_id", how="left")
         .join(customers_selected, on="customer_id", how="left")
+        .withColumn("branch_id", F.col("preferred_branch_id"))
         .join(branches_selected, on="branch_id", how="left")
         .withColumn("account_running_amount", F.sum("amount").over(account_window))
         .select(
@@ -288,13 +311,13 @@ def build_enriched_transactions(
             "customer_segment",
             "branch_id",
             "branch_name",
-            "region",
-            "account_type",
+            "branch_city",
+            "account_type_id",
             "transaction_type",
             "channel",
             "amount",
             "amount_abs",
-            "currency",
+            "balance_after",
             "status",
             "risk_flag",
             "account_running_amount",
@@ -304,7 +327,7 @@ def build_enriched_transactions(
 
 def build_monthly_branch_metrics(enriched: DataFrame) -> DataFrame:
     return (
-        enriched.groupBy("year", "month", "branch_id", "branch_name", "region")
+        enriched.groupBy("year", "month", "branch_id", "branch_name", "branch_city")
         .agg(
             F.count("*").alias("transaction_count"),
             F.round(F.sum("amount"), 2).alias("net_amount"),
@@ -453,9 +476,14 @@ def process_banking_data() -> dict[str, Any]:
         }
 
         parsed_transaction_date = F.coalesce(
-            F.to_timestamp("transaction_timestamp", "yyyy-MM-dd HH:mm:ss"),
-            F.to_timestamp("transaction_timestamp", "yyyy-MM-dd"),
-            F.to_timestamp("transaction_timestamp", "dd/MM/yyyy HH:mm:ss"),
+            F.to_timestamp("transaction_date", "yyyy-MM-dd HH:mm:ss"),
+            F.to_timestamp("transaction_date", "yyyy-MM-dd"),
+            F.to_timestamp("transaction_date", "yyyy-MM-dd'T'HH:mm:ss"),
+            F.to_timestamp("transaction_date", "dd/MM/yyyy HH:mm:ss"),
+            F.to_timestamp("transaction_date", "dd/MM/yyyy"),
+            F.to_timestamp("transaction_date", "MM/dd/yyyy HH:mm:ss"),
+            F.to_timestamp("transaction_date", "MM/dd/yyyy"),
+            F.to_timestamp("transaction_date"),
         )
 
         validations = {
