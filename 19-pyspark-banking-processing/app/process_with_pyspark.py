@@ -329,14 +329,17 @@ def build_customer_ranking(enriched: DataFrame) -> DataFrame:
         .filter(F.col("customer_id").isNotNull())
     )
 
-    ranking_window = Window.orderBy(
+    ranking_window = Window.partitionBy("customer_segment").orderBy(
         F.desc("total_amount_abs"),
         F.desc("transaction_count"),
         F.asc("customer_id"),
     )
 
-    return customer_metrics.withColumn("customer_rank", F.dense_rank().over(ranking_window)).orderBy(
-        "customer_rank"
+    return customer_metrics.withColumn(
+        "customer_rank", F.dense_rank().over(ranking_window)
+    ).orderBy(
+        "customer_segment",
+        "customer_rank",
     )
 
 

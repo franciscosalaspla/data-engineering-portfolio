@@ -213,7 +213,7 @@ data/analytics/monthly_branch_metrics/
 El proyecto usa Window Functions para:
 
 ```text
-ranking de clientes por monto transaccional absoluto
+ranking de clientes por monto transaccional absoluto dentro de cada segmento
 monto acumulado por cuenta en enriched_transactions
 ```
 
@@ -328,7 +328,7 @@ Crear un proyecto reproducible que funcione incluso sin los CSV reales, pero que
 * Limpié whitespace, nulos, duplicados, fechas y montos.
 * Generé columnas derivadas como `year`, `month`, `amount_abs` y `risk_flag`.
 * Apliqué joins entre transacciones, cuentas, clientes y sucursales.
-* Creé agregaciones bancarias y ranking de clientes con Window Functions.
+* Creé agregaciones bancarias y ranking de clientes por segmento usando Window Functions.
 * Guardé outputs en Parquet, incluyendo una salida particionada por `year` y `month`.
 * Dejé evidencia de ejecución en `output/pipeline_summary.json`.
 
