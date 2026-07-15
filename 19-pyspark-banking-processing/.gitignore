@@ -1,0 +1,12 @@
+data/raw/*.csv
+data/processed/*
+data/analytics/*
+output/*.json
+__pycache__/
+*.pyc
+.venv/
+
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/analytics/.gitkeep
+!output/.gitkeep
