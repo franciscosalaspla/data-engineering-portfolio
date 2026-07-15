@@ -162,8 +162,6 @@ def build_transactions(row_count: int = 1200) -> list[dict]:
             row["account_id"] = ""
         if transaction_number % 101 == 0:
             row["amount"] = ""
-        if transaction_number % 113 == 0:
-            row["transaction_date"] = "invalid_date"
         if transaction_number % 127 == 0:
             row["channel"] = "  unknown_channel  "
         rows.append(row)

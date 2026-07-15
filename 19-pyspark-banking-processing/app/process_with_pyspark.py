@@ -110,6 +110,10 @@ def null_if_empty(column_name: str) -> F.Column:
     return F.when(F.trim(F.col(column_name)) == "", None).otherwise(F.trim(F.col(column_name)))
 
 
+def parse_date_yyyy_mm_dd(column_name: str) -> F.Column:
+    return F.to_date(F.substring(null_if_empty(column_name), 1, 10), "yyyy-MM-dd")
+
+
 def remove_output_path(path: Path) -> None:
     if path.exists():
         shutil.rmtree(path)
@@ -126,16 +130,7 @@ def count_duplicates(df: DataFrame, subset: list[str]) -> int:
 
 
 def clean_transactions(df: DataFrame) -> DataFrame:
-    parsed_timestamp = F.coalesce(
-        F.to_timestamp("transaction_date_raw", "yyyy-MM-dd HH:mm:ss"),
-        F.to_timestamp("transaction_date_raw", "yyyy-MM-dd"),
-        F.to_timestamp("transaction_date_raw", "yyyy-MM-dd'T'HH:mm:ss"),
-        F.to_timestamp("transaction_date_raw", "dd/MM/yyyy HH:mm:ss"),
-        F.to_timestamp("transaction_date_raw", "dd/MM/yyyy"),
-        F.to_timestamp("transaction_date_raw", "MM/dd/yyyy HH:mm:ss"),
-        F.to_timestamp("transaction_date_raw", "MM/dd/yyyy"),
-        F.to_timestamp("transaction_date_raw"),
-    )
+    parsed_timestamp = F.to_timestamp("transaction_date_raw", "yyyy-MM-dd HH:mm:ss")
 
     return (
         df.select(
@@ -150,8 +145,8 @@ def clean_transactions(df: DataFrame) -> DataFrame:
             F.trim(F.col("description")).alias("description"),
             null_if_empty("reference_number").alias("reference_number"),
         )
-        .withColumn("transaction_ts", parsed_timestamp)
-        .withColumn("transaction_date", F.to_date(F.col("transaction_ts")))
+        .withColumn("transaction_timestamp", parsed_timestamp)
+        .withColumn("transaction_date", F.to_date(F.col("transaction_timestamp")))
         .filter(F.col("transaction_id").isNotNull())
         .filter(F.col("account_id").isNotNull())
         .filter(F.col("amount").isNotNull())
@@ -170,7 +165,7 @@ def clean_transactions(df: DataFrame) -> DataFrame:
         .select(
             "transaction_id",
             "account_id",
-            "transaction_ts",
+            "transaction_timestamp",
             "transaction_date",
             "year",
             "month",
@@ -195,10 +190,10 @@ def clean_accounts(df: DataFrame) -> DataFrame:
             null_if_empty("account_type_id").alias("account_type_id"),
             null_if_empty("account_number").alias("account_number"),
             null_if_empty("cbu").alias("cbu"),
-            F.to_date("opened_date", "yyyy-MM-dd").alias("opened_date"),
+            parse_date_yyyy_mm_dd("opened_date").alias("opened_date"),
             F.col("balance").cast(DoubleType()).alias("balance"),
             clean_text("status").alias("account_status"),
-            F.to_date("last_activity_date", "yyyy-MM-dd").alias("last_activity_date"),
+            parse_date_yyyy_mm_dd("last_activity_date").alias("last_activity_date"),
         )
         .filter(F.col("account_id").isNotNull())
         .filter(F.col("customer_id").isNotNull())
@@ -218,6 +213,8 @@ def clean_customers(df: DataFrame) -> DataFrame:
             ),
             clean_text("email").alias("email"),
             clean_text("city").alias("customer_city"),
+            parse_date_yyyy_mm_dd("birth_date").alias("birth_date"),
+            parse_date_yyyy_mm_dd("registration_date").alias("registration_date"),
             F.col("credit_score").cast(DoubleType()).alias("credit_score"),
             is_vip_normalized.alias("is_vip"),
             null_if_empty("preferred_branch_id").alias("preferred_branch_id"),
@@ -246,6 +243,7 @@ def clean_branches(df: DataFrame) -> DataFrame:
             F.trim(F.col("branch_name")).alias("branch_name"),
             clean_text("city").alias("branch_city"),
             F.trim(F.col("address")).alias("branch_address"),
+            parse_date_yyyy_mm_dd("opened_date").alias("branch_opened_date"),
             clean_text("is_active").alias("is_active"),
         )
         .filter(F.col("branch_id").isNotNull())
@@ -290,7 +288,7 @@ def build_enriched_transactions(
 
     account_window = (
         Window.partitionBy("account_id")
-        .orderBy(F.col("transaction_ts"), F.col("transaction_id"))
+        .orderBy(F.col("transaction_timestamp"), F.col("transaction_id"))
         .rowsBetween(Window.unboundedPreceding, Window.currentRow)
     )
 
@@ -475,16 +473,7 @@ def process_banking_data() -> dict[str, Any]:
             "branches": raw_branches.count(),
         }
 
-        parsed_transaction_date = F.coalesce(
-            F.to_timestamp("transaction_date", "yyyy-MM-dd HH:mm:ss"),
-            F.to_timestamp("transaction_date", "yyyy-MM-dd"),
-            F.to_timestamp("transaction_date", "yyyy-MM-dd'T'HH:mm:ss"),
-            F.to_timestamp("transaction_date", "dd/MM/yyyy HH:mm:ss"),
-            F.to_timestamp("transaction_date", "dd/MM/yyyy"),
-            F.to_timestamp("transaction_date", "MM/dd/yyyy HH:mm:ss"),
-            F.to_timestamp("transaction_date", "MM/dd/yyyy"),
-            F.to_timestamp("transaction_date"),
-        )
+        parsed_transaction_timestamp = F.to_timestamp("transaction_date", "yyyy-MM-dd HH:mm:ss")
 
         validations = {
             "input_row_counts": input_counts,
@@ -500,10 +489,10 @@ def process_banking_data() -> dict[str, Any]:
             ).count(),
             "transactions_with_null_amount": raw_transactions.filter(F.col("amount").isNull()).count(),
             "transactions_with_invalid_date": raw_transactions.withColumn(
-                "parsed_transaction_ts",
-                parsed_transaction_date,
+                "parsed_transaction_timestamp",
+                parsed_transaction_timestamp,
             )
-            .filter(F.col("parsed_transaction_ts").isNull())
+            .filter(F.col("parsed_transaction_timestamp").isNull())
             .count(),
         }
 
