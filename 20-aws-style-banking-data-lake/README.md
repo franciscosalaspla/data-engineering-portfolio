@@ -1,6 +1,10 @@
 # 20 - AWS-style Banking Data Lake
 
-![AWS-style Banking Data Lake](./assets/aws-cloud-development-services-by-vizsphere.jpeg)
+## Pipeline End-to-End en AWS
+
+<p align="center">
+  <img src="./assets/aws-cloud-development-services-by-vizsphere.jpeg" alt="AWS-style Banking Data Lake" width="650">
+</p>
 
 > Imagen referencial utilizada para representar una arquitectura cloud AWS-style.
 
