@@ -1,5 +1,9 @@
 # 20 - AWS-style Banking Data Lake
 
+![AWS-style Banking Data Lake](./assets/aws-cloud-development-services-by-vizsphere.jpeg)
+
+> Imagen referencial utilizada para representar una arquitectura cloud AWS-style.
+
 ## 1. Objetivo
 
 Implementar una simulación local de un Data Lake tipo AWS para datos bancarios, usando Python, DuckDB y Parquet.
