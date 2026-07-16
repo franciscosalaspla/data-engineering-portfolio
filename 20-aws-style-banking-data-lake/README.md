@@ -8,28 +8,21 @@
 
 > Imagen referencial utilizada para representar una arquitectura cloud AWS-style.
 
-## 1. Objetivo
+## 1. Resumen del proyecto
 
-Implementar una simulación local de un Data Lake tipo AWS para datos bancarios, usando Python, DuckDB y Parquet.
+Este proyecto implementa una simulación local de un Data Lake tipo AWS para datos bancarios. El pipeline organiza datos en capas landing, bronze, silver y gold usando Python, DuckDB y Parquet.
 
-El proyecto representa una arquitectura cloud end-to-end sin usar AWS real, sin credenciales, sin `boto3` y sin generar costos. El foco es demostrar diseño de capas, transformación de datos, trazabilidad, consultas analíticas y criterios básicos de seguridad/costos en un entorno reproducible.
+La solución no usa AWS real, credenciales, `boto3` ni recursos cloud, por lo que no genera costos. El foco está en demostrar arquitectura de datos, calidad, trazabilidad, consultas analíticas y criterios de control de costos en un entorno reproducible.
 
-## 2. Valor de negocio
+## 2. Problema y enfoque
 
-Un banco necesita convertir datos operacionales crudos en información confiable para análisis de clientes, canales, sucursales y volumen transaccional.
-
-Este proyecto importa porque permite:
-
-- organizar datos crudos, limpios y analíticos en capas separadas;
-- mejorar trazabilidad entre archivos de entrada, transformaciones y resultados;
-- separar registros inválidos en cuarentena sin ocultarlos;
-- preparar consultas analíticas sobre datos en formato Parquet;
-- considerar costos, permisos y arquitectura cloud desde el diseño;
-- demostrar una arquitectura tipo AWS sin depender de infraestructura real.
+- **Situación:** un banco recibe datos operacionales crudos que pueden incluir duplicados, nulos, fechas inválidas, montos faltantes, tipos inconsistentes y referencias inválidas.
+- **Tarea:** convertir esos datos en capas ordenadas y consultables, separando registros problemáticos y generando métricas útiles para análisis.
+- **Enfoque:** simular localmente una arquitectura AWS-style con carpetas tipo S3, transformaciones tipo Glue/Lambda en Python, consultas Athena-like con DuckDB y evidencia de ejecución en JSON.
 
 ## 3. Arquitectura tipo AWS
 
-El flujo local simula una arquitectura con S3, Glue/Lambda, Athena y logs estilo CloudWatch:
+El flujo local representa S3, Glue/Lambda, Athena y logs estilo CloudWatch sin desplegar servicios reales en AWS.
 
 ```mermaid
 flowchart LR
@@ -40,22 +33,7 @@ flowchart LR
     E --> F["outputs<br/>query results + summaries JSON<br/>CloudWatch-style logs"]
 ```
 
-La implementación corre completamente en carpetas locales bajo `data_lake/`, pero conserva los conceptos principales de un Data Lake cloud: zona de ingesta, capas medallion, transformaciones reproducibles, consultas SQL y artefactos de monitoreo.
-
-## 4. Equivalencia local vs AWS
-
-| Componente local | Equivalente AWS | Rol |
-| --- | --- | --- |
-| `data_lake/landing/` | S3 landing/raw | Zona de ingesta cruda en CSV |
-| `data_lake/bronze/` | S3 bronze | Datos normalizados en Parquet, cercanos al raw |
-| `data_lake/silver/` | S3 silver + Glue/Lambda | Datos limpios, validados, enriquecidos y particionados |
-| `data_lake/gold/` | S3 gold | Métricas analíticas listas para consumo |
-| `DuckDB` | Athena | Consultas SQL sobre archivos Parquet |
-| `output/pipeline_summary.json` | CloudWatch-style log | Trazabilidad de ejecución, conteos y checks |
-| `docs/iam_least_privilege.md` | IAM design | Diseño conceptual de permisos mínimos |
-| `docs/cost_control.md` | AWS cost controls | Buenas prácticas de particionamiento, compresión y control de escaneo |
-
-## 5. Estructura del proyecto
+## 4. Estructura del proyecto
 
 ```text
 20-aws-style-banking-data-lake/
@@ -82,36 +60,42 @@ La implementación corre completamente en carpetas locales bajo `data_lake/`, pe
 `-- .gitignore
 ```
 
-Carpetas principales:
+| Carpeta | Rol |
+| --- | --- |
+| `app/` | Scripts Python del pipeline. |
+| `data_lake/` | Capas locales que simulan S3 landing, bronze, silver y gold. |
+| `queries/` | SQL usado por DuckDB para simular consultas Athena-like. |
+| `output/` | Summaries y resultados generados localmente, ignorados por Git. |
+| `docs/` | Documentación de arquitectura AWS equivalente, costos e IAM. |
 
-- `app/`: scripts Python del pipeline.
-- `data_lake/`: capas locales que simulan S3 landing, bronze, silver y gold.
-- `docs/`: documentación de arquitectura AWS equivalente, costos e IAM.
-- `queries/`: SQL usado por DuckDB para simular consultas Athena-like.
-- `output/`: summaries y resultados generados en ejecución local, ignorados por Git.
+### Componentes principales
 
-## 6. Flujo del pipeline
-
-1. Generación de datos landing: crea CSV bancarios crudos con duplicados, nulos, fechas inválidas, montos faltantes, tipos inconsistentes y referencias inválidas.
-2. Conversión a bronze Parquet: normaliza columnas, conserva una estructura cercana al raw y agrega metadata técnica de carga.
-3. Limpieza, validación y enriquecimiento en silver: castea fechas/montos, remueve duplicados, normaliza tipos de transacción/canales y une transacciones con cuentas, clientes y sucursales.
-4. Separación de registros inválidos en cuarentena: guarda transacciones críticas inválidas en `silver/quarantined_transactions`.
-5. Generación de métricas gold: produce datasets analíticos por canal, tipo de transacción, mes, cliente y sucursal.
-6. Ejecución de consultas Athena-like con DuckDB: consulta Parquet desde `queries/athena_like_queries.sql` sin usar Athena real.
-7. Generación de summaries: escribe resultados y trazabilidad en JSON/CSV locales, incluyendo estado final, conteos, checks de calidad y estimación conceptual de costos.
-
-Los outputs generados durante la ejecución incluyen CSV de landing, Parquet en bronze/silver/gold, resultados de queries y summaries JSON. Todos esos artefactos generados están ignorados por Git para evitar subir datos locales.
-
-## 7. Componentes principales
-
-- `generate_banking_landing_data.py`: genera datos bancarios de ejemplo en la capa landing, con errores controlados para probar calidad de datos.
+- `generate_banking_landing_data.py`: genera datos bancarios crudos con errores controlados para probar reglas de calidad.
 - `build_data_lake.py`: componente central del proyecto. Cumple el rol tipo Glue/Lambda porque construye bronze, silver y gold, aplica validaciones, enriquece datos, particiona Parquet y genera estimación conceptual de costos.
 - `run_athena_like_queries.py`: ejecuta consultas SQL con DuckDB sobre los Parquet generados, simulando Athena.
-- `run_pipeline.py`: orquesta el flujo completo y consolida el resumen final en `output/pipeline_summary.json`.
+- `run_pipeline.py`: orquesta el flujo completo y consolida la evidencia de ejecución en `output/pipeline_summary.json`.
 
-## 8. Resultados de la implementación
+## 5. Flujo del pipeline
 
-Validado localmente en Codespaces:
+```text
+CSV crudos -> landing -> bronze Parquet -> silver limpio + cuarentena -> gold analítico -> queries DuckDB -> summaries JSON
+```
+
+1. **Landing:** genera CSV bancarios crudos con datos messy controlados.
+2. **Bronze:** convierte landing a Parquet, normaliza columnas y conserva una estructura cercana al raw.
+3. **Silver:** limpia, valida y enriquece transacciones con clientes, cuentas y sucursales; los registros críticos inválidos se separan en cuarentena.
+4. **Gold:** produce datasets analíticos por canal, tipo de transacción, mes, cliente y sucursal.
+5. **Athena-like queries:** ejecuta SQL con DuckDB sobre los Parquet generados, sin usar Athena real.
+6. **Output:** genera resultados de queries y summaries JSON con estado final, conteos, checks de calidad, rutas generadas y notas de costos.
+
+Los CSV, Parquet y summaries generados están ignorados por Git para evitar subir datos locales o artefactos de ejecución.
+
+## 6. Resultados de la implementación
+
+- **Situación:** el proyecto necesitaba demostrar una arquitectura Data Lake end-to-end sin depender de infraestructura cloud real.
+- **Tarea:** generar datos bancarios crudos, procesarlos por capas, ejecutar consultas analíticas y dejar evidencia clara de calidad y ejecución.
+- **Acciones:** se implementó un pipeline local con generación de landing, construcción bronze/silver/gold, cuarentena de registros inválidos, queries DuckDB y summaries JSON.
+- **Resultados validados en Codespaces:**
 
 | Resultado | Valor |
 | --- | --- |
@@ -132,38 +116,28 @@ Checks de calidad registrados:
 - tipos de transacción desconocidos;
 - registros críticos enviados a cuarentena.
 
-Estos resultados corresponden a la ejecución local del proyecto. No implican uso real de AWS, procesamiento de grandes volúmenes ni costos reales de nube.
+Estos resultados corresponden a una ejecución local y no implican uso real de AWS, grandes volúmenes ni costos reales de nube.
 
-## 9. Cómo migrarlo a AWS real
+## 7. Equivalencia local vs AWS
 
-Una migración real podría seguir estos pasos:
+| Local | AWS equivalente | Rol |
+| --- | --- | --- |
+| `data_lake/landing/` | S3 landing/raw | Ingesta cruda en CSV |
+| `data_lake/bronze/` | S3 bronze | Datos normalizados en Parquet |
+| `data_lake/silver/` | S3 silver + Glue/Lambda | Datos limpios, enriquecidos y particionados |
+| `data_lake/gold/` | S3 gold | Métricas analíticas |
+| `DuckDB` | Athena | SQL sobre Parquet |
+| `output/pipeline_summary.json` | CloudWatch-style log | Trazabilidad de ejecución |
+| `docs/iam_least_privilege.md` | IAM design | Permisos mínimos conceptuales |
+| `docs/cost_control.md` | AWS cost controls | Buenas prácticas de costos |
 
-1. Crear un bucket S3 con prefixes `landing/`, `bronze/`, `silver/` y `gold/`.
-2. Subir CSV reales o archivos batch al prefix `landing/`.
-3. Usar Glue Crawler para catalogar schemas en Glue Data Catalog.
-4. Usar Glue Job o Lambda para transformar datos desde landing/bronze hacia silver/gold.
-5. Guardar Parquet particionado en silver y gold, idealmente por columnas usadas en filtros frecuentes como `year/month`.
-6. Consultar datos con Athena usando tablas externas y evitando `SELECT *` en datasets grandes.
-7. Configurar IAM least privilege para ingestión, transformación, catalogación y consulta.
-8. Configurar billing alerts, Athena workgroups con límites de escaneo y lifecycle policies para controlar costos.
+Para migrarlo a AWS real, el diseño podría llevarse a un bucket S3 con prefixes `landing/`, `bronze/`, `silver/` y `gold/`, Glue Crawler/Data Catalog, Glue Job o Lambda para transformar, Athena para consultar, IAM least privilege, billing alerts y lifecycle policies. Esa migración no está implementada en este proyecto.
 
-La documentación complementaria está en:
+## 8. Aprendizajes técnicos del proyecto
 
-- `docs/aws_architecture_mapping.md`
-- `docs/cost_control.md`
-- `docs/iam_least_privilege.md`
+Esta sección funciona como material de estudio personal para defender el proyecto técnicamente. Resume los conceptos, archivos y decisiones que conviene explicar con claridad.
 
-## 10. Explicación profesional del proyecto
-
-Este proyecto demuestra cómo diseñar un Data Lake bancario estilo AWS sin depender de infraestructura cloud real. La solución organiza datos crudos en landing, convierte información a Parquet en bronze, limpia y enriquece transacciones en silver, separa registros inválidos en cuarentena y publica métricas analíticas en gold.
-
-Sobre esa base, DuckDB ejecuta consultas SQL tipo Athena y el pipeline genera summaries que permiten revisar estado final, conteos, calidad de datos, rutas generadas y consideraciones de costos. Es un proyecto pensado para explicar arquitectura, trazabilidad, calidad, particionamiento, Parquet, consultas analíticas y gobierno básico sin afirmar despliegue real en AWS.
-
-## 11. Aprendizajes técnicos del proyecto
-
-Esta sección resume los conceptos, archivos y decisiones técnicas que conviene saber defender al explicar el proyecto. No reemplaza la documentación de uso; funciona como material de estudio personal sobre arquitectura, calidad, costos y ejecución local.
-
-### 11.1 Conceptos clave
+### 8.1 Conceptos clave
 
 | Concepto | Qué significa en este proyecto |
 | --- | --- |
@@ -181,7 +155,7 @@ Esta sección resume los conceptos, archivos y decisiones técnicas que conviene
 | IAM least privilege | Diseño documental de permisos mínimos para una migración futura a AWS real. |
 | Control de costos | Uso conceptual de Parquet, particiones, límites de escaneo y alertas de billing. |
 
-### 11.2 Archivos más importantes
+### 8.2 Archivos más importantes
 
 | Archivo | Rol principal | Qué aprendí |
 | --- | --- | --- |
@@ -191,7 +165,7 @@ Esta sección resume los conceptos, archivos y decisiones técnicas que conviene
 | `run_pipeline.py` | Orquesta el flujo completo y escribe el summary final. | Un pipeline profesional debe tener una entrada clara, logging, manejo de errores y salida trazable. |
 | `athena_like_queries.sql` | Contiene las consultas analíticas finales. | Las queries deben responder preguntas de negocio sin depender de `SELECT *` ni de infraestructura cloud real. |
 
-### 11.3 Funciones y códigos destacables
+### 8.3 Funciones y códigos destacables
 
 `generate_banking_landing_data.py`
 
@@ -258,7 +232,7 @@ generate_landing_data()
 -> write_summary()
 ```
 
-### 11.4 Qué debo saber explicar técnicamente
+### 8.4 Qué debo saber explicar técnicamente
 
 - Por qué existen landing, bronze, silver y gold.
 - Por qué uso Parquet en vez de dejar todo como CSV.
@@ -269,11 +243,11 @@ generate_landing_data()
 - Qué representa `run_pipeline.py` como orquestador end-to-end.
 - Por qué `data_lake/` y `output/` aparecen casi vacíos en GitHub: los datos generados, Parquet y summaries se crean localmente y están ignorados por Git.
 
-### 11.5 Aprendizaje principal
+### 8.5 Aprendizaje principal
 
 Un Data Engineer no solo construye pipelines que corren. También diseña arquitectura, capas de datos, reglas de calidad, control de costos, permisos mínimos y evidencia de ejecución para que el proceso sea entendible, auditable y defendible técnicamente.
 
-### 11.6 Resumen técnico corto
+### 8.6 Resumen técnico corto
 
 ```text
 generate_banking_landing_data.py crea datos crudos.
