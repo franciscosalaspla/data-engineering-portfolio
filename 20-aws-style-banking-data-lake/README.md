@@ -8,23 +8,25 @@
 
 > Imagen referencial utilizada para representar una arquitectura cloud AWS-style.
 
-## 1. Objetivo
+## 1. Valor del proyecto
 
-Implementar una simulación local de un pipeline end-to-end tipo AWS Data Lake para datos bancarios, usando Python, DuckDB y Parquet.
+Este proyecto demuestra cómo transformar datos bancarios crudos en información confiable, estructurada y lista para análisis, usando una arquitectura Data Lake tipo AWS ejecutada de forma local.
 
-El proyecto organiza datos en capas landing, bronze, silver y gold. No usa AWS real, credenciales, `boto3` ni recursos cloud, por lo que no genera costos.
+El valor principal está en mostrar criterio de Ingeniería de Datos: organización por capas, control de calidad, trazabilidad, separación de errores, consultas analíticas y diseño cloud-style sin depender de infraestructura real ni generar costos.
 
-## 2. Valor del proyecto
+## 2. Problema y enfoque
 
-El proyecto permite convertir datos operacionales crudos en información confiable para análisis, separando datos problemáticos y generando capas listas para consulta.
+En un contexto bancario, los datos operacionales suelen llegar desde distintas fuentes, como transacciones, cuentas, clientes y sucursales. Antes de que puedan usarse para análisis, estos datos deben pasar por procesos de limpieza, validación y organización, porque pueden contener duplicados, nulos, fechas inválidas, montos faltantes, tipos inconsistentes o referencias incorrectas.
 
-Su valor está en demostrar diseño cloud-style, arquitectura de datos, calidad, trazabilidad, consultas analíticas y control de costos sin afirmar un despliegue real en AWS.
+El enfoque del proyecto fue construir una simulación local de una arquitectura Data Lake tipo AWS, donde los datos avanzan desde una zona cruda hacia capas más confiables y analíticas. Para esto se usaron carpetas locales como equivalente de S3, Python como motor de transformación tipo Glue/Lambda, DuckDB para consultas Athena-like y archivos JSON como evidencia de ejecución.
 
-## 3. Problema y enfoque
+La decisión de implementarlo localmente permite demostrar el diseño técnico sin desplegar recursos reales en AWS, manteniendo foco en arquitectura, calidad de datos, trazabilidad y control de costos.
 
-- **Situación:** un banco recibe datos operacionales crudos que pueden incluir duplicados, nulos, fechas inválidas, montos faltantes, tipos inconsistentes y referencias inválidas.
-- **Tarea:** convertir esos datos en capas ordenadas y consultables, separando registros problemáticos y generando métricas útiles para análisis.
-- **Enfoque:** simular localmente una arquitectura AWS-style con carpetas tipo S3, transformaciones tipo Glue/Lambda en Python, consultas Athena-like con DuckDB y evidencia de ejecución en JSON.
+## 3. Objetivo
+
+Implementar un pipeline end-to-end tipo AWS Data Lake para datos bancarios, usando Python, DuckDB y Parquet.
+
+El proyecto organiza los datos en capas `landing`, `bronze`, `silver` y `gold`. No usa AWS real, credenciales, `boto3` ni recursos cloud, por lo que no genera costos.
 
 ## 4. Arquitectura tipo AWS
 
