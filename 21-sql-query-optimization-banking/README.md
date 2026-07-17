@@ -2,9 +2,7 @@
 
 ## 1. Valor del proyecto
 
-Este proyecto construye un laboratorio local para optimizar consultas SQL sobre datos bancarios. El pipeline genera 150.000 logs transaccionales, los carga en DuckDB, ejecuta 4 queries baseline y 4 queries optimizadas, analiza los planes con `EXPLAIN ANALYZE` y mide cada caso con benchmark reproducible.
-
-El valor esta en demostrar una habilidad clave de Data Engineering: no solo escribir SQL que funciona, sino medir su rendimiento, entender por que una consulta es lenta, aplicar una mejora concreta y validar el impacto con datos. En la ejecucion validada, al menos una optimizacion supero el umbral de 5x definido por la autoevaluacion del proyecto.
+Este proyecto muestra como pasar de escribir SQL que simplemente funciona a optimizar consultas con evidencia. Construi un laboratorio local sobre datos bancarios que genera 150.000 logs transaccionales, carga la informacion en DuckDB, ejecuta 4 queries baseline y 4 queries optimizadas, analiza planes con `EXPLAIN ANALYZE` y mide cada caso con benchmark reproducible. El valor esta en demostrar una habilidad clave de Data Engineering: identificar cuellos de botella, aplicar mejoras concretas y validar el impacto con datos reales de ejecucion; en la validacion del proyecto, al menos una optimizacion supero el umbral de 5x definido por la autoevaluacion.
 
 ## 2. Arquitectura del proyecto y flujo del pipeline
 
@@ -35,59 +33,57 @@ Flujo ejecutado:
 
 ## 3. Problema
 
-El problema es que una consulta SQL puede entregar el resultado correcto y aun asi ser mala para un entorno analitico. Si una query escanea mas datos de los necesarios, recalcula metricas repetidas o usa subqueries poco eficientes, puede volver lentos los reportes, dashboards y procesos de analisis.
-
-Por eso este proyecto no evalua solo si la query funciona. Evalua si la consulta mejora con evidencia: si logra al menos una mejora mayor a 5x, si el uso de indices tiene sentido, si el plan de ejecucion se puede interpretar con `EXPLAIN ANALYZE` y si cada optimizacion queda documentada. La idea es evitar conclusiones vagas como "esta query es lenta" y reemplazarlas por mediciones concretas.
+El problema es que una query puede entregar el resultado correcto y aun asi ser ineficiente. En un entorno analitico, eso puede traducirse en reportes lentos, dashboards pesados o procesos que recalculan informacion innecesariamente. Por eso este proyecto evalua cada consulta con una logica simple: medir el tiempo base, leer el plan con `EXPLAIN ANALYZE`, aplicar una mejora concreta y volver a medir. La autoevaluacion se enfoca en comprobar si existe al menos una mejora mayor a 5x, entender cuando usar indices, interpretar el plan de ejecucion y documentar cada optimizacion.
 
 ## 4. Objetivo
 
 Analizar y optimizar consultas SQL sobre datos bancarios para reducir tiempos de ejecucion en casos medibles, manteniendo trazabilidad completa del antes y despues.
 
-El objetivo concreto fue ejecutar 4 queries baseline, construir 4 versiones optimizadas, medir cada par con 3 iteraciones y calcular el factor de mejora real usando DuckDB.
+El objetivo concreto fue:
+
+- ejecutar 4 queries baseline;
+- construir 4 versiones optimizadas;
+- medir cada par con 3 iteraciones;
+- calcular el factor de mejora real usando DuckDB.
 
 ## 5. Implementacion
 
-La implementacion se diseno como un flujo reproducible de optimizacion. Primero se generan datos bancarios, luego se cargan en DuckDB, se ejecutan consultas baseline, se analizan sus planes, se aplican mejoras y finalmente se comparan los tiempos medidos.
+La implementacion se organizo como un flujo reproducible: generar datos, cargar DuckDB, ejecutar queries baseline, aplicar optimizaciones y comparar resultados medidos.
 
-- Genere 150.000 logs transaccionales bancarios.
-- Cargue las tablas `branches`, `customers`, `accounts` y `transaction_logs` en DuckDB.
-- Construi tablas preagregadas para evitar recalcular metricas completas en cada consulta: `endpoint_daily_metrics`, `channel_transaction_metrics` y `customer_error_metrics`.
-- Defini 4 queries baseline: `slow_endpoint_errors`, `slow_correlated_avg_response_time`, `slow_channel_metrics_full_scan` y `slow_customer_error_lookup`.
-- Defini 4 queries optimizadas: `optimized_endpoint_errors`, `optimized_correlated_avg_response_time`, `optimized_channel_metrics_preaggregated` y `optimized_customer_error_lookup`.
-- Ejecute `EXPLAIN ANALYZE` para revisar como DuckDB resolvia cada consulta.
-- Aplique mejoras mediante seleccion explicita de columnas, reescritura de subqueries, filtros mas claros, preagregaciones e indices estrategicos.
-- Medi cada consulta con 3 iteraciones y guarde los resultados del benchmark.
+| Etapa | Accion realizada | Evidencia |
+| --- | --- | --- |
+| Generacion de datos | Se generaron 150.000 logs transaccionales bancarios | `data/raw/transaction_logs.csv` |
+| Carga analitica | Se cargaron `branches`, `customers`, `accounts` y `transaction_logs` en DuckDB | `db/optimization_lab.duckdb` |
+| Preagregaciones | Se construyeron tablas analiticas para evitar recalcular metricas completas | `endpoint_daily_metrics`, `channel_transaction_metrics`, `customer_error_metrics` |
+| Queries baseline | Se definieron 4 consultas iniciales para medir el rendimiento base | `queries/01_slow_queries.sql` |
+| Optimizacion | Se aplicaron reescrituras, filtros mas claros, columnas explicitas, preagregaciones e indices estrategicos | `queries/02_indexes.sql` y `queries/03_optimized_queries.sql` |
+| Analisis de planes | Se ejecuto `EXPLAIN ANALYZE` para revisar como DuckDB resolvia cada consulta | `output/explain_analysis.md` |
+| Benchmark | Se midio cada query con 3 iteraciones y se calculo el factor de mejora | `output/query_benchmark_summary.json` |
 
 ## 6. Resultados
 
-La ejecucion termino correctamente. El pipeline proceso 150.000 logs, ejecuto 8 queries sin errores y midio cada consulta con 3 iteraciones. La mejor optimizacion supero 5x, cumpliendo la autoevaluacion de la card.
+La ejecucion validada termino correctamente: el pipeline proceso 150.000 logs, ejecuto 8 queries sin errores y midio cada consulta con 3 iteraciones.
 
-| Metrica | Valor |
+| Metrica | Resultado |
 | --- | ---: |
-| `final_status` | `PASSED` |
-| Logs transaccionales generados | 150000 |
-| Branches generadas | 12 |
-| Customers generados | 5000 |
-| Accounts generadas | 7500 |
-| Queries baseline ejecutadas | 4 |
-| Queries optimizadas ejecutadas | 4 |
+| Estado final | PASSED |
+| Logs procesados | 150.000 |
+| Queries baseline | 4 |
+| Queries optimizadas | 4 |
+| Queries ejecutadas sin error | 8 |
 | Iteraciones por query | 3 |
-| Queries con benchmark exitoso | 8 |
 | Mejor mejora medida | 6.317x |
-
-El resultado mas importante fue `channel_metrics`: al reemplazar una agregacion completa sobre `transaction_logs` por una tabla preagregada, la consulta paso de recalcular toda la metrica a leer un resultado analitico ya preparado. Ese caso explica por que en Data Engineering muchas veces el diseno de tablas analiticas es mas importante que intentar optimizar una query aislada.
 
 | Caso | Baseline | Optimizada | Mejora medida |
 | --- | ---: | ---: | ---: |
-| `endpoint_errors` | 0.018904 | 0.007615 | 2.482x |
-| `correlated_avg_response_time` | 0.010665 | 0.008527 | 1.251x |
-| `channel_metrics` | 0.007669 | 0.001214 | 6.317x |
-| `customer_error_lookup` | 0.009378 | 0.010766 | 0.871x |
+| endpoint_errors | 0.018904 | 0.007615 | 2.482x |
+| correlated_avg_response_time | 0.010665 | 0.008527 | 1.251x |
+| channel_metrics | 0.007669 | 0.001214 | 6.317x |
+| customer_error_lookup | 0.009378 | 0.010766 | 0.871x |
 
-- La mejor mejora vino de usar preagregacion en `channel_metrics`.
-- La reescritura de subquery correlacionada tambien redujo tiempo de ejecucion.
-- Los casos con mejora baja muestran que no toda optimizacion tiene impacto relevante.
-- Las mediciones pueden variar entre ejecuciones locales, por lo que el proyecto prioriza metodo y evidencia sobre promesas fijas.
+- La mejor mejora vino de `channel_metrics`, donde la preagregacion evito recalcular metricas sobre la tabla completa.
+- La reescritura de subquery correlacionada tambien redujo el tiempo de ejecucion.
+- Las mejoras marginales muestran que no toda optimizacion tiene impacto relevante; por eso el benchmark es parte central del proyecto.
 
 ## 7. Estructura del proyecto
 
