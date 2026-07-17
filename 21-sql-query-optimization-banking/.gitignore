@@ -1,0 +1,22 @@
+# Local virtual environment
+.venv/
+
+# Python cache
+__pycache__/
+.pycache/
+*.pyc
+
+# Generated raw data
+data/raw/*.csv
+
+# Generated DuckDB database
+db/*.duckdb
+db/*.duckdb.wal
+
+# Generated outputs
+output/*.json
+output/*.csv
+output/*.md
+
+# macOS
+.DS_Store
