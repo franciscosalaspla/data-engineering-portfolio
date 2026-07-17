@@ -94,6 +94,7 @@ Pipeline ETL simple para procesar datos de e-commerce. El proyecto carga datos d
 | [06 - Revisión de Código en Python](./06-revision-codigo-python)    | Evaluación y mejora de código Python aplicando buenas prácticas                            | Python, code review |
 | [17 - dbt Profesional E-commerce](./17-dbt-professional-ecommerce)  | Proyecto dbt completo con seeds, staging, intermediate, marts, tests, snapshot SCD Type 2 y modelo incremental | dbt, DuckDB, SQL |
 | [20 - AWS-Style Banking Data Lake](./20-aws-style-banking-data-lake) | Simulación local de Data Lake bancario estilo AWS con landing, bronze, silver, gold, Parquet, DuckDB y control de costos | Python, DuckDB, Parquet |
+| [21 - SQL Query Optimization Banking](./21-sql-query-optimization-banking) | Laboratorio local de optimización SQL bancaria con EXPLAIN, índices, reescritura de queries y benchmark reproducible | Python, DuckDB, SQL |
 
 ## Habilidades aplicadas
 
