@@ -2,15 +2,11 @@
 
 ## 1. Valor del proyecto
 
-Este proyecto demuestra como optimizar consultas SQL sobre datos bancarios usando `EXPLAIN ANALYZE`, reescritura de queries, preagregaciones e indices estrategicos.
-
-El laboratorio genera 150.000 logs transaccionales, ejecuta 4 queries baseline y 4 queries optimizadas, compara tiempos reales y documenta el impacto de cada cambio. En la ejecucion validada, la mayor mejora medida fue de **6.317x** usando una tabla preagregada para metricas por canal.
-
-El valor principal no esta en prometer una mejora fija, sino en demostrar una metodologia defendible: medir, analizar el plan, optimizar, volver a medir y documentar el resultado.
+Este proyecto conecta arquitectura, analisis SQL y medicion de performance en un laboratorio local de optimizacion de queries. El pipeline genera 150.000 logs transaccionales bancarios, los carga en DuckDB, ejecuta 4 queries baseline y 4 versiones optimizadas, analiza planes con `EXPLAIN ANALYZE` y mide cada caso con benchmark reproducible. El resultado final demuestra una metodologia concreta de Data Engineering: identificar cuellos de botella, aplicar reescritura, indices o preagregaciones, volver a medir y documentar el impacto real. En la ejecucion validada, al menos una optimizacion supero el umbral de 5x definido por la autoevaluacion del proyecto, con una mejora medida de **6.317x**.
 
 ## 2. Arquitectura del proyecto y flujo del pipeline
 
-El pipeline genera datos bancarios sinteticos, los carga en DuckDB, ejecuta queries baseline, analiza los planes con `EXPLAIN ANALYZE`, aplica indices y reescrituras, ejecuta queries optimizadas, mide tiempos con benchmark y genera evidencia en JSON, CSV y Markdown.
+El flujo conecta la generacion de datos con la evidencia final de performance. Primero crea datasets bancarios sinteticos, luego construye la base analitica en DuckDB, ejecuta queries baseline, analiza planes, aplica optimizaciones y compara resultados con metricas locales.
 
 ```mermaid
 flowchart LR
@@ -37,13 +33,13 @@ Flujo ejecutado:
 
 ## 3. Problema
 
-En entornos de datos, una query correcta no siempre es suficiente. Una consulta puede devolver el resultado esperado y aun asi ser dificil de mantener, leer mas datos de los necesarios o recalcular metricas que podrian estar preagregadas.
-
-Este proyecto simula un caso bancario donde se analizan logs transaccionales por endpoint, canal, tipo de transaccion, cliente y errores. El objetivo es practicar como detectar oportunidades de optimizacion sin asumir mejoras teoricas.
+El problema no era escribir SQL que funcionara, sino demostrar si una consulta podia hacerse mas eficiente con evidencia. Para eso, el proyecto toma queries baseline sobre datos bancarios y las evalua contra la autoevaluacion de la card: lograr al menos una mejora mayor a 5x, saber cuando usar indices, leer `EXPLAIN ANALYZE` y documentar cada optimizacion. Esto evita conclusiones vagas como "la query es lenta" y obliga a justificar cada mejora con medicion real.
 
 ## 4. Objetivo
 
-Construir un laboratorio local de optimizacion SQL con Python y DuckDB que permita:
+Analizar y optimizar consultas SQL sobre datos bancarios para reducir tiempos de ejecucion en casos medibles, manteniendo trazabilidad completa del antes y despues.
+
+El laboratorio local usa Python y DuckDB para:
 
 - generar datos bancarios reproducibles;
 - comparar queries baseline vs optimizadas;
@@ -57,6 +53,8 @@ El proyecto no usa cloud real, credenciales, `boto3` ni servicios externos, por 
 
 ## 5. Implementacion
 
+La implementacion se diseno como un pipeline reproducible: primero genera datos, luego crea la base analitica, ejecuta queries baseline, aplica optimizaciones y finalmente compara resultados con metricas reales.
+
 | Componente | Rol |
 | --- | --- |
 | `app/generate_banking_logs.py` | Genera datos sinteticos reproducibles para sucursales, clientes, cuentas y logs transaccionales. |
@@ -68,9 +66,9 @@ El proyecto no usa cloud real, credenciales, `boto3` ni servicios externos, por 
 | `app/run_benchmark.py` | Ejecuta benchmarks con 3 iteraciones por query y genera CSV/JSON. |
 | `app/run_pipeline.py` | Orquesta el flujo completo y escribe `output/pipeline_summary.json`. |
 
-## 6. Resultados medidos
+## 6. Resultados
 
-Resultados de la ejecucion validada:
+La ejecucion validada termino en estado `PASSED`, con 150.000 logs procesados, 8 queries ejecutadas sin errores y 3 iteraciones por query. La mejor mejora medida supero 5x, cumpliendo la autoevaluacion del proyecto. Tambien se observan casos con mejoras marginales, lo que refuerza que optimizar requiere medir y no asumir.
 
 | Metrica | Valor |
 | --- | ---: |
@@ -94,7 +92,7 @@ Comparacion baseline vs optimizada:
 | `channel_metrics` | 0.007669 | 0.001214 | 6.317x | Mejoro por usar una tabla preagregada en vez de recalcular sobre logs completos. |
 | `customer_error_lookup` | 0.009378 | 0.010766 | 0.871x | No mejoro en esta ejecucion local; DuckDB resolvio bien la version baseline. |
 
-La mejora de al menos 5x se logro solo en `channel_metrics`. Las demas diferencias fueron menores y una query no mejoro. Esa es una parte importante del aprendizaje: optimizar requiere medir, no asumir.
+La mejora mas clara aparece en `channel_metrics`, donde la preagregacion evita recalcular metricas desde la tabla completa. La reescritura de la subquery correlacionada mejora de forma menor, y `customer_error_lookup` no mejora en esta ejecucion. Las mediciones son locales y pueden variar, por eso el proyecto documenta cada caso sin generalizar resultados.
 
 ## 7. Estructura del proyecto
 
@@ -129,27 +127,16 @@ La mejora de al menos 5x se logro solo en `channel_metrics`. Las demas diferenci
 
 Los CSV, la base DuckDB y los outputs generados estan ignorados por Git. El repositorio versiona el codigo, las queries, la documentacion y los `.gitkeep` necesarios.
 
-## 8. Como ejecutar
+## 8. Evidencia generada
 
-Desde la carpeta del proyecto:
+El pipeline genera evidencia local en `output/`:
 
-```bash
-cd 21-sql-query-optimization-banking
-python3 -m venv .venv
-source .venv/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt
-python3 app/run_pipeline.py
-```
-
-Validaciones utiles:
-
-```bash
-cat output/pipeline_summary.json
-cat output/query_benchmark_summary.json
-sed -n '1,120p' output/explain_analysis.md
-git status --short
-```
+| Archivo | Contenido |
+| --- | --- |
+| `output/pipeline_summary.json` | Estado final, conteos de entrada, rutas generadas y resumen de benchmark. |
+| `output/query_benchmark_results.csv` | Resultado por query, tipo, duracion promedio, filas e iteraciones. |
+| `output/query_benchmark_summary.json` | Comparacion baseline vs optimizada y factores de mejora medidos. |
+| `output/explain_analysis.md` | Planes `EXPLAIN ANALYZE` e interpretacion breve por query. |
 
 ## 9. Material de estudio
 
