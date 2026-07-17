@@ -8,19 +8,25 @@
 
 > Imagen referencial utilizada para representar una arquitectura cloud AWS-style.
 
-## 1. Resumen del proyecto
+## 1. Objetivo
 
-Este proyecto implementa una simulación local de un Data Lake tipo AWS para datos bancarios. El pipeline organiza datos en capas landing, bronze, silver y gold usando Python, DuckDB y Parquet.
+Implementar una simulación local de un pipeline end-to-end tipo AWS Data Lake para datos bancarios, usando Python, DuckDB y Parquet.
 
-La solución no usa AWS real, credenciales, `boto3` ni recursos cloud, por lo que no genera costos. El foco está en demostrar arquitectura de datos, calidad, trazabilidad, consultas analíticas y criterios de control de costos en un entorno reproducible.
+El proyecto organiza datos en capas landing, bronze, silver y gold. No usa AWS real, credenciales, `boto3` ni recursos cloud, por lo que no genera costos.
 
-## 2. Problema y enfoque
+## 2. Valor del proyecto
+
+El proyecto permite convertir datos operacionales crudos en información confiable para análisis, separando datos problemáticos y generando capas listas para consulta.
+
+Su valor está en demostrar diseño cloud-style, arquitectura de datos, calidad, trazabilidad, consultas analíticas y control de costos sin afirmar un despliegue real en AWS.
+
+## 3. Problema y enfoque
 
 - **Situación:** un banco recibe datos operacionales crudos que pueden incluir duplicados, nulos, fechas inválidas, montos faltantes, tipos inconsistentes y referencias inválidas.
 - **Tarea:** convertir esos datos en capas ordenadas y consultables, separando registros problemáticos y generando métricas útiles para análisis.
 - **Enfoque:** simular localmente una arquitectura AWS-style con carpetas tipo S3, transformaciones tipo Glue/Lambda en Python, consultas Athena-like con DuckDB y evidencia de ejecución en JSON.
 
-## 3. Arquitectura tipo AWS
+## 4. Arquitectura tipo AWS
 
 El flujo local representa S3, Glue/Lambda, Athena y logs estilo CloudWatch sin desplegar servicios reales en AWS.
 
@@ -33,7 +39,7 @@ flowchart LR
     E --> F["outputs<br/>query results + summaries JSON<br/>CloudWatch-style logs"]
 ```
 
-## 4. Estructura del proyecto
+## 5. Estructura del proyecto
 
 ```text
 20-aws-style-banking-data-lake/
@@ -75,7 +81,7 @@ flowchart LR
 - `run_athena_like_queries.py`: ejecuta consultas SQL con DuckDB sobre los Parquet generados, simulando Athena.
 - `run_pipeline.py`: orquesta el flujo completo y consolida la evidencia de ejecución en `output/pipeline_summary.json`.
 
-## 5. Flujo del pipeline
+## 6. Flujo del pipeline
 
 ```text
 CSV crudos -> landing -> bronze Parquet -> silver limpio + cuarentena -> gold analítico -> queries DuckDB -> summaries JSON
@@ -90,7 +96,7 @@ CSV crudos -> landing -> bronze Parquet -> silver limpio + cuarentena -> gold an
 
 Los CSV, Parquet y summaries generados están ignorados por Git para evitar subir datos locales o artefactos de ejecución.
 
-## 6. Resultados de la implementación
+## 7. Resultados de la implementación
 
 - **Situación:** el proyecto necesitaba demostrar una arquitectura Data Lake end-to-end sin depender de infraestructura cloud real.
 - **Tarea:** generar datos bancarios crudos, procesarlos por capas, ejecutar consultas analíticas y dejar evidencia clara de calidad y ejecución.
@@ -118,7 +124,7 @@ Checks de calidad registrados:
 
 Estos resultados corresponden a una ejecución local y no implican uso real de AWS, grandes volúmenes ni costos reales de nube.
 
-## 7. Equivalencia local vs AWS
+## 8. Equivalencia local vs AWS
 
 | Local | AWS equivalente | Rol |
 | --- | --- | --- |
@@ -133,11 +139,11 @@ Estos resultados corresponden a una ejecución local y no implican uso real de A
 
 Para migrarlo a AWS real, el diseño podría llevarse a un bucket S3 con prefixes `landing/`, `bronze/`, `silver/` y `gold/`, Glue Crawler/Data Catalog, Glue Job o Lambda para transformar, Athena para consultar, IAM least privilege, billing alerts y lifecycle policies. Esa migración no está implementada en este proyecto.
 
-## 8. Aprendizajes técnicos del proyecto
+## 9. Aprendizajes técnicos del proyecto
 
 Esta sección funciona como material de estudio personal para defender el proyecto técnicamente. Resume los conceptos, archivos y decisiones que conviene explicar con claridad.
 
-### 8.1 Conceptos clave
+### 9.1 Conceptos clave
 
 | Concepto | Qué significa en este proyecto |
 | --- | --- |
@@ -155,7 +161,7 @@ Esta sección funciona como material de estudio personal para defender el proyec
 | IAM least privilege | Diseño documental de permisos mínimos para una migración futura a AWS real. |
 | Control de costos | Uso conceptual de Parquet, particiones, límites de escaneo y alertas de billing. |
 
-### 8.2 Archivos más importantes
+### 9.2 Archivos más importantes
 
 | Archivo | Rol principal | Qué aprendí |
 | --- | --- | --- |
@@ -165,7 +171,7 @@ Esta sección funciona como material de estudio personal para defender el proyec
 | `run_pipeline.py` | Orquesta el flujo completo y escribe el summary final. | Un pipeline profesional debe tener una entrada clara, logging, manejo de errores y salida trazable. |
 | `athena_like_queries.sql` | Contiene las consultas analíticas finales. | Las queries deben responder preguntas de negocio sin depender de `SELECT *` ni de infraestructura cloud real. |
 
-### 8.3 Funciones y códigos destacables
+### 9.3 Funciones y códigos destacables
 
 `generate_banking_landing_data.py`
 
@@ -232,7 +238,7 @@ generate_landing_data()
 -> write_summary()
 ```
 
-### 8.4 Qué debo saber explicar técnicamente
+### 9.4 Qué debo saber explicar técnicamente
 
 - Por qué existen landing, bronze, silver y gold.
 - Por qué uso Parquet en vez de dejar todo como CSV.
@@ -243,11 +249,11 @@ generate_landing_data()
 - Qué representa `run_pipeline.py` como orquestador end-to-end.
 - Por qué `data_lake/` y `output/` aparecen casi vacíos en GitHub: los datos generados, Parquet y summaries se crean localmente y están ignorados por Git.
 
-### 8.5 Aprendizaje principal
+### 9.5 Aprendizaje principal
 
 Un Data Engineer no solo construye pipelines que corren. También diseña arquitectura, capas de datos, reglas de calidad, control de costos, permisos mínimos y evidencia de ejecución para que el proceso sea entendible, auditable y defendible técnicamente.
 
-### 8.6 Resumen técnico corto
+### 9.6 Resumen técnico corto
 
 ```text
 generate_banking_landing_data.py crea datos crudos.
