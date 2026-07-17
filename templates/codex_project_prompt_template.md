@@ -28,11 +28,11 @@ Construir un proyecto práctico de Ingeniería de Datos alineado con la card ent
 
 Contexto del portfolio:
 Este proyecto debe seguir el estándar aplicado en proyectos anteriores:
-- README profesional y concreto.
+- README ejecutivo, concreto y orientado a entrevista.
 - Código modular.
 - Pipeline reproducible.
 - Outputs ignorados por Git.
-- Sección de aprendizajes técnicos.
+- Notas técnicas extensas fuera del README principal, en `docs/` cuando aporte.
 - Sin métricas falsas.
 - Sin afirmar uso de herramientas reales si solo se simulan.
 - Sin subir CSV, Parquet, JSON generados ni archivos pesados.
@@ -62,56 +62,125 @@ Definir una estructura adecuada según la card, usando este patrón como base:
 └── .gitignore
 
 Requisitos del README:
-Debe seguir esta estructura, adaptada al proyecto:
+Debe seguir esta estructura ejecutiva, adaptada al proyecto:
 
-# [NÚMERO] - [Nombre del proyecto]
+# [NÚMERO] - [Nombre de la card]
 
-## [Subtítulo asociado a la card]
+No agregar subtítulo redundante debajo del título.
 
 ## 1. Valor del proyecto
-Explicar por qué este proyecto importa desde el punto de vista de Ingeniería de Datos y negocio.
 
-## 2. Problema y enfoque
-Explicar de forma narrativa:
-- qué problema aborda;
-- por qué no basta con una solución simple;
-- qué enfoque técnico se usó.
+Debe ser un solo párrafo, corto, concreto y atractivo.
+Debe funcionar como hook y explicar:
+- qué se construyó;
+- con qué tecnología;
+- qué se midió o validó;
+- cuál fue el resultado principal;
+- por qué tiene valor para Data Engineering.
 
-## 3. Objetivo
-Explicar qué se construyó, con qué herramientas y qué limitaciones tiene.
+Formato esperado:
 
-## 4. Arquitectura del proyecto
-Incluir diagrama Mermaid si aplica.
+Este proyecto muestra cómo pasar de [problema técnico] a [solución medible] usando [tecnologías principales]. El pipeline [acción principal], procesa [volumen o input], aplica [técnica principal] y genera [resultado medible]. El valor está en demostrar una habilidad clave de Data Engineering: [capacidad técnica defendible], validando el impacto con evidencia y no con supuestos.
 
-## 5. Estructura del proyecto
+## 2. Arquitectura del proyecto y flujo del pipeline
+
+Debe explicar brevemente el flujo del proyecto.
+Debe incluir Mermaid cuando aplique.
+Debe incluir una tabla corta de etapas si ayuda, sin convertir el README en documentación extensa.
+
+Formato recomendado:
+
+La arquitectura separa el proceso en etapas simples: [etapa 1], [etapa 2], [etapa 3], [etapa 4] y [resultado final]. Todo el flujo queda orquestado desde [herramienta/script] y genera evidencia reproducible.
+
+Diagrama Mermaid genérico:
+
+```mermaid
+flowchart LR
+    A[Input] --> B[Procesamiento]
+    B --> C[Validacion / Transformacion]
+    C --> D[Salida analitica]
+    D --> E[Evidencia / Resultados]
+```
+
+## 3. Problema
+
+Debe explicar el problema técnico de forma concreta y fácil de defender.
+Debe evitar narrativas largas.
+Debe explicar por qué importa medir, validar o estructurar bien el pipeline.
+
+## 4. Objetivo
+
+Debe declarar el objetivo principal en una frase.
+Luego usar punteo corto para los objetivos concretos.
+
+Ejemplo:
+
+Analizar y optimizar [proceso/datos/sistema] para [resultado esperado], manteniendo trazabilidad completa del antes y después.
+
+El objetivo concreto fue:
+
+- ejecutar [proceso base];
+- construir [componente o versión mejorada];
+- medir o validar [criterio];
+- generar evidencia reproducible en [formato].
+
+## 5. Implementacion
+
+Debe resumir cómo se implementó el proyecto.
+Preferir una tabla compacta si hay varias etapas.
+
+Ejemplo:
+
+| Etapa | Acción realizada | Evidencia |
+| --- | --- | --- |
+| Ingesta / generación | [Qué se generó o cargó] | `[ruta]` |
+| Transformación | [Qué se limpió, validó o modeló] | `[ruta]` |
+| Validación | [Qué regla o métrica se comprobó] | `[ruta]` |
+| Resultado | [Qué salida se generó] | `[ruta]` |
+
+## 6. Resultados
+
+Debe mostrar solo resultados reales generados o validados por el pipeline.
+No inventar métricas.
+No prometer mejoras no medidas.
+Usar 1 o 2 tablas como máximo.
+
+Ejemplo:
+
+| Métrica | Resultado |
+| --- | ---: |
+| Estado final | PASSED |
+| Registros procesados | [valor real] |
+| Validaciones ejecutadas | [valor real] |
+| Outputs generados | [valor real] |
+
+Agregar 2 o 3 bullets de interpretación, enfocados en qué demuestra el resultado.
+
+## 7. Estructura del proyecto
+
 Incluir árbol de carpetas y componentes principales.
+Cerrar el README en esta sección.
 
-## 6. Flujo del pipeline
-Explicar el flujo paso a paso, idealmente con un flujo visual en texto.
+No incluir en el README principal:
+- subtítulo redundante debajo del título;
+- secciones largas de conceptos técnicos;
+- aprendizajes técnicos extensos;
+- instrucciones de ejecución como sección del README principal;
+- material de estudio como sección del README principal;
+- listados extensos de evidencia generada si no aportan valor ejecutivo;
+- documentación larga que corresponda a `docs/`.
 
-## 7. Resultados de la implementación
-Usar formato:
-- Situación
-- Tarea
-- Acciones
-- Resultados validados
+Notas técnicas:
+Si el proyecto necesita conceptos técnicos, aprendizajes, preguntas de entrevista o explicación extendida, crear un documento aparte en `docs/`, por ejemplo:
 
-No inventar resultados. Usar solo resultados generados por el pipeline.
+- `docs/technical_notes.md`
+- `docs/interview_guide.md`
+- `docs/explain_reading_guide.md`
 
-## 8. Conceptos técnicos aplicados
-Tabla con conceptos técnicos relevantes del proyecto.
-
-## 9. Aprendizajes técnicos del proyecto
-Usar la plantilla:
+Puede usarse como base la plantilla:
 templates/project_readme_learning_section.md
 
-Adaptarla al proyecto:
-- conceptos clave;
-- archivos más importantes;
-- funciones destacables;
-- qué debo saber explicar técnicamente;
-- aprendizaje principal;
-- resumen técnico corto.
+No copiar ese contenido completo dentro del README principal.
 
 Código:
 - Crear scripts modulares.
@@ -140,11 +209,15 @@ git status --short
 
 Criterios de aceptación:
 - Pipeline ejecuta correctamente.
-- README claro y profesional.
+- README ejecutivo, claro y profesional.
+- README usa la estructura estándar de 7 secciones.
+- README no incluye subtítulo redundante.
+- README no incluye secciones largas de conceptos técnicos o aprendizajes.
+- README no incluye instrucciones de ejecución, material de estudio ni documentación extensa como secciones principales.
 - Outputs generados ignorados por Git.
 - No datos pesados versionados.
 - No métricas falsas.
-- Sección de aprendizajes incluida.
+- Notas técnicas en `docs/` si el proyecto lo requiere.
 - Proyecto alineado con la card.
 - PR draft creado.
 - No hacer merge.
