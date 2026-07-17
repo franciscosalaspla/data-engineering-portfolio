@@ -2,11 +2,13 @@
 
 ## 1. Valor del proyecto
 
-Este proyecto conecta arquitectura, analisis SQL y medicion de performance en un laboratorio local de optimizacion de queries. El pipeline genera 150.000 logs transaccionales bancarios, los carga en DuckDB, ejecuta 4 queries baseline y 4 versiones optimizadas, analiza planes con `EXPLAIN ANALYZE` y mide cada caso con benchmark reproducible. El resultado final demuestra una metodologia concreta de Data Engineering: identificar cuellos de botella, aplicar reescritura, indices o preagregaciones, volver a medir y documentar el impacto real. En la ejecucion validada, al menos una optimizacion supero el umbral de 5x definido por la autoevaluacion del proyecto, con una mejora medida de **6.317x**.
+Este proyecto construye un laboratorio local para optimizar consultas SQL sobre datos bancarios. El pipeline genera 150.000 logs transaccionales, los carga en DuckDB, ejecuta 4 queries baseline y 4 queries optimizadas, analiza los planes con `EXPLAIN ANALYZE` y mide cada caso con benchmark reproducible.
+
+El valor esta en demostrar una habilidad clave de Data Engineering: no solo escribir SQL que funciona, sino medir su rendimiento, entender por que una consulta es lenta, aplicar una mejora concreta y validar el impacto con datos. En la ejecucion validada, al menos una optimizacion supero el umbral de 5x definido por la autoevaluacion del proyecto.
 
 ## 2. Arquitectura del proyecto y flujo del pipeline
 
-El flujo conecta la generacion de datos con la evidencia final de performance. Primero crea datasets bancarios sinteticos, luego construye la base analitica en DuckDB, ejecuta queries baseline, analiza planes, aplica optimizaciones y compara resultados con metricas locales.
+La arquitectura separa el proceso en etapas simples: generacion de datos, carga analitica, ejecucion de consultas baseline, analisis del plan, optimizacion y medicion final. Todo el flujo queda orquestado desde un pipeline Python y los resultados se guardan como evidencia local.
 
 ```mermaid
 flowchart LR
@@ -33,42 +35,32 @@ Flujo ejecutado:
 
 ## 3. Problema
 
-El problema no era escribir SQL que funcionara, sino demostrar si una consulta podia hacerse mas eficiente con evidencia. Para eso, el proyecto toma queries baseline sobre datos bancarios y las evalua contra la autoevaluacion de la card: lograr al menos una mejora mayor a 5x, saber cuando usar indices, leer `EXPLAIN ANALYZE` y documentar cada optimizacion. Esto evita conclusiones vagas como "la query es lenta" y obliga a justificar cada mejora con medicion real.
+El problema es que una consulta SQL puede entregar el resultado correcto y aun asi ser mala para un entorno analitico. Si una query escanea mas datos de los necesarios, recalcula metricas repetidas o usa subqueries poco eficientes, puede volver lentos los reportes, dashboards y procesos de analisis.
+
+Por eso este proyecto no evalua solo si la query funciona. Evalua si la consulta mejora con evidencia: si logra al menos una mejora mayor a 5x, si el uso de indices tiene sentido, si el plan de ejecucion se puede interpretar con `EXPLAIN ANALYZE` y si cada optimizacion queda documentada. La idea es evitar conclusiones vagas como "esta query es lenta" y reemplazarlas por mediciones concretas.
 
 ## 4. Objetivo
 
 Analizar y optimizar consultas SQL sobre datos bancarios para reducir tiempos de ejecucion en casos medibles, manteniendo trazabilidad completa del antes y despues.
 
-El laboratorio local usa Python y DuckDB para:
-
-- generar datos bancarios reproducibles;
-- comparar queries baseline vs optimizadas;
-- leer planes con `EXPLAIN ANALYZE`;
-- aplicar indices visibles y justificados;
-- reescribir consultas ineficientes;
-- medir tiempos reales;
-- documentar resultados sin inventar metricas.
-
-El proyecto no usa cloud real, credenciales, `boto3` ni servicios externos, por lo que no genera costos.
+El objetivo concreto fue ejecutar 4 queries baseline, construir 4 versiones optimizadas, medir cada par con 3 iteraciones y calcular el factor de mejora real usando DuckDB.
 
 ## 5. Implementacion
 
-La implementacion se diseno como un pipeline reproducible: primero genera datos, luego crea la base analitica, ejecuta queries baseline, aplica optimizaciones y finalmente compara resultados con metricas reales.
+La implementacion se diseno como un flujo reproducible de optimizacion. Primero se generan datos bancarios, luego se cargan en DuckDB, se ejecutan consultas baseline, se analizan sus planes, se aplican mejoras y finalmente se comparan los tiempos medidos.
 
-| Componente | Rol |
-| --- | --- |
-| `app/generate_banking_logs.py` | Genera datos sinteticos reproducibles para sucursales, clientes, cuentas y logs transaccionales. |
-| `app/setup_database.py` | Crea la base DuckDB, carga los CSV y materializa tablas preagregadas. |
-| `queries/01_slow_queries.sql` | Define 4 queries baseline intencionalmente menos eficientes. |
-| `queries/02_indexes.sql` | Declara indices sobre columnas usadas en filtros y joins. |
-| `queries/03_optimized_queries.sql` | Define 4 queries optimizadas comparables. |
-| `app/run_explain_analysis.py` | Ejecuta `EXPLAIN ANALYZE` y genera `output/explain_analysis.md`. |
-| `app/run_benchmark.py` | Ejecuta benchmarks con 3 iteraciones por query y genera CSV/JSON. |
-| `app/run_pipeline.py` | Orquesta el flujo completo y escribe `output/pipeline_summary.json`. |
+- Genere 150.000 logs transaccionales bancarios.
+- Cargue las tablas `branches`, `customers`, `accounts` y `transaction_logs` en DuckDB.
+- Construi tablas preagregadas para evitar recalcular metricas completas en cada consulta: `endpoint_daily_metrics`, `channel_transaction_metrics` y `customer_error_metrics`.
+- Defini 4 queries baseline: `slow_endpoint_errors`, `slow_correlated_avg_response_time`, `slow_channel_metrics_full_scan` y `slow_customer_error_lookup`.
+- Defini 4 queries optimizadas: `optimized_endpoint_errors`, `optimized_correlated_avg_response_time`, `optimized_channel_metrics_preaggregated` y `optimized_customer_error_lookup`.
+- Ejecute `EXPLAIN ANALYZE` para revisar como DuckDB resolvia cada consulta.
+- Aplique mejoras mediante seleccion explicita de columnas, reescritura de subqueries, filtros mas claros, preagregaciones e indices estrategicos.
+- Medi cada consulta con 3 iteraciones y guarde los resultados del benchmark.
 
 ## 6. Resultados
 
-La ejecucion validada termino en estado `PASSED`, con 150.000 logs procesados, 8 queries ejecutadas sin errores y 3 iteraciones por query. La mejor mejora medida supero 5x, cumpliendo la autoevaluacion del proyecto. Tambien se observan casos con mejoras marginales, lo que refuerza que optimizar requiere medir y no asumir.
+La ejecucion termino correctamente. El pipeline proceso 150.000 logs, ejecuto 8 queries sin errores y midio cada consulta con 3 iteraciones. La mejor optimizacion supero 5x, cumpliendo la autoevaluacion de la card.
 
 | Metrica | Valor |
 | --- | ---: |
@@ -83,16 +75,19 @@ La ejecucion validada termino en estado `PASSED`, con 150.000 logs procesados, 8
 | Queries con benchmark exitoso | 8 |
 | Mejor mejora medida | 6.317x |
 
-Comparacion baseline vs optimizada:
+El resultado mas importante fue `channel_metrics`: al reemplazar una agregacion completa sobre `transaction_logs` por una tabla preagregada, la consulta paso de recalcular toda la metrica a leer un resultado analitico ya preparado. Ese caso explica por que en Data Engineering muchas veces el diseno de tablas analiticas es mas importante que intentar optimizar una query aislada.
 
-| Caso | Baseline seconds | Optimized seconds | Mejora medida | Lectura |
-| --- | ---: | ---: | ---: | --- |
-| `endpoint_errors` | 0.018904 | 0.007615 | 2.482x | Mejoro al evitar `SELECT *` y seleccionar columnas explicitas. |
-| `correlated_avg_response_time` | 0.010665 | 0.008527 | 1.251x | Mejoro levemente al reescribir la subquery correlacionada como CTE + join. |
-| `channel_metrics` | 0.007669 | 0.001214 | 6.317x | Mejoro por usar una tabla preagregada en vez de recalcular sobre logs completos. |
-| `customer_error_lookup` | 0.009378 | 0.010766 | 0.871x | No mejoro en esta ejecucion local; DuckDB resolvio bien la version baseline. |
+| Caso | Baseline | Optimizada | Mejora medida |
+| --- | ---: | ---: | ---: |
+| `endpoint_errors` | 0.018904 | 0.007615 | 2.482x |
+| `correlated_avg_response_time` | 0.010665 | 0.008527 | 1.251x |
+| `channel_metrics` | 0.007669 | 0.001214 | 6.317x |
+| `customer_error_lookup` | 0.009378 | 0.010766 | 0.871x |
 
-La mejora mas clara aparece en `channel_metrics`, donde la preagregacion evita recalcular metricas desde la tabla completa. La reescritura de la subquery correlacionada mejora de forma menor, y `customer_error_lookup` no mejora en esta ejecucion. Las mediciones son locales y pueden variar, por eso el proyecto documenta cada caso sin generalizar resultados.
+- La mejor mejora vino de usar preagregacion en `channel_metrics`.
+- La reescritura de subquery correlacionada tambien redujo tiempo de ejecucion.
+- Los casos con mejora baja muestran que no toda optimizacion tiene impacto relevante.
+- Las mediciones pueden variar entre ejecuciones locales, por lo que el proyecto prioriza metodo y evidencia sobre promesas fijas.
 
 ## 7. Estructura del proyecto
 
@@ -126,22 +121,3 @@ La mejora mas clara aparece en `channel_metrics`, donde la preagregacion evita r
 ```
 
 Los CSV, la base DuckDB y los outputs generados estan ignorados por Git. El repositorio versiona el codigo, las queries, la documentacion y los `.gitkeep` necesarios.
-
-## 8. Evidencia generada
-
-El pipeline genera evidencia local en `output/`:
-
-| Archivo | Contenido |
-| --- | --- |
-| `output/pipeline_summary.json` | Estado final, conteos de entrada, rutas generadas y resumen de benchmark. |
-| `output/query_benchmark_results.csv` | Resultado por query, tipo, duracion promedio, filas e iteraciones. |
-| `output/query_benchmark_summary.json` | Comparacion baseline vs optimizada y factores de mejora medidos. |
-| `output/explain_analysis.md` | Planes `EXPLAIN ANALYZE` e interpretacion breve por query. |
-
-## 9. Material de estudio
-
-La explicacion extendida de conceptos tecnicos, aprendizajes, decisiones defendibles y preguntas de entrevista esta en:
-
-- `docs/technical_notes.md`
-- `docs/explain_reading_guide.md`
-- `docs/interview_guide.md`
