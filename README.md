@@ -11,7 +11,7 @@ Portfolio práctico de Ingeniería de Datos enfocado en pipelines, SQL, calidad 
 
 ## Perfil
 
-Soy Ingeniero Civil Industrial con experiencia en analítica digital, integración de datos, SQL, APIs/JSON, validación QA/producción, Power BI, Databricks SQL y documentación técnica. Este repositorio consolida mi transición hacia roles de Data Engineer mediante proyectos prácticos, reproducibles y orientados a entrevistas técnicas.
+Soy Ingeniero Civil Industrial con experiencia en analítica digital, integración de datos, SQL, APIs/JSON, validación QA/producción, Power BI, Databricks SQL y documentación técnica. Este repositorio consolida mi transición hacia roles de Data Engineer mediante proyectos prácticos.
 
 ## Top 3 proyectos para entrevistas técnicas
 
