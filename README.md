@@ -1,6 +1,6 @@
 # Portafolio de Ingeniería de Datos
 
-Portfolio práctico de proyectos de Ingeniería de Datos enfocado en ETL, SQL, APIs, Python, limpieza de datos, validación de calidad y generación de outputs analíticos.
+Portfolio práctico de Ingeniería de Datos enfocado en pipelines, SQL, calidad de datos, arquitectura Data Lake, procesamiento analítico y documentación técnica defendible en entrevistas.
 
 ## Contacto
 
@@ -11,102 +11,107 @@ Portfolio práctico de proyectos de Ingeniería de Datos enfocado en ETL, SQL, A
 
 ## Perfil
 
-Soy Ingeniero Civil Industrial con experiencia en analítica digital, integración de eventos, JSON/APIs, validación QA/producción, Data Warehouse, SQL, Power BI y Databricks SQL.
+Soy Ingeniero Civil Industrial con experiencia en analítica digital, integración de datos, SQL, APIs/JSON, validación QA/producción, Power BI, Databricks SQL y documentación técnica. Este repositorio consolida mi transición hacia roles de Data Engineer mediante proyectos prácticos, reproducibles y orientados a entrevistas técnicas.
 
-Este repositorio consolida mi transición hacia roles de Data Engineer mediante proyectos prácticos, documentados y defendibles en entrevista.
+## Top 3 proyectos para entrevistas técnicas
 
-## Top 3 proyectos recomendados
+Estos son los tres proyectos que recomiendo revisar primero. Están seleccionados porque cubren arquitectura Data Lake en AWS, optimización SQL y calidad/control de datos: tres áreas críticas para roles de Ingeniería de Datos.
 
-Estos son los proyectos principales que recomiendo revisar primero.
+| Prioridad | Proyecto | Foco técnico | Por qué es defendible en entrevista |
+|---:|---|---|---|
+| 1 | [20 - AWS-Style Banking Data Lake](./20-aws-style-banking-data-lake) | AWS-style Data Lake, Parquet, capas landing/bronze/silver/gold, DuckDB | Permite explicar arquitectura tipo S3 + Glue/Lambda + Athena, separación por capas, transformación, consultas analíticas, IAM least privilege y control de costos |
+| 2 | [21 - Optimizacion de Queries SQL](./21-sql-query-optimization-banking) | SQL, EXPLAIN ANALYZE, benchmark, reescritura de queries, preagregación | Permite demostrar que no solo escribo SQL, sino que mido performance, leo planes de ejecución y optimizo consultas con evidencia |
+| 3 | [14 - Data Quality con Great Expectations](./14-data-quality-great-expectations) | Data Quality, validaciones, expectation-style checks, revisión de errores | Permite hablar de controles de calidad, validación automática, trazabilidad de errores y revisión de datos antes de disponibilizarlos |
 
-| Proyecto                                             | Foco técnico                                 | Qué demuestra                                                                      |
-| ---------------------------------------------------- | -------------------------------------------- | ---------------------------------------------------------------------------------- |
-| [09 - Pipeline con API REST](./09-pipeline-api-rest) | API REST, JSON, Python, pandas, CSV, Parquet | Consumo de API, transformación de JSON anidado, validación y generación de outputs |
-| [08 - Análisis SQL de Logs](./08-analisis-sql-logs)  | DuckDB, SQL, CTEs, Window Functions          | Análisis de tráfico, errores, performance y priorización de endpoints              |
-| [07 - ETL Simple con Python](./07-etl-simple-python) | Python, pandas, ETL, CSV, Parquet            | Limpieza, transformación, métricas de negocio y exportación de datos               |
+## Proyectos destacados para defender
 
-## Proyectos destacados
+### 20 - AWS-Style Banking Data Lake
 
-### 09 - Pipeline con API REST
+Proyecto principal para entrevistas con foco AWS. Construye una simulación local de un Data Lake bancario con capas landing, bronze, silver y gold. El flujo genera datos bancarios, transforma información cruda en datasets analíticos, escribe salidas en Parquet y permite consultas tipo Athena usando DuckDB.
 
-Pipeline que consume una API REST pública, guarda la respuesta cruda en JSON, transforma datos anidados en una tabla limpia, valida calidad de datos y genera outputs en CSV y Parquet.
+**Qué demuestra:**
 
-**Habilidades aplicadas:**
+* diseño de arquitectura Data Lake estilo AWS;
+* separación de datos por capas;
+* transformación y enriquecimiento de datos;
+* uso de Parquet para almacenamiento analítico;
+* consultas analíticas tipo Athena con DuckDB;
+* documentación de IAM least privilege y control de costos;
+* criterio para hablar de S3, Glue/Lambda, Athena y gobierno básico de datos.
 
-* Consumo de APIs REST con `requests`.
-* Manejo de JSON anidado.
-* Transformación con pandas.
-* Validación de nulos y duplicados.
-* Exportación a CSV y Parquet.
-* Manejo de errores con `timeout` y `raise_for_status()`.
+**Cómo lo explicaría en entrevista:**
 
-**Explicación breve:**
-
-> Construí un pipeline que extrae datos desde una API REST, conserva el JSON crudo, transforma estructuras anidadas en una tabla analítica y genera outputs reutilizables para análisis.
-
----
-
-### 08 - Análisis SQL de Logs
-
-Análisis de logs de servidor usando SQL y DuckDB. El proyecto identifica endpoints más usados, errores, tiempos de respuesta, tendencia horaria y ranking de performance.
-
-**Habilidades aplicadas:**
-
-* SQL analítico.
-* DuckDB.
-* CTEs.
-* Window Functions: `RANK()` y `LAG()`.
-* Análisis de errores y performance.
-* Generación de outputs CSV.
-
-**Explicación breve:**
-
-> Analicé logs de servidor para detectar endpoints críticos combinando volumen de tráfico, errores y latencia. El principal hallazgo fue que `/api/search` debía priorizarse por alto uso, errores y tiempos elevados.
+> Construí una simulación local de un Data Lake bancario estilo AWS. Separé los datos en landing, bronze, silver y gold, transformé datos crudos en salidas analíticas en Parquet y ejecuté consultas tipo Athena con DuckDB. El proyecto también documenta equivalencias con servicios AWS, control de costos e IAM least privilege.
 
 ---
 
-### 07 - ETL Simple con Python
+### 21 - Optimizacion de Queries SQL
 
-Pipeline ETL simple para procesar datos de e-commerce. El proyecto carga datos desde CSV, explora calidad, limpia nulos y duplicados, corrige tipos de datos, calcula métricas de negocio y exporta resultados.
+Proyecto enfocado en performance SQL. Construye un laboratorio local con 150.000 logs transaccionales bancarios, ejecuta queries baseline y optimizadas, analiza planes con EXPLAIN ANALYZE y mide mejoras reales con benchmark reproducible.
 
-**Habilidades aplicadas:**
+**Qué demuestra:**
 
-* ETL con Python y pandas.
-* Limpieza de datos.
-* Manejo de nulos y duplicados.
-* Cálculo de métricas de negocio.
-* Exportación a CSV y Parquet.
-* Documentación técnica.
+* SQL analítico;
+* lectura de EXPLAIN ANALYZE;
+* identificación de cuellos de botella;
+* reescritura de queries;
+* uso de preagregaciones;
+* uso de índices con criterio;
+* medición de performance con benchmark.
 
-**Explicación breve:**
+**Cómo lo explicaría en entrevista:**
 
-> Construí un flujo ETL completo para transformar datos crudos de e-commerce en datasets limpios y métricas de negocio listas para análisis.
+> Construí un laboratorio de optimización SQL sobre datos bancarios. Ejecuté 4 queries baseline y 4 optimizadas, medí cada par con 3 iteraciones y documenté el impacto. El valor del proyecto es mostrar una metodología concreta: medir, leer el plan, optimizar y volver a medir.
+
+---
+
+### 14 - Data Quality con Great Expectations
+
+Proyecto enfocado en calidad y control de datos. Implementa validaciones tipo expectation-based checks sobre datos tabulares, identifica errores, registra fallas y genera evidencia para revisar la calidad antes de usar los datos en procesos analíticos.
+
+Este proyecto debe entenderse como un laboratorio local de calidad de datos inspirado en Great Expectations y en controles estilo expectations, no como un sistema productivo.
+
+**Qué demuestra:**
+
+* validaciones de calidad de datos;
+* control de nulos, duplicados y reglas de negocio;
+* revisión de registros problemáticos;
+* generación de reportes de validación;
+* trazabilidad de errores;
+* criterio para detener o revisar datos antes de consumirlos.
+
+**Cómo lo explicaría en entrevista:**
+
+> Implementé un laboratorio local de calidad de datos con validaciones tipo expectations. El proyecto revisa reglas sobre datos tabulares, identifica fallas, genera reportes y deja evidencia de qué datos deben corregirse antes de alimentar procesos analíticos.
 
 ## Otros proyectos
 
-| Proyecto                                                            | Descripción                                                                                | Herramientas        |
-| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ------------------- |
-| [01 - Experimentos de Suplementos](./01-experimentos-suplementos)   | Integración y limpieza de datos de salud, suplementos, experimentos y perfiles de usuarios | Python, pandas      |
-| [02 - Limpieza de Datos en Python](./02-limpieza-datos-python)      | Limpieza, estandarización y preparación de datos para análisis                             | Python, pandas      |
-| [03 - Pipeline de Datos Retail](./03-pipeline-datos-retail)         | Pipeline para procesar, limpiar, transformar y agregar datos de ventas retail              | Python, pandas, ETL |
-| [04 - Limpieza de Campaña Bancaria](./04-limpieza-campana-bancaria) | Limpieza y transformación de datos de una campaña bancaria de marketing                    | Python, pandas      |
-| [05 - Pipeline ETL de Energía](./05-pipeline-etl-energia)           | Pipeline ETL para extraer, transformar y cargar datos de energía                           | Python, pandas, ETL |
-| [06 - Revisión de Código en Python](./06-revision-codigo-python)    | Evaluación y mejora de código Python aplicando buenas prácticas                            | Python, code review |
-| [17 - dbt Profesional E-commerce](./17-dbt-professional-ecommerce)  | Proyecto dbt completo con seeds, staging, intermediate, marts, tests, snapshot SCD Type 2 y modelo incremental | dbt, DuckDB, SQL |
-| [20 - AWS-Style Banking Data Lake](./20-aws-style-banking-data-lake) | Simulación local de Data Lake bancario estilo AWS con landing, bronze, silver, gold, Parquet, DuckDB y control de costos | Python, DuckDB, Parquet |
-| [21 - SQL Query Optimization Banking](./21-sql-query-optimization-banking) | Laboratorio local de optimización SQL bancaria con EXPLAIN, índices, reescritura de queries y benchmark reproducible | Python, DuckDB, SQL |
+| Proyecto | Descripción | Herramientas |
+|---|---|---|
+| [19 - PySpark Banking Processing](./19-pyspark-banking-processing) | Procesamiento bancario con PySpark, limpieza, enriquecimiento y métricas analíticas | PySpark, Python |
+| [18 - Pipeline Dockerizado Agent Loop](./18-pipeline-dockerizado-agent-loop) | Pipeline dbt dockerizado con validación reproducible y flujo tipo agent loop | Docker, dbt, DuckDB |
+| [17 - dbt Profesional E-commerce](./17-dbt-professional-ecommerce) | Proyecto dbt con staging, intermediate, marts, tests, snapshot SCD Type 2 y modelo incremental | dbt, DuckDB, SQL |
+| [16 - Orquestación Airflow](./16-orquestacion-airflow) | Orquestación de pipelines y validaciones con DAGs | Airflow, Python |
+| [15 - dbt Profesional](./15-dbt-profesional) | Transformaciones SQL modulares con dbt, modelos, tests y documentación | dbt, DuckDB, SQL |
+| [13 - Data Warehouse Dimensional](./13-data-warehouse-dimensional) | Modelo dimensional con dimensiones, tabla de hechos y análisis SQL | DuckDB, SQL |
+| [09 - Pipeline con API REST](./09-pipeline-api-rest) | Consumo de API REST, transformación de JSON y generación de outputs analíticos | Python, requests, pandas |
+| [08 - Análisis SQL de Logs](./08-analisis-sql-logs) | Análisis SQL de logs, errores, tráfico y tiempos de respuesta | DuckDB, SQL |
+| [07 - ETL Simple con Python](./07-etl-simple-python) | Pipeline ETL básico con limpieza, transformación y exportación | Python, pandas |
+| [06 - Revisión de Código en Python](./06-revision-codigo-python) | Revisión y mejora de código Python aplicando buenas prácticas | Python, code review |
 
 ## Habilidades aplicadas
 
-* Construcción de pipelines ETL.
-* Consumo de APIs REST.
-* Procesamiento de JSON.
-* Limpieza y transformación de datos.
-* Validación de calidad de datos.
-* SQL analítico.
-* CTEs y Window Functions.
-* Manejo de CSV y Parquet.
-* Organización de proyectos en GitHub.
+* Diseño de pipelines ETL/ELT.
+* Arquitectura Data Lake estilo AWS.
+* Separación por capas landing, bronze, silver y gold.
+* Procesamiento con Python, SQL, DuckDB y PySpark.
+* Almacenamiento analítico en Parquet.
+* Optimizacion SQL con EXPLAIN ANALYZE.
+* Validaciones de calidad de datos.
+* Revisión de errores y trazabilidad.
+* Modelado dimensional y transformaciones dbt.
+* Orquestación con Airflow.
+* Dockerización de pipelines.
 * Documentación técnica orientada a entrevistas.
 
 ## Estructura del repositorio
@@ -122,10 +127,21 @@ data-engineering-portfolio/
 ├── 07-etl-simple-python/
 ├── 08-analisis-sql-logs/
 ├── 09-pipeline-api-rest/
+├── 10-masterclass-joins-sql/
+├── 11-window-functions-sql/
+├── 12-limpieza-pandas/
+├── 13-data-warehouse-dimensional/
+├── 14-data-quality-great-expectations/
+├── 15-dbt-profesional/
+├── 16-orquestacion-airflow/
 ├── 17-dbt-professional-ecommerce/
+├── 18-pipeline-dockerizado-agent-loop/
+├── 19-pyspark-banking-processing/
 ├── 20-aws-style-banking-data-lake/
+├── 21-sql-query-optimization-banking/
+├── templates/
 ├── README.md
-├── .gitignore
+├── CV_Francisco_Salas.pdf
 └── LICENSE
 ```
 
@@ -136,26 +152,25 @@ Este repositorio busca demostrar una progresión práctica hacia Ingeniería de 
 ```text
 datos crudos
     ↓
-extracción desde CSV / JSON / APIs
+ingesta desde CSV / JSON / APIs
     ↓
-limpieza y transformación con Python / SQL
+limpieza, validación y control de calidad
     ↓
-validación de calidad
+transformación con Python / SQL / dbt / PySpark
     ↓
-outputs analíticos en CSV / Parquet
+almacenamiento analítico en Parquet y capas tipo Data Lake
     ↓
-documentación y versionamiento en GitHub
+orquestación, optimización SQL y documentación técnica
+    ↓
+proyectos defendibles en entrevista
 ```
 
 ## Próximos pasos
 
-La ruta continuará incorporando proyectos de mayor complejidad:
+La evolución natural del portfolio puede avanzar hacia:
 
-* JOINS SQL.
-* Window Functions avanzadas.
-* Data Warehouse con modelo dimensional.
-* Data Quality.
-* Orquestación con Apache Airflow.
-* Procesamiento con PySpark.
+* Integración con servicios cloud administrados.
 * Databricks y Delta Lake.
-* Data Lake con arquitectura Medallion.
+* CI/CD para pipelines de datos.
+* Monitoreo de calidad y costos.
+* Casos incrementales con mayor volumen de datos.
