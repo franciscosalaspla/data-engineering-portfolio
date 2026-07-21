@@ -1,57 +1,90 @@
-## X. Aprendizajes técnicos del proyecto
+## X. Documentación de aprendizaje y entrevista
 
-Esta sección resume los conceptos, archivos y decisiones técnicas que conviene saber defender al explicar el proyecto. Úsala como material de estudio personal y como apoyo para entrevistas técnicas.
+Esta plantilla ya no está pensada para copiar una sección larga dentro de cada README. El README debe funcionar como presentación ejecutiva y técnica del proyecto; el material formativo detallado debe quedar en `docs/` para no sobrecargar la lectura principal.
 
-### X.1 Conceptos clave
+Usa esta guía cuando un proyecto necesite documentación adicional para estudio, defensa técnica o preparación de entrevistas.
 
-| Concepto | Qué significa en este proyecto |
-| --- | --- |
-| `<concepto_1>` | `<significado_en_el_proyecto>` |
-| `<concepto_2>` | `<significado_en_el_proyecto>` |
-| `<concepto_3>` | `<significado_en_el_proyecto>` |
+### X.1 README
 
-### X.2 Archivos más importantes
+El README debe:
 
-| Archivo | Rol principal | Qué aprendí |
-| --- | --- | --- |
-| `<archivo_1>` | `<rol_principal>` | `<aprendizaje>` |
-| `<archivo_2>` | `<rol_principal>` | `<aprendizaje>` |
-| `<archivo_3>` | `<rol_principal>` | `<aprendizaje>` |
+- explicar el valor profesional del proyecto;
+- mostrar arquitectura, problema, objetivo, implementación y resultados reales;
+- usar métricas verificables;
+- mantener una lectura breve y orientada a reclutadores o entrevistas;
+- enlazar documentación complementaria cuando exista.
 
-### X.3 Funciones y códigos destacables
+El README no debe:
 
-Organizar por archivo.
+- duplicar definiciones extensas;
+- incluir respuestas largas de entrevista;
+- mezclar implementación real con mejoras futuras sin aclararlo;
+- afirmar uso cloud real si el proyecto es local o cloud-style.
 
-`<archivo_1>`
+### X.2 docs/interview_project_guide.md
 
-| Función o bloque | Por qué importa |
-| --- | --- |
-| `<funcion_1>()` | `<explicacion_breve>` |
-| `<funcion_2>()` | `<explicacion_breve>` |
+Crear este documento cuando el proyecto tenga suficiente contenido para ser defendido en entrevista.
 
-`<archivo_2>`
+Debe incluir, adaptado al proyecto:
 
-| Función o bloque | Por qué importa |
-| --- | --- |
-| `<funcion_1>()` | `<explicacion_breve>` |
-| `<funcion_2>()` | `<explicacion_breve>` |
+- respuesta breve de 30 segundos;
+- explicación de 2 minutos;
+- explicación técnica de 5 minutos;
+- historia del pipeline o flujo paso a paso;
+- decisiones técnicas;
+- preguntas probables de entrevista con respuestas modelo;
+- errores comunes que se deben evitar;
+- cierre conectado al objetivo profesional.
 
-### X.4 Qué debo saber explicar técnicamente
+Las respuestas deben distinguir entre:
 
-- `<decision_tecnica_1>`
-- `<decision_tecnica_2>`
-- `<decision_tecnica_3>`
-- `<tradeoff_o_limitacion_relevante>`
+- lo implementado realmente;
+- lo representado conceptualmente;
+- lo que sería una mejora futura.
 
-### X.5 Aprendizaje principal
+### X.3 docs/learnings_and_concepts.md
 
-`<explicar_en_un_parrafo_el_aprendizaje_principal_del_proyecto>`
+Crear este documento cuando el proyecto requiera material de estudio técnico.
 
-### X.6 Resumen técnico corto
+Debe incluir, adaptado al proyecto:
 
-```text
-<archivo_o_componente_1> hace <responsabilidad_1>.
-<archivo_o_componente_2> hace <responsabilidad_2>.
-<archivo_o_componente_3> hace <responsabilidad_3>.
-<archivo_o_componente_4> hace <responsabilidad_4>.
+- aprendizajes principales por tema;
+- diccionario de conceptos aplicado al proyecto;
+- mapa de archivos principales;
+- flujo completo confirmado desde el código;
+- comparación entre implementación local y una versión cloud o productiva, si aplica.
+
+Para cada archivo importante, documentar:
+
+- propósito;
+- funciones o clases principales;
+- entradas;
+- transformaciones o acciones;
+- salidas;
+- validaciones;
+- relación con otros archivos;
+- concepto de Data Engineering representado;
+- posible equivalente cloud o productivo;
+- ejemplo de cómo explicarlo en entrevista.
+
+### X.4 Reglas de calidad documental
+
+- Leer el código antes de documentar.
+- Usar resultados reales desde outputs, summaries o una ejecución controlada.
+- No inventar métricas.
+- No copiar contenido de otros proyectos.
+- No convertir todos los proyectos en documentos idénticos.
+- Mantener enlaces relativos desde el README hacia `docs/`.
+- Evitar duplicación entre README y documentación complementaria.
+- Si una tecnología no está implementada, marcarla como concepto relacionado o mejora futura.
+
+### X.5 Enlace recomendado desde README
+
+Cuando existan documentos complementarios, agregar una sección breve como:
+
+```markdown
+## Documentación complementaria
+
+- [Cómo presentar el proyecto en una entrevista](docs/interview_project_guide.md)
+- [Aprendizajes, conceptos y definiciones](docs/learnings_and_concepts.md)
 ```

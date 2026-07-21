@@ -2,7 +2,7 @@
 
 ## 1. Valor del proyecto
 
-Este proyecto muestra como disenar un pipeline Azure Data Engineering end-to-end sin depender de infraestructura cloud real. Construi un laboratorio local para datos de seguros que genera 103.000 registros sinteticos, simula orquestacion ADF-style, organiza datos en carpetas Azure Data Lake-style, aplica transformaciones Databricks-style entre capas landing, bronze, silver y gold, ejecuta 8 controles de calidad y publica 5 datamarts analiticos en Parquet. El valor esta en demostrar criterio de arquitectura Medallion, trazabilidad por ejecucion, validaciones antes de Gold y documentacion segura para una futura migracion a Azure, sin usar credenciales, secretos ni generar costos cloud.
+Este proyecto muestra como disenar un pipeline Azure Data Engineering end-to-end sin depender de infraestructura cloud real. Construi un laboratorio local para datos de seguros que genera 1.000 registros sinteticos, simula orquestacion ADF-style, organiza datos en carpetas Azure Data Lake-style, aplica transformaciones Databricks-style entre capas landing, bronze, silver y gold, ejecuta 8 controles de calidad y publica 5 datamarts analiticos en Parquet. El valor esta en demostrar criterio de arquitectura Medallion, trazabilidad por ejecucion, validaciones antes de Gold y documentacion segura para una futura migracion a Azure, sin usar credenciales, secretos ni generar costos cloud.
 
 ## 2. Arquitectura del proyecto y flujo del pipeline
 
@@ -20,12 +20,12 @@ flowchart LR
 
 Flujo ejecutado:
 
-1. Generacion local de `customers.csv`, `policies.csv`, `claims.csv`, `payments.csv` e `interactions.csv`.
+1. Generacion local de `customers.csv`, `policies.csv`, `claims.csv` y `payments.csv`.
 2. Ingesta desde landing hacia bronze con metadata tecnica de trazabilidad.
 3. Limpieza, normalizacion de tipos, fechas, duplicados y nulos criticos en silver.
 4. Ejecucion de controles de calidad sobre claves, montos, satisfaccion e integridad referencial.
 5. Publicacion de datamarts Gold en Parquet.
-6. Escritura de evidencia en `output/pipeline_summary.json`, `output/adf_pipeline_run_summary.json` y archivos de calidad.
+6. Escritura de evidencia en `output/pipeline_summary.json` y archivos de calidad.
 
 ## 3. Problema
 
@@ -37,7 +37,7 @@ Construir un laboratorio local estilo Azure Data Factory y Databricks para proce
 
 El objetivo concreto fue:
 
-- generar datasets sinteticos de clientes, polizas, siniestros, pagos e interacciones;
+- generar datasets sinteticos de clientes, polizas, siniestros y pagos;
 - simular una orquestacion ADF-style con actividades, dependencias, duraciones y estado final;
 - construir capas landing, bronze, silver y gold usando carpetas Azure Data Lake-style;
 - aplicar transformaciones Databricks-style sin crear clusters ni recursos cloud;
@@ -56,37 +56,43 @@ La implementacion se organizo como un flujo reproducible: generar datos, ingerir
 | Bronze to Silver | Se normalizaron columnas, tipos, fechas, duplicados y nulos criticos | `data/silver/*.parquet` |
 | Quality Checks | Se validaron claves, montos, satisfaccion e integridad referencial | `output/data_quality_summary.json` y `output/data_quality_results.csv` |
 | Silver to Gold | Se construyeron datamarts analiticos en Parquet | `data/gold/*.parquet` |
-| Orquestacion ADF-style | Se registraron actividades, equivalencias Azure, dependencias, conteos y duracion | `output/adf_pipeline_run_summary.json` |
-| Resumen del pipeline | Se consolido el estado final, conteos por capa y rutas generadas | `output/pipeline_summary.json` |
+| Orquestacion ADF-style | Se registraron actividades, dependencias, estado, errores y duracion | `output/pipeline_summary.json` |
+| Resumen del pipeline | Se consolido el estado final, `pipeline_run_id`, actividades, dependencias, duracion y errores | `output/pipeline_summary.json` |
 
 ## 6. Resultados
 
-La ejecucion validada termino correctamente: el pipeline proceso 103.000 registros de entrada, genero capas bronze, silver y gold, ejecuto 8 controles de calidad sin fallas y publico 5 datamarts analiticos.
+La ejecucion validada termino correctamente: el pipeline proceso 1.000 registros de entrada, genero capas bronze, silver y gold, ejecuto 8 controles de calidad sin fallas y publico 5 datamarts analiticos.
 
 | Metrica | Resultado |
 | --- | ---: |
 | Estado final | PASSED |
-| Customers | 5.000 |
-| Policies | 8.000 |
-| Claims | 20.000 |
-| Payments | 40.000 |
-| Interactions | 30.000 |
-| Filas procesadas | 103.000 |
+| Customers | 100 |
+| Policies | 200 |
+| Claims | 300 |
+| Payments | 400 |
+| Filas procesadas | 1.000 |
 | Quality checks | 8/8 PASSED |
 | Datamarts Gold | 5 |
 
 | Datamart Gold | Filas | Proposito |
 | --- | ---: | --- |
-| `gold_customer_360` | 5.000 | Vista consolidada por cliente con polizas, siniestros, pagos e interacciones |
-| `gold_claims_monthly_summary` | 1.320 | Resumen mensual de siniestros por producto y estado |
-| `gold_policy_performance` | 8.000 | Performance por poliza con primas, pagos, siniestros y loss ratio |
-| `gold_payment_summary` | 4.481 | Comportamiento de pagos por mes, producto, estado y metodo |
-| `gold_satisfaction_by_channel` | 25 | Satisfaccion promedio por canal y tipo de interaccion |
+| `dim_customer` | 100 | Dimension de clientes con segmento y region |
+| `fact_policy` | 200 | Polizas enriquecidas con cliente, producto, prima y estado |
+| `claims_by_product` | 4 | Siniestros agregados por producto |
+| `premium_by_segment` | 3 | Primas y cantidad de polizas por segmento |
+| `payment_risk` | 2 | Pagos agregados por estado de pago |
 
 - Bronze conserva datos cercanos al origen y agrega metadata tecnica para auditar la ingesta.
 - Silver entrega datasets limpios, tipados y deduplicados para validacion y consumo analitico.
 - Gold publica datamarts con foco de negocio, listos para exploracion local o una futura capa BI.
 - La evidencia ADF-style permite explicar dependencias, duraciones, conteos y estado final sin usar Azure real.
+
+## Documentacion complementaria
+
+- [Como presentar el proyecto en una entrevista](docs/interview_project_guide.md)
+- [Aprendizajes, conceptos y definiciones](docs/learnings_and_concepts.md)
+- [Diseno del pipeline ADF-style](docs/adf_pipeline_design.md)
+- [Correspondencia con arquitectura Azure](docs/azure_architecture_mapping.md)
 
 ## 7. Estructura del proyecto
 
@@ -110,7 +116,9 @@ La ejecucion validada termino correctamente: el pipeline proceso 103.000 registr
 |   |-- adf_pipeline_design.md
 |   |-- databricks_delta_notes.md
 |   |-- free_azure_account_checklist.md
-|   `-- cost_control_and_cleanup.md
+|   |-- cost_control_and_cleanup.md
+|   |-- interview_project_guide.md
+|   `-- learnings_and_concepts.md
 |-- output/
 |   `-- .gitkeep
 |-- README.md

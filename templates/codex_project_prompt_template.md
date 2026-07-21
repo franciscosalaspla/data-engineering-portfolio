@@ -33,6 +33,7 @@ Este proyecto debe seguir el estándar aplicado en proyectos anteriores:
 - Pipeline reproducible.
 - Outputs ignorados por Git.
 - Documentación enfocada en valor, arquitectura, implementación y resultados reales.
+- Material de estudio detallado en `docs/`, no sobrecargado en el README.
 - Sin métricas falsas.
 - Sin afirmar uso de herramientas reales si solo se simulan.
 - Sin subir CSV, Parquet, JSON generados ni archivos pesados.
@@ -60,6 +61,15 @@ Definir una estructura adecuada según la card, usando este patrón como base:
 ├── README.md
 ├── requirements.txt
 └── .gitignore
+
+Cuando el proyecto tenga suficiente profundidad técnica, evaluar crear también:
+
+```text
+docs/interview_project_guide.md
+docs/learnings_and_concepts.md
+```
+
+Estos documentos deben adaptarse al proyecto. No son obligatorios si duplican contenido o vuelven la entrega innecesariamente pesada.
 
 Requisitos del README:
 Debe seguir el estándar editorial del Proyecto 21, adaptado al tipo de proyecto. No fuerces secciones si no aportan valor, pero conserva esta lógica narrativa:
@@ -121,7 +131,8 @@ Secciones opcionales:
 - Conceptos técnicos aplicados, si el proyecto necesita material de estudio.
 - Decisiones técnicas, si hubo tradeoffs relevantes.
 - Guía de ejecución, si el proyecto no es evidente desde el README o si el usuario la pide.
-- Aprendizajes técnicos, usando `templates/project_readme_learning_section.md`, solo cuando aporte valor y no vuelva el README innecesariamente largo.
+- Documentación complementaria, con enlaces a guías en `docs/` cuando existan.
+- Aprendizajes técnicos breves solo si aportan valor. El detalle debe quedar en `docs/learnings_and_concepts.md`.
 
 Reglas editoriales:
 - No convertir todos los READMEs en textos idénticos.
@@ -131,6 +142,35 @@ Reglas editoriales:
 - Para proyectos cloud-style, declarar explícitamente si no se usaron credenciales, secretos, recursos cloud ni costos.
 - Priorizar evidencia, arquitectura, decisiones técnicas e impacto profesional.
 - Mantener redacción concreta, técnica y amigable.
+- Mantener el README ejecutivo. Las explicaciones largas de entrevista, definiciones y aprendizaje van en `docs/`.
+
+Requisitos para documentación complementaria:
+- Leer realmente todos los archivos de `app/`, `src/`, `queries/` o equivalentes antes de documentar.
+- Explicar la función de cada componente con base en el código real.
+- Documentar el orden de ejecución confirmado desde el entrypoint del pipeline.
+- Incluir resultados verificables desde summaries, outputs o una ejecución controlada del pipeline.
+- Diferenciar con claridad entre implementación real, simulación conceptual y mejora futura.
+- No afirmar uso cloud real cuando el proyecto corre localmente.
+- No decir que se usó una tecnología como Delta Lake, PySpark, Key Vault, Purview o CI/CD si solo aparece como equivalencia o recomendación futura.
+
+Si se crea `docs/interview_project_guide.md`, incluir:
+- presentación de 30 segundos;
+- explicación de 2 minutos;
+- explicación técnica de 5 minutos;
+- historia del pipeline paso a paso;
+- decisiones técnicas;
+- preguntas probables de entrevista con respuestas modelo;
+- errores que conviene evitar al explicar el proyecto;
+- cierre conectado al perfil Data Engineer.
+
+Si se crea `docs/learnings_and_concepts.md`, incluir:
+- aprendizajes principales por tema;
+- diccionario de conceptos aplicado al proyecto;
+- mapa de archivos principales;
+- flujo completo real;
+- comparación entre implementación local y posible versión cloud real.
+
+El README debe enlazar estos documentos si existen, pero no duplicar su contenido.
 
 Código:
 - Crear scripts modulares.
@@ -165,6 +205,8 @@ Criterios de aceptación:
 - No métricas falsas.
 - Resultados reales y comprobables.
 - Arquitectura, implementación y resultados explicados con evidencia.
+- Documentación complementaria creada cuando el proyecto lo justifique.
+- README con enlaces a docs complementarios, sin duplicar material extenso.
 - Proyecto alineado con la card.
 - PR draft creado.
 - No hacer merge.
