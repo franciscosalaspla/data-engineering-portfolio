@@ -32,7 +32,7 @@ Este proyecto debe seguir el estándar aplicado en proyectos anteriores:
 - Código modular.
 - Pipeline reproducible.
 - Outputs ignorados por Git.
-- Sección de aprendizajes técnicos.
+- Documentación enfocada en valor, arquitectura, implementación y resultados reales.
 - Sin métricas falsas.
 - Sin afirmar uso de herramientas reales si solo se simulan.
 - Sin subir CSV, Parquet, JSON generados ni archivos pesados.
@@ -62,56 +62,75 @@ Definir una estructura adecuada según la card, usando este patrón como base:
 └── .gitignore
 
 Requisitos del README:
-Debe seguir esta estructura, adaptada al proyecto:
+Debe seguir el estándar editorial del Proyecto 21, adaptado al tipo de proyecto. No fuerces secciones si no aportan valor, pero conserva esta lógica narrativa:
 
 # [NÚMERO] - [Nombre del proyecto]
 
-## [Subtítulo asociado a la card]
-
 ## 1. Valor del proyecto
-Explicar por qué este proyecto importa desde el punto de vista de Ingeniería de Datos y negocio.
+Abrir con un párrafo fuerte y concreto:
+- qué se construyó;
+- qué habilidad profesional demuestra;
+- qué volumen, herramienta o evidencia real respalda el proyecto;
+- qué limitaciones honestas existen, por ejemplo si es cloud-style local y no cloud real.
 
-## 2. Problema y enfoque
-Explicar de forma narrativa:
-- qué problema aborda;
-- por qué no basta con una solución simple;
-- qué enfoque técnico se usó.
+Evitar frases genéricas como "este proyecto ayuda a aprender". Conectar el proyecto con una capacidad defendible en entrevistas técnicas.
 
-## 3. Objetivo
-Explicar qué se construyó, con qué herramientas y qué limitaciones tiene.
+## 2. Arquitectura del proyecto y flujo del pipeline
+Explicar la arquitectura de forma visual y breve:
+- diagrama Mermaid si aporta claridad;
+- flujo ejecutado paso a paso;
+- componentes principales y su responsabilidad;
+- equivalencias cloud solo cuando sean conceptuales y honestas.
 
-## 4. Arquitectura del proyecto
-Incluir diagrama Mermaid si aplica.
+## 3. Problema
+Explicar en un párrafo:
+- qué problema de datos resuelve;
+- por qué no basta con mover archivos o ejecutar un script simple;
+- qué riesgo evita el diseño técnico.
 
-## 5. Estructura del proyecto
-Incluir árbol de carpetas y componentes principales.
+## 4. Objetivo
+Usar una frase inicial y una lista corta con objetivos verificables:
+- datasets o fuentes procesadas;
+- capas construidas;
+- validaciones ejecutadas;
+- outputs o datamarts generados;
+- evidencia reproducible.
 
-## 6. Flujo del pipeline
-Explicar el flujo paso a paso, idealmente con un flujo visual en texto.
+## 5. Implementación
+Usar una tabla clara:
 
-## 7. Resultados de la implementación
-Usar formato:
-- Situación
-- Tarea
-- Acciones
-- Resultados validados
+| Etapa | Acción realizada | Evidencia |
+| --- | --- | --- |
 
-No inventar resultados. Usar solo resultados generados por el pipeline.
+Cada evidencia debe apuntar a archivos, queries, tablas, summaries o outputs reales.
 
-## 8. Conceptos técnicos aplicados
-Tabla con conceptos técnicos relevantes del proyecto.
+## 6. Resultados
+Usar métricas reales generadas por el pipeline o comprobadas en outputs:
+- estado final;
+- filas procesadas;
+- checks ejecutados;
+- queries, modelos o datamarts generados;
+- mejoras medidas, si aplica.
 
-## 9. Aprendizajes técnicos del proyecto
-Usar la plantilla:
-templates/project_readme_learning_section.md
+Incluir una tabla de métricas y, cuando aplique, una segunda tabla con resultados específicos. Agregar una interpretación breve de los resultados, sin inflar conclusiones.
 
-Adaptarla al proyecto:
-- conceptos clave;
-- archivos más importantes;
-- funciones destacables;
-- qué debo saber explicar técnicamente;
-- aprendizaje principal;
-- resumen técnico corto.
+## 7. Estructura del proyecto
+Cerrar con árbol de carpetas y una nota sobre qué artefactos se versionan y cuáles se regeneran localmente.
+
+Secciones opcionales:
+- Conceptos técnicos aplicados, si el proyecto necesita material de estudio.
+- Decisiones técnicas, si hubo tradeoffs relevantes.
+- Guía de ejecución, si el proyecto no es evidente desde el README o si el usuario la pide.
+- Aprendizajes técnicos, usando `templates/project_readme_learning_section.md`, solo cuando aporte valor y no vuelva el README innecesariamente largo.
+
+Reglas editoriales:
+- No convertir todos los READMEs en textos idénticos.
+- No copiar métricas ni narrativa de otros proyectos.
+- No inventar resultados ni afirmar mejoras no medidas.
+- No decir que se usó AWS, Azure, GCP, Databricks, Airflow, dbt u otra herramienta real si solo se construyó una simulación local.
+- Para proyectos cloud-style, declarar explícitamente si no se usaron credenciales, secretos, recursos cloud ni costos.
+- Priorizar evidencia, arquitectura, decisiones técnicas e impacto profesional.
+- Mantener redacción concreta, técnica y amigable.
 
 Código:
 - Crear scripts modulares.
@@ -144,7 +163,8 @@ Criterios de aceptación:
 - Outputs generados ignorados por Git.
 - No datos pesados versionados.
 - No métricas falsas.
-- Sección de aprendizajes incluida.
+- Resultados reales y comprobables.
+- Arquitectura, implementación y resultados explicados con evidencia.
 - Proyecto alineado con la card.
 - PR draft creado.
 - No hacer merge.
