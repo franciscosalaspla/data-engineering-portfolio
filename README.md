@@ -1,6 +1,8 @@
 # Portafolio de Ingeniería de Datos
 
-Portfolio práctico de Ingeniería de Datos enfocado en pipelines, SQL, PySpark, arquitectura Data Lake, calidad de datos, procesamiento analítico y documentación técnica. Los proyectos están diseñados para demostrar habilidades aplicables a entornos cloud, especialmente Azure Data Factory, Databricks, capas Silver/Gold, datamarts y consumo analítico en Power BI.
+Portfolio práctico de Ingeniería de Datos construido desde mi experiencia conectando cliente, datos, integración y negocio. He trabajado en proyectos relacionados con telemedicina, encuestas de satisfacción, biometría facial, transacciones digitales, venta de productos y pólizas, integrando información desde APIs, JSON, SFTP, SQL, Power BI y servicios cloud.
+
+Este trabajo me ha permitido desarrollar criterio para entender el viaje del cliente, transformar datos operacionales en información analítica, validar calidad, documentar procesos y colaborar con equipos de negocio, producto, BI y desarrollo. Actualmente estoy consolidando ese perfil hacia Ingeniería de Datos mediante proyectos prácticos de pipelines, PySpark, SQL, Data Lake, calidad de datos y arquitecturas cloud-style.
 
 ## Contacto
 
