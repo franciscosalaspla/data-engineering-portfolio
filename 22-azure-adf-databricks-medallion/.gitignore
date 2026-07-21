@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.py[cod]
+data/landing/*
+data/bronze/*
+data/silver/*
+data/gold/*
+output/*
+!data/landing/.gitkeep
+!data/bronze/.gitkeep
+!data/silver/.gitkeep
+!data/gold/.gitkeep
+!output/.gitkeep
