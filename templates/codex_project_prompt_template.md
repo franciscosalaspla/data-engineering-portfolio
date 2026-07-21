@@ -156,13 +156,9 @@ Ejemplo:
 
 Agregar 2 o 3 bullets de interpretación, enfocados en qué demuestra el resultado.
 
-## 7. Estructura del proyecto
-
-Incluir árbol de carpetas y componentes principales.
-Cerrar el README en esta sección.
-
 No incluir en el README principal:
 - subtítulo redundante debajo del título;
+- una sección “Estructura del proyecto” o un árbol de carpetas;
 - secciones largas de conceptos técnicos;
 - aprendizajes técnicos extensos;
 - instrucciones de ejecución como sección del README principal;
@@ -210,7 +206,7 @@ git status --short
 Criterios de aceptación:
 - Pipeline ejecuta correctamente.
 - README ejecutivo, claro y profesional.
-- README usa la estructura estándar de 7 secciones.
+- README usa la estructura estándar de 6 secciones.
 - README no incluye subtítulo redundante.
 - README no incluye secciones largas de conceptos técnicos o aprendizajes.
 - README no incluye instrucciones de ejecución, material de estudio ni documentación extensa como secciones principales.
