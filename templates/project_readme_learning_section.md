@@ -1,57 +1,48 @@
-## X. Aprendizajes técnicos del proyecto
+# Estándar de documentación para proyectos
 
-Esta sección resume los conceptos, archivos y decisiones técnicas que conviene saber defender al explicar el proyecto. Úsala como material de estudio personal y como apoyo para entrevistas técnicas.
+## README
 
-### X.1 Conceptos clave
+Documento ejecutivo basado en el Proyecto 21:
 
-| Concepto | Qué significa en este proyecto |
-| --- | --- |
-| `<concepto_1>` | `<significado_en_el_proyecto>` |
-| `<concepto_2>` | `<significado_en_el_proyecto>` |
-| `<concepto_3>` | `<significado_en_el_proyecto>` |
+- valor profesional;
+- arquitectura y flujo;
+- problema y objetivo;
+- implementación;
+- resultados verificables;
+- estructura y enlaces.
 
-### X.2 Archivos más importantes
+Debe ser breve y no duplicar el material de estudio.
 
-| Archivo | Rol principal | Qué aprendí |
-| --- | --- | --- |
-| `<archivo_1>` | `<rol_principal>` | `<aprendizaje>` |
-| `<archivo_2>` | `<rol_principal>` | `<aprendizaje>` |
-| `<archivo_3>` | `<rol_principal>` | `<aprendizaje>` |
+## docs/learnings_and_concepts.md
 
-### X.3 Funciones y códigos destacables
+Único documento técnico y de aprendizaje. Debe contener, de forma concreta:
 
-Organizar por archivo.
+1. Qué se construyó.
+2. Flujo real.
+3. Archivos y funciones principales.
+4. Conceptos y definiciones aplicados.
+5. Decisiones técnicas.
+6. Resultados y aprendizajes.
+7. Implementación real frente a equivalencias o mejoras futuras.
 
-`<archivo_1>`
+## docs/interview_project_guide.md
 
-| Función o bloque | Por qué importa |
-| --- | --- |
-| `<funcion_1>()` | `<explicacion_breve>` |
-| `<funcion_2>()` | `<explicacion_breve>` |
+Único documento para preparar la entrevista. Debe contener:
 
-`<archivo_2>`
+1. Hook concreto.
+2. Presentación de 1 minuto.
+3. Presentación de 3 minutos.
+4. Máximo 5 preguntas con respuestas breves.
+5. Cierre profesional.
 
-| Función o bloque | Por qué importa |
-| --- | --- |
-| `<funcion_1>()` | `<explicacion_breve>` |
-| `<funcion_2>()` | `<explicacion_breve>` |
+La historia oral debe cubrir: valor o problema, objetivo, acciones, resultados, tecnologías y aprendizaje.
 
-### X.4 Qué debo saber explicar técnicamente
+## Reglas
 
-- `<decision_tecnica_1>`
-- `<decision_tecnica_2>`
-- `<decision_tecnica_3>`
-- `<tradeoff_o_limitacion_relevante>`
-
-### X.5 Aprendizaje principal
-
-`<explicar_en_un_parrafo_el_aprendizaje_principal_del_proyecto>`
-
-### X.6 Resumen técnico corto
-
-```text
-<archivo_o_componente_1> hace <responsabilidad_1>.
-<archivo_o_componente_2> hace <responsabilidad_2>.
-<archivo_o_componente_3> hace <responsabilidad_3>.
-<archivo_o_componente_4> hace <responsabilidad_4>.
-```
+- Leer el código antes de documentar.
+- Usar métricas y funciones reales.
+- Diferenciar implementación, simulación y mejora futura.
+- No afirmar uso de servicios cloud que no fueron utilizados.
+- No crear más archivos en `docs/` salvo necesidad clara solicitada por el usuario.
+- Evitar duplicación entre README y documentos.
+- Enlazar desde el README solamente archivos existentes.
