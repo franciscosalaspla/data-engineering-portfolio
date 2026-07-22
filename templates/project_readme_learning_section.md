@@ -31,11 +31,11 @@ Debe ser breve y no duplicar el material de estudio.
 
 1. Hook concreto.
 2. Presentación de 1 minuto.
-3. Presentación de 3 minutos.
-4. Máximo 5 preguntas con respuestas breves.
-5. Cierre profesional.
+3. Exactamente 3 preguntas con respuestas breves.
 
 La historia oral debe cubrir: valor o problema, objetivo, acciones, resultados, tecnologías y aprendizaje.
+
+No incluir presentaciones de 3 o 5 minutos. La guía debe ser breve, fácil de memorizar y distinta del documento técnico `docs/learnings_and_concepts.md`.
 
 ## Reglas
 

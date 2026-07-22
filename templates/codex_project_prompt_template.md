@@ -62,14 +62,12 @@ Debe ser breve, amigable y útil para estudiar. No copiar todo el código.
 Documento de entrevista — docs/interview_project_guide.md:
 - Hook de una frase.
 - Versión oral de 1 minuto.
-- Versión oral de 3 minutos.
-- Máximo 5 preguntas con respuestas modelo.
-- Cierre profesional.
+- Exactamente 3 preguntas de entrevista con respuestas modelo.
 
-Las versiones deben seguir esta secuencia:
+La presentación de 1 minuto debe seguir esta secuencia:
 valor/problema → objetivo → acciones o implementación → resultados → tecnologías y aprendizajes.
 
-Deben sonar naturales, concretas y creíbles. Usar solamente métricas verificadas y distinguir lo implementado de lo conceptual.
+No incluir presentaciones de 3 o 5 minutos. La guía de entrevista debe ser breve, fácil de memorizar y útil para practicar una respuesta oral. Usar solamente métricas verificadas y distinguir lo implementado de lo conceptual.
 
 Enlaces:
 El README debe enlazar solamente los documentos que realmente existan.
