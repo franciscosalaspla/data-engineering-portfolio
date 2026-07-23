@@ -9,7 +9,15 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 OUTPUT_ROOT = PROJECT_ROOT / "data" / "output"
-GENERATED_NAMES = {"audit", "bronze", "control", "landing", "quarantine"}
+GENERATED_NAMES = {
+    "audit",
+    "bronze",
+    "control",
+    "landing",
+    "quarantine",
+    "silver",
+    "silver_quarantine",
+}
 
 
 def main() -> int:

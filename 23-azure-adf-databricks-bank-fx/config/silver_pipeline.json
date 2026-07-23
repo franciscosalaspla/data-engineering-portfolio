@@ -1,0 +1,33 @@
+{
+  "config_version": "1.0.0",
+  "environment": "local",
+  "catalog": "",
+  "schema": "",
+  "bronze_root": "data/output/bronze",
+  "silver_root": "data/output/silver",
+  "quarantine_path": "data/output/silver_quarantine",
+  "audit_root": "data/output/audit",
+  "storage_format": "delta",
+  "entities": [
+    {
+      "entity_name": "customers",
+      "table_name": "silver_customers",
+      "business_key": ["customer_id"]
+    },
+    {
+      "entity_name": "accounts",
+      "table_name": "silver_accounts",
+      "business_key": ["account_id"]
+    },
+    {
+      "entity_name": "fx_rates",
+      "table_name": "silver_fx_rates",
+      "business_key": ["effective_date"]
+    },
+    {
+      "entity_name": "transactions",
+      "table_name": "silver_transactions",
+      "business_key": ["transaction_id"]
+    }
+  ]
+}
