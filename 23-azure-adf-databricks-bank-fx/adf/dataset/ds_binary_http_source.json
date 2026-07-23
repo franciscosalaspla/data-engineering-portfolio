@@ -1,0 +1,24 @@
+{
+  "name": "ds_binary_http_source",
+  "properties": {
+    "annotations": ["DESIGN_ONLY", "NOT_DEPLOYED", "BYTE_PRESERVING_LANDING_SOURCE"],
+    "linkedServiceName": {
+      "referenceName": "ls_http_parameterized",
+      "type": "LinkedServiceReference",
+      "parameters": {
+        "baseUrl": "@dataset().baseUrl"
+      }
+    },
+    "parameters": {
+      "baseUrl": {"type": "String"},
+      "relativeUrl": {"type": "String"}
+    },
+    "type": "Binary",
+    "typeProperties": {
+      "location": {
+        "type": "HttpServerLocation",
+        "relativeUrl": "@dataset().relativeUrl"
+      }
+    }
+  }
+}

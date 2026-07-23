@@ -1,0 +1,19 @@
+{
+  "name": "ls_http_parameterized",
+  "properties": {
+    "annotations": ["DESIGN_ONLY", "NOT_DEPLOYED"],
+    "parameters": {
+      "baseUrl": {"type": "String"}
+    },
+    "type": "HttpServer",
+    "typeProperties": {
+      "url": "@{linkedService().baseUrl}",
+      "enableServerCertificateValidation": true,
+      "authenticationType": "Anonymous"
+    },
+    "connectVia": {
+      "referenceName": "AutoResolveIntegrationRuntime",
+      "type": "IntegrationRuntimeReference"
+    }
+  }
+}

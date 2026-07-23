@@ -1,0 +1,30 @@
+{
+  "name": "ds_delimited_source",
+  "properties": {
+    "annotations": ["DESIGN_ONLY", "NOT_DEPLOYED"],
+    "linkedServiceName": {
+      "referenceName": "ls_http_parameterized",
+      "type": "LinkedServiceReference",
+      "parameters": {
+        "baseUrl": "@dataset().baseUrl"
+      }
+    },
+    "parameters": {
+      "baseUrl": {"type": "String"},
+      "relativeUrl": {"type": "String"},
+      "columnDelimiter": {"type": "String", "defaultValue": ","}
+    },
+    "type": "DelimitedText",
+    "typeProperties": {
+      "location": {
+        "type": "HttpServerLocation",
+        "relativeUrl": "@dataset().relativeUrl"
+      },
+      "columnDelimiter": "@dataset().columnDelimiter",
+      "escapeChar": "\\",
+      "firstRowAsHeader": true,
+      "quoteChar": "\""
+    },
+    "schema": []
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "name": "pl_ingest_source",
+  "properties": {
+    "annotations": ["DESIGN_ONLY", "NOT_DEPLOYED", "REUSABLE_COPY_TO_LANDING"],
+    "parameters": {
+      "environment": {"type": "String"},
+      "run_id": {"type": "String"},
+      "source_name": {"type": "String"},
+      "entity_name": {"type": "String"},
+      "ingestion_date": {"type": "String"},
+      "file_format": {"type": "String"},
+      "source_path": {"type": "String"},
+      "source_base_url": {"type": "String", "defaultValue": "https://example.invalid/"},
+      "storage_account_url": {"type": "String"},
+      "landing_file_system": {"type": "String"}
+    },
+    "variables": {
+      "source_status": {"type": "String", "defaultValue": "RUNNING"},
+      "error_message": {"type": "String", "defaultValue": ""}
+    },
+    "activities": [
+      {
+        "name": "RouteByFileFormat",
+        "type": "Switch",
+        "typeProperties": {
+          "on": "@toLower(pipeline().parameters.file_format)",
+          "cases": [
+            {
+              "value": "csv",
+              "activities": [
+                {
+                  "name": "CopyCsvToLanding",
+                  "type": "Copy",
+                  "policy": {"timeout": "0.01:00:00", "retry": 1, "retryIntervalInSeconds": 30},
+                  "typeProperties": {
+                    "source": {"type": "BinarySource"},
+                    "sink": {"type": "BinarySink"}
+                  },
+                  "inputs": [
+                    {
+                      "referenceName": "ds_binary_http_source",
+                      "type": "DatasetReference",
+                      "parameters": {
+                        "baseUrl": "@pipeline().parameters.source_base_url",
+                        "relativeUrl": "@pipeline().parameters.source_path"
+                      }
+                    }
+                  ],
+                  "outputs": [
+                    {
+                      "referenceName": "ds_binary_landing",
+                      "type": "DatasetReference",
+                      "parameters": {
+                        "storageAccountUrl": "@pipeline().parameters.storage_account_url",
+                        "fileSystem": "@pipeline().parameters.landing_file_system",
+                        "folderPath": "@concat(pipeline().parameters.source_name, '/', pipeline().parameters.entity_name, '/ingestion_date=', pipeline().parameters.ingestion_date, '/run_id=', pipeline().parameters.run_id)",
+                        "fileName": "@last(split(pipeline().parameters.source_path, '/'))"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "value": "json",
+              "activities": [
+                {
+                  "name": "CopyJsonToLanding",
+                  "type": "Copy",
+                  "policy": {"timeout": "0.01:00:00", "retry": 1, "retryIntervalInSeconds": 30},
+                  "typeProperties": {
+                    "source": {"type": "BinarySource"},
+                    "sink": {"type": "BinarySink"}
+                  },
+                  "inputs": [
+                    {
+                      "referenceName": "ds_binary_http_source",
+                      "type": "DatasetReference",
+                      "parameters": {
+                        "baseUrl": "@pipeline().parameters.source_base_url",
+                        "relativeUrl": "@pipeline().parameters.source_path"
+                      }
+                    }
+                  ],
+                  "outputs": [
+                    {
+                      "referenceName": "ds_binary_landing",
+                      "type": "DatasetReference",
+                      "parameters": {
+                        "storageAccountUrl": "@pipeline().parameters.storage_account_url",
+                        "fileSystem": "@pipeline().parameters.landing_file_system",
+                        "folderPath": "@concat(pipeline().parameters.source_name, '/', pipeline().parameters.entity_name, '/ingestion_date=', pipeline().parameters.ingestion_date, '/run_id=', pipeline().parameters.run_id)",
+                        "fileName": "@last(split(pipeline().parameters.source_path, '/'))"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "defaultActivities": [
+            {
+              "name": "RejectUnsupportedFormat",
+              "type": "Fail",
+              "typeProperties": {
+                "message": "Unsupported file format in source metadata",
+                "errorCode": "UNSUPPORTED_FILE_FORMAT"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "SetSourceSuccess",
+        "type": "SetVariable",
+        "dependsOn": [
+          {"activity": "RouteByFileFormat", "dependencyConditions": ["Succeeded"]}
+        ],
+        "typeProperties": {"variableName": "source_status", "value": "SUCCESS"}
+      },
+      {
+        "name": "CaptureSourceFailure",
+        "type": "SetVariable",
+        "dependsOn": [
+          {"activity": "RouteByFileFormat", "dependencyConditions": ["Failed"]}
+        ],
+        "typeProperties": {
+          "variableName": "error_message",
+          "value": "@string(activity('RouteByFileFormat').error.message)"
+        }
+      },
+      {
+        "name": "SetSourceFailure",
+        "type": "SetVariable",
+        "dependsOn": [
+          {"activity": "CaptureSourceFailure", "dependencyConditions": ["Succeeded"]}
+        ],
+        "typeProperties": {"variableName": "source_status", "value": "FAILED"}
+      }
+    ]
+  }
+}
