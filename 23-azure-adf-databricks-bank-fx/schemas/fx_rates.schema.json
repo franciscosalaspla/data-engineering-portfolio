@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://portfolio.local/p23/schemas/fx_rates.schema.json",
+  "title": "Synthetic ECB-compatible FX fixture",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["fixture_metadata", "base", "rates_by_date"],
+  "properties": {
+    "fixture_metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["is_synthetic", "source", "schema_version"],
+      "properties": {
+        "is_synthetic": {"const": true},
+        "source": {"const": "ECB_API_MOCK"},
+        "schema_version": {"const": "1.0.0"}
+      }
+    },
+    "base": {"const": "EUR"},
+    "rates_by_date": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["effective_date", "rates"],
+        "properties": {
+          "effective_date": {"type": "string", "format": "date"},
+          "rates": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["EUR", "USD", "GBP"],
+            "properties": {
+              "EUR": {"const": 1.0},
+              "USD": {"type": "number", "exclusiveMinimum": 0},
+              "GBP": {"type": "number", "exclusiveMinimum": 0}
+            }
+          }
+        }
+      }
+    }
+  }
+}

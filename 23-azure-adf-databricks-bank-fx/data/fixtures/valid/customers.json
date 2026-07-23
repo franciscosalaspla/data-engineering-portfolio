@@ -1,0 +1,48 @@
+{
+  "fixture_metadata": {
+    "is_synthetic": true,
+    "schema_version": "1.0.0"
+  },
+  "customers": [
+    {
+      "customer_id": "CUS-001",
+      "country_code": "CL",
+      "segment": "RETAIL",
+      "onboarding_date": "2024-01-15",
+      "status": "ACTIVE",
+      "risk_rating": "LOW"
+    },
+    {
+      "customer_id": "CUS-002",
+      "country_code": "GB",
+      "segment": "PREMIUM",
+      "onboarding_date": "2024-03-10",
+      "status": "ACTIVE",
+      "risk_rating": "MEDIUM"
+    },
+    {
+      "customer_id": "CUS-003",
+      "country_code": "DE",
+      "segment": "SME",
+      "onboarding_date": "2024-05-22",
+      "status": "ACTIVE",
+      "risk_rating": "LOW"
+    },
+    {
+      "customer_id": "CUS-004",
+      "country_code": "CL",
+      "segment": "RETAIL",
+      "onboarding_date": "2024-08-01",
+      "status": "SUSPENDED",
+      "risk_rating": "HIGH"
+    },
+    {
+      "customer_id": "CUS-005",
+      "country_code": "ES",
+      "segment": "PREMIUM",
+      "onboarding_date": "2025-01-18",
+      "status": "ACTIVE",
+      "risk_rating": "MEDIUM"
+    }
+  ]
+}

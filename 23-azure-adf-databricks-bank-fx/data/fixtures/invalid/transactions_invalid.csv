@@ -1,0 +1,4 @@
+transaction_id,account_id,transaction_timestamp,amount,currency,transaction_type,merchant_id,merchant_name,merchant_category,channel,status,source_batch_id
+TXN-9001,ACC-999,2026-07-21T18:00:00Z,50.00,USD,PURCHASE,MER-001,Synthetic Market,GROCERIES,CARD,APPROVED,BATCH-002
+TXN-9002,ACC-001,2026-07-21T18:05:00Z,-20.00,EUR,PURCHASE,MER-001,Synthetic Market,GROCERIES,CARD,APPROVED,BATCH-002
+TXN-9003,ACC-002,2026-07-21T18:10:00Z,100.00,CHF,PURCHASE,MER-007,Synthetic Tech Store,ELECTRONICS,ONLINE,APPROVED,BATCH-002
