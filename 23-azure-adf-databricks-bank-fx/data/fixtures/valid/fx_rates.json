@@ -1,0 +1,26 @@
+{
+  "fixture_metadata": {
+    "is_synthetic": true,
+    "source": "ECB_API_MOCK",
+    "schema_version": "1.0.0"
+  },
+  "base": "EUR",
+  "rates_by_date": [
+    {
+      "effective_date": "2026-07-20",
+      "rates": {
+        "EUR": 1.0,
+        "USD": 1.15,
+        "GBP": 0.87
+      }
+    },
+    {
+      "effective_date": "2026-07-21",
+      "rates": {
+        "EUR": 1.0,
+        "USD": 1.14,
+        "GBP": 0.86
+      }
+    }
+  ]
+}

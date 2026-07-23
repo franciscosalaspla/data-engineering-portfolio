@@ -1,0 +1,64 @@
+{
+  "fixture_metadata": {
+    "is_synthetic": true,
+    "schema_version": "1.0.0"
+  },
+  "accounts": [
+    {
+      "account_id": "ACC-001",
+      "customer_id": "CUS-001",
+      "account_type": "CHECKING",
+      "base_currency": "EUR",
+      "opened_date": "2024-01-16",
+      "status": "ACTIVE"
+    },
+    {
+      "account_id": "ACC-002",
+      "customer_id": "CUS-001",
+      "account_type": "SAVINGS",
+      "base_currency": "USD",
+      "opened_date": "2024-02-01",
+      "status": "ACTIVE"
+    },
+    {
+      "account_id": "ACC-003",
+      "customer_id": "CUS-002",
+      "account_type": "CREDIT",
+      "base_currency": "GBP",
+      "opened_date": "2024-03-12",
+      "status": "ACTIVE"
+    },
+    {
+      "account_id": "ACC-004",
+      "customer_id": "CUS-003",
+      "account_type": "BUSINESS",
+      "base_currency": "EUR",
+      "opened_date": "2024-05-25",
+      "status": "ACTIVE"
+    },
+    {
+      "account_id": "ACC-005",
+      "customer_id": "CUS-004",
+      "account_type": "CHECKING",
+      "base_currency": "USD",
+      "opened_date": "2024-08-02",
+      "status": "SUSPENDED"
+    },
+    {
+      "account_id": "ACC-006",
+      "customer_id": "CUS-005",
+      "account_type": "SAVINGS",
+      "base_currency": "GBP",
+      "opened_date": "2025-01-20",
+      "status": "ACTIVE"
+    },
+    {
+      "account_id": "ACC-007",
+      "customer_id": "CUS-005",
+      "account_type": "CHECKING",
+      "base_currency": "EUR",
+      "opened_date": "2025-02-01",
+      "status": "ACTIVE"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://portfolio.local/p23/schemas/customers.schema.json",
+  "title": "Synthetic bank customers fixture",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["fixture_metadata", "customers"],
+  "properties": {
+    "fixture_metadata": {"$ref": "#/$defs/fixtureMetadata"},
+    "customers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/customer"}
+    }
+  },
+  "$defs": {
+    "fixtureMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["is_synthetic", "schema_version"],
+      "properties": {
+        "is_synthetic": {"const": true},
+        "schema_version": {"const": "1.0.0"}
+      }
+    },
+    "customer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["customer_id", "country_code", "segment", "onboarding_date", "status", "risk_rating"],
+      "properties": {
+        "customer_id": {"type": "string", "pattern": "^CUS-[0-9]{3}$"},
+        "country_code": {"type": "string", "pattern": "^[A-Z]{2}$"},
+        "segment": {"enum": ["RETAIL", "PREMIUM", "SME"]},
+        "onboarding_date": {"type": "string", "format": "date"},
+        "status": {"enum": ["ACTIVE", "SUSPENDED", "CLOSED"]},
+        "risk_rating": {"enum": ["LOW", "MEDIUM", "HIGH"]}
+      }
+    }
+  }
+}

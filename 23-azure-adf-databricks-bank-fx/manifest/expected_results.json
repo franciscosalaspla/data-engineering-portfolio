@@ -1,0 +1,66 @@
+{
+  "manifest_version": "1.0.0",
+  "fixture_seed": 2301,
+  "is_synthetic": true,
+  "logical_generation_timestamp_utc": "2026-07-22T00:00:00Z",
+  "expected_files": [
+    "data/fixtures/invalid/transactions_invalid.csv",
+    "data/fixtures/valid/accounts.json",
+    "data/fixtures/valid/customers.json",
+    "data/fixtures/valid/fx_rates.json",
+    "data/fixtures/valid/transactions_batch_001.csv",
+    "data/fixtures/valid/transactions_batch_001_replay.csv",
+    "data/fixtures/valid/transactions_batch_002.csv"
+  ],
+  "expected_counts": {
+    "customers": 5,
+    "accounts": 7,
+    "valid_batch_001": 4,
+    "valid_batch_001_replay": 4,
+    "valid_batch_002": 4,
+    "valid_transactions_total_excluding_replay": 8,
+    "invalid_transactions": 3
+  },
+  "required_coverage": {
+    "currencies": [
+      "EUR",
+      "USD",
+      "GBP"
+    ],
+    "channels": [
+      "ATM",
+      "CARD",
+      "MOBILE",
+      "ONLINE"
+    ],
+    "logical_dates": [
+      "2026-07-20",
+      "2026-07-21"
+    ]
+  },
+  "replay": {
+    "original": "data/fixtures/valid/transactions_batch_001.csv",
+    "replay": "data/fixtures/valid/transactions_batch_001_replay.csv",
+    "must_match_bytes": true
+  },
+  "expected_invalid_records": {
+    "TXN-9001": [
+      "account_id.unknown"
+    ],
+    "TXN-9002": [
+      "amount.not_positive"
+    ],
+    "TXN-9003": [
+      "currency.invalid"
+    ]
+  },
+  "expected_sha256": {
+    "data/fixtures/invalid/transactions_invalid.csv": "ef263e9c57d21d6df68b9973d5627daa10f5041c82ec59fa3e95525d42b14e14",
+    "data/fixtures/valid/accounts.json": "a22f761108ddd118b946fdc108097fc9c7c1465c9d64e42684cac0ba376ee6b3",
+    "data/fixtures/valid/customers.json": "0aedf43136bc8f9cf6f6b8486c7c51df08057ffff661c99ed385bbd6cdbfa70a",
+    "data/fixtures/valid/fx_rates.json": "0fa7c800bb482fe93a3641e244133d8b4d2e04d41078bb1eda3e27e1879038c8",
+    "data/fixtures/valid/transactions_batch_001.csv": "b4dee374fa87dca9aa89ddb93ba681ad130b7b4635d1874ea7424ff566910845",
+    "data/fixtures/valid/transactions_batch_001_replay.csv": "b4dee374fa87dca9aa89ddb93ba681ad130b7b4635d1874ea7424ff566910845",
+    "data/fixtures/valid/transactions_batch_002.csv": "7e91655a5d98ff92c6769bf08d410f134770613d3ad892bdade46210b2409532"
+  }
+}
