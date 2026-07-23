@@ -1,0 +1,17 @@
+{
+  "name": "ls_adls_gen2_parameterized",
+  "properties": {
+    "annotations": ["DESIGN_ONLY", "NOT_DEPLOYED"],
+    "parameters": {
+      "storageAccountUrl": {"type": "String"}
+    },
+    "type": "AzureBlobFS",
+    "typeProperties": {
+      "url": "@{linkedService().storageAccountUrl}"
+    },
+    "connectVia": {
+      "referenceName": "AutoResolveIntegrationRuntime",
+      "type": "IntegrationRuntimeReference"
+    }
+  }
+}

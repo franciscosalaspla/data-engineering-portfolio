@@ -1,0 +1,99 @@
+{
+  "config_version": "1.0.0",
+  "sources": [
+    {
+      "source_id": "customers_snapshot",
+      "source_name": "synthetic_customer_master",
+      "entity_name": "customers",
+      "source_type": "file",
+      "source_path": "data/fixtures/valid/customers.json",
+      "file_format": "json",
+      "schema_path": "schemas/customers.schema.json",
+      "record_collection": "customers",
+      "enabled": true,
+      "load_type": "full",
+      "destination_path": "customers",
+      "business_key": ["customer_id"]
+    },
+    {
+      "source_id": "accounts_snapshot",
+      "source_name": "synthetic_account_master",
+      "entity_name": "accounts",
+      "source_type": "file",
+      "source_path": "data/fixtures/valid/accounts.json",
+      "file_format": "json",
+      "schema_path": "schemas/accounts.schema.json",
+      "record_collection": "accounts",
+      "enabled": true,
+      "load_type": "full",
+      "destination_path": "accounts",
+      "business_key": ["account_id"]
+    },
+    {
+      "source_id": "fx_rates_snapshot",
+      "source_name": "ecb_api_mock",
+      "entity_name": "fx_rates",
+      "source_type": "api_mock",
+      "source_path": "data/fixtures/valid/fx_rates.json",
+      "file_format": "json",
+      "schema_path": "schemas/fx_rates.schema.json",
+      "record_collection": "rates_by_date",
+      "enabled": true,
+      "load_type": "incremental",
+      "destination_path": "fx_rates",
+      "business_key": ["effective_date"]
+    },
+    {
+      "source_id": "transactions_batch_001",
+      "source_name": "synthetic_bank_transactions",
+      "entity_name": "transactions",
+      "source_type": "file",
+      "source_path": "data/fixtures/valid/transactions_batch_001.csv",
+      "file_format": "csv",
+      "schema_path": "schemas/transactions.schema.json",
+      "enabled": true,
+      "load_type": "incremental",
+      "destination_path": "transactions",
+      "business_key": ["transaction_id"]
+    },
+    {
+      "source_id": "transactions_batch_001_replay",
+      "source_name": "synthetic_bank_transactions",
+      "entity_name": "transactions",
+      "source_type": "file",
+      "source_path": "data/fixtures/valid/transactions_batch_001_replay.csv",
+      "file_format": "csv",
+      "schema_path": "schemas/transactions.schema.json",
+      "enabled": true,
+      "load_type": "incremental",
+      "destination_path": "transactions",
+      "business_key": ["transaction_id"]
+    },
+    {
+      "source_id": "transactions_batch_002",
+      "source_name": "synthetic_bank_transactions",
+      "entity_name": "transactions",
+      "source_type": "file",
+      "source_path": "data/fixtures/valid/transactions_batch_002.csv",
+      "file_format": "csv",
+      "schema_path": "schemas/transactions.schema.json",
+      "enabled": true,
+      "load_type": "incremental",
+      "destination_path": "transactions",
+      "business_key": ["transaction_id"]
+    },
+    {
+      "source_id": "transactions_invalid_contract_test",
+      "source_name": "synthetic_bank_transactions",
+      "entity_name": "transactions",
+      "source_type": "file",
+      "source_path": "data/fixtures/invalid/transactions_invalid.csv",
+      "file_format": "csv",
+      "schema_path": "schemas/transactions.schema.json",
+      "enabled": true,
+      "load_type": "incremental",
+      "destination_path": "transactions",
+      "business_key": ["transaction_id"]
+    }
+  ]
+}

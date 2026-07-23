@@ -1,0 +1,17 @@
+{
+  "name": "ls_key_vault_conceptual",
+  "properties": {
+    "annotations": [
+      "DESIGN_ONLY",
+      "NOT_DEPLOYED",
+      "OPTIONAL_POST_MVP_SECRET_REFERENCE"
+    ],
+    "parameters": {
+      "vaultBaseUrl": {"type": "String"}
+    },
+    "type": "AzureKeyVault",
+    "typeProperties": {
+      "baseUrl": "@{linkedService().vaultBaseUrl}"
+    }
+  }
+}

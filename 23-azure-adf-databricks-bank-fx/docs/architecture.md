@@ -1,109 +1,89 @@
-# Arquitectura objetivo
+# Arquitectura del Proyecto 23
 
 ## Estado de implementación
 
-El Hito 1 implementa contratos, esquemas, fixtures y validaciones locales. Los servicios descritos en este documento son objetivos para hitos posteriores y no constituyen evidencia de recursos desplegados.
+Los Hitos 1 y 2 están implementados y verificados localmente. El repositorio contiene contratos, datos sintéticos, configuración metadata-driven, artefactos JSON Azure-style de ADF y una ejecución Python equivalente que materializa Landing, Bronze, cuarentena y auditoría.
 
-## Flujo end-to-end
+Los artefactos de `adf/` son diseño versionado: no se han desplegado ni ejecutado en Azure Data Factory. Tampoco existen todavía ADLS Gen2, Azure Databricks, Azure SQL ni Power BI asociados a este proyecto.
+
+## Flujo implementado localmente
 
 ```mermaid
 flowchart TD
-    API["ECB REST API"] --> ADF["Azure Data Factory"]
-    CSV["Transactions CSV"] --> ADF
-    JSON["Customers and accounts JSON"] --> ADF
-    ADF --> LAND["ADLS Gen2 / Landing"]
-    LAND --> DRIVER["Databricks driver"]
-    DRIVER --> BRONZE["Bronze Delta"]
-    BRONZE --> SILVER["Silver Delta"]
-    SILVER --> QUAR["Quarantine"]
-    SILVER --> GOLD["Gold Delta"]
-    GOLD --> EXPORT["Serving snapshots"]
-    EXPORT --> ADF
-    ADF --> SQL["Azure SQL star model"]
+    M["config/sources.json"] --> O["Orquestador local metadata-driven"]
+    CSV["CSV sintético"] --> O
+    JSON["JSON sintético"] --> O
+    FX["ECB API mock local"] --> O
+    O --> C{"Checksum ya procesado"}
+    C -->|Sí| S["Audit: SKIPPED"]
+    C -->|No| L["Landing inmutable + metadata SHA-256"]
+    L --> V["Validación de contratos Hito 1"]
+    V -->|Aceptado| B["Bronze JSONL + metadata técnica"]
+    V -->|Rechazado| Q["Quarantine + motivos"]
+    B --> A["Audit JSONL + run summary"]
+    Q --> A
+```
+
+La configuración central permite incorporar otra fuente CSV o JSON sin duplicar el bucle de orquestación. Cada entrada controla origen, entidad, formato, esquema, habilitación, tipo de carga, destino y clave de negocio.
+
+## Equivalencia ADF diseñada
+
+| Artefacto | Responsabilidad representada | Estado |
+|---|---|---|
+| Linked Services parametrizados | HTTP anónimo, ADLS Gen2 y referencia conceptual opcional a Key Vault | Diseño, no desplegado |
+| Datasets parametrizados | Metadata, CSV, JSON y sink binario Landing | Diseño, no desplegado |
+| `pl_master_metadata_ingestion` | `Lookup` de metadata, `ForEach` y ejecución del flujo reutilizable | Diseño, no ejecutado en ADF |
+| `pl_ingest_source` | Selección por formato, `Copy` a Landing y control de error | Diseño, no ejecutado en ADF |
+| Trigger de ejemplo | Agenda detenida y documentada para uso manual en el MVP | Desactivado |
+
+Los parámetros principales son `environment`, `run_id`, `source_name`, `entity_name` e `ingestion_date`. URLs, containers y paths se suministrarán por entorno; los JSON no incluyen secretos, credenciales ni identificadores de una suscripción.
+
+## Landing y Bronze
+
+Landing conserva el archivo original bajo fuente, entidad, fecha y ejecución. El checksum completo se guarda en metadata adyacente. Si una ruta inmutable ya existe con otros bytes, el pipeline falla de forma explícita.
+
+Bronze es JSONL determinístico dentro de una partición por fecha y checksum del archivo. Mantiene todos los campos válidos de cada registro y agrega metadata técnica. La capa no realiza conversión EUR, tipado analítico, lógica dimensional ni reglas Silver.
+
+```text
+data/output/landing/{source}/{entity}/ingestion_date={date}/run_id={run_id}/
+data/output/bronze/{entity}/ingestion_date={date}/source_checksum={prefix}/records.jsonl
+data/output/quarantine/{source}/{entity}/ingestion_date={date}/run_id={run_id}/
+data/output/audit/ingestion_audit.jsonl
+data/output/control/processed_files.json
+```
+
+## Calidad, errores e idempotencia
+
+El validador local implementa el subconjunto JSON Schema usado por el Hito 1 y comprueba las referencias cuenta-cliente y transacción-cuenta. Un rechazo de datos produce `PARTIAL`, conserva el registro y sus motivos en cuarentena y no elimina outputs válidos. Un problema de archivo, JSON o filesystem produce `FAILED` con `error_type=TECHNICAL`.
+
+La clave de archivo procesado combina:
+
+```text
+source_name + entity_name + SHA-256 del archivo
+```
+
+Esto omite el replay exacto incluso si cambia el nombre físico. Bronze añade además un checksum canónico por registro. El estado se persiste solo después de una fuente `SUCCESS` o `PARTIAL`; un fallo técnico puede reintentarse.
+
+## Arquitectura objetivo posterior
+
+```mermaid
+flowchart LR
+    S["ECB API / CSV / JSON"] --> ADF["Azure Data Factory"]
+    ADF --> ADLS["ADLS Gen2 Landing"]
+    ADLS --> DBX["Databricks driver parametrizado"]
+    DBX --> BR["Bronze Delta"]
+    BR --> SI["Silver Delta + quality"]
+    SI --> GO["Gold star model"]
+    GO --> SQL["Azure SQL"]
     SQL --> PBI["Power BI"]
 ```
 
-## Responsabilidad por componente
+El próximo hito migrará la lógica de transformación a PySpark/Delta y construirá Silver en Databricks Free Edition con paths, catálogo, schema y entorno parametrizados. Solo una fase posterior validará el flujo central en recursos Azure temporales.
 
-| Componente | Responsabilidad prevista |
-|---|---|
-| Azure Data Factory | Ingerir las tres fuentes, propagar parámetros, ejecutar un único driver Databricks y publicar snapshots en SQL |
-| ADLS Gen2 | Conservar Landing y las zonas persistentes del lakehouse |
-| Databricks | Ejecutar PySpark, Delta `MERGE`, reglas de calidad, cuarentena y modelo Gold |
-| Azure SQL | Servir el modelo estrella mediante staging y publicación transaccional |
-| Power BI | Consumir el modelo en modo Import desde My Workspace |
+## Responsabilidades futuras por capa
 
-## Responsabilidad por capa
+- **Silver:** tipado, deduplicación de negocio, calidad completa, estandarización y conversión monetaria.
+- **Gold:** `fact_transactions`, seis dimensiones, métricas EUR y reconciliación.
+- **Serving:** snapshots para Azure SQL y consumo Power BI.
 
-### Landing
-
-- Copia inmutable del origen.
-- Sin correcciones ni descartes.
-- Partición futura por fuente, fecha lógica y ejecución.
-- Checksum SHA-256 para trazabilidad e idempotencia.
-
-### Bronze
-
-- Normalización técnica por fuente.
-- Conservación de valores originales cuando sea útil para auditoría.
-- Metadata: `pipeline_run_id`, `source_batch_id`, `source_file`, `file_checksum` e `ingested_at_utc`.
-- Escritura Delta append-only en la primera versión.
-
-### Silver
-
-- Tipado y estandarización.
-- Deduplicación por claves de negocio.
-- Integridad cuenta-cliente y transacción-cuenta.
-- Validación de dominios, montos y fechas.
-- Enriquecimiento con tasas de cambio.
-- Separación explícita entre registros aceptados y cuarentena.
-
-### Gold
-
-- Construcción de `fact_transactions` y seis dimensiones.
-- Claves sustitutas estables.
-- Métricas en EUR y columnas de reconciliación.
-- Snapshots Parquet separados de los archivos internos Delta para la carga ADF → Azure SQL.
-
-## Estrategia Databricks en dos etapas
-
-### Databricks Free Edition
-
-Primero se validarán sin costo Bronze, Silver, Gold, calidad, `MERGE` e idempotencia. Los parámetros `environment`, `catalog`, schemas y paths evitarán acoplar el código al almacenamiento predeterminado de Free Edition. Toda evidencia se identificará expresamente como **Databricks Free Edition**, no Azure Databricks.
-
-### Azure Databricks
-
-Durante una ventana temporal, ADF invocará un único notebook driver o job por corrida. El driver reutilizará Job Compute para todas las etapas y producirá snapshots de serving. Solo se ejecutarán el lote inicial, el segundo microlote y el replay idempotente antes del cleanup.
-
-## Incrementalidad e idempotencia
-
-La clave técnica combinará identificadores de negocio y de archivo:
-
-```text
-transaction_id + source_batch_id + file_checksum + logical_processing_date
-```
-
-La tabla Delta de control registrará cada archivo. Un checksum ya completado no volverá a producir inserciones. `transaction_id` será la clave de negocio del `MERGE`; cambios incompatibles se enviarán a revisión en lugar de sobrescribirse silenciosamente.
-
-## Modelo estrella objetivo
-
-`fact_transactions` tendrá una fila por transacción y referencias a:
-
-- `dim_date` por fecha de operación;
-- `dim_customer` por titular de la cuenta;
-- `dim_account` por cuenta operada;
-- `dim_merchant` por comercio;
-- `dim_channel` por canal;
-- `dim_currency` por moneda original.
-
-Las dimensiones se cargarán antes del hecho. Azure SQL utilizará schemas `stg`, `mart` y `etl` para separar recepción, consumo y control.
-
-## Quality gates
-
-1. Landing valida presencia, legibilidad y checksum.
-2. Bronze reconcilia conteos y metadata.
-3. Silver valida reglas y porcentaje de cuarentena.
-4. Gold valida claves, relaciones y totales.
-5. Azure SQL compara conteos Gold/SQL antes de habilitar el consumo.
-
-Un incumplimiento crítico detendrá la publicación. Los rechazos esperados deberán conservar código de regla, valor original, lote y timestamp.
+La evidencia futura distinguirá de forma explícita ejecución local, **Databricks Free Edition** y servicios realmente ejecutados en Azure.

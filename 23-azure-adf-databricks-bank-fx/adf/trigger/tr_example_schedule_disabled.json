@@ -1,0 +1,29 @@
+{
+  "name": "tr_example_schedule_disabled",
+  "properties": {
+    "annotations": ["DESIGN_ONLY", "NOT_DEPLOYED", "DISABLED_USE_MANUAL_EXECUTION"],
+    "runtimeState": "Stopped",
+    "pipelines": [
+      {
+        "pipelineReference": {
+          "referenceName": "pl_master_metadata_ingestion",
+          "type": "PipelineReference"
+        },
+        "parameters": {
+          "environment": "dev",
+          "run_id": "@trigger().scheduledTime",
+          "ingestion_date": "@formatDateTime(trigger().scheduledTime, 'yyyy-MM-dd')"
+        }
+      }
+    ],
+    "type": "ScheduleTrigger",
+    "typeProperties": {
+      "recurrence": {
+        "frequency": "Day",
+        "interval": 1,
+        "startTime": "2099-01-01T00:00:00Z",
+        "timeZone": "UTC"
+      }
+    }
+  }
+}

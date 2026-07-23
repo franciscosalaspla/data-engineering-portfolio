@@ -1,172 +1,150 @@
 # Proyecto 23 — Azure Banking Multicurrency Data Platform
 
-## Estado actual del proyecto
-
-**Hito 1 implementado localmente.** El repositorio contiene contratos, esquemas, fixtures sintéticos determinísticos, un manifiesto de resultados esperados y validaciones ejecutables con la biblioteca estándar de Python.
-
-En este hito no existen recursos Azure desplegados. Azure Data Factory, ADLS Gen2, Azure Databricks, Azure SQL y Power BI representan la arquitectura objetivo y todavía no deben interpretarse como servicios ejecutados. La API ECB es un mock local y los datos son completamente sintéticos.
-
 ## Valor del proyecto
 
-Una plataforma bancaria multimoneda necesita integrar datos heterogéneos sin perder trazabilidad, aplicar reglas de calidad antes del consumo y convertir importes a una moneda analítica común. Este proyecto diseña ese flujo de extremo a extremo y prepara contratos verificables antes de crear infraestructura, reduciendo errores y consumo cloud durante los hitos posteriores.
+Una plataforma bancaria multimoneda debe incorporar archivos y APIs heterogéneos sin perder evidencia del origen, bloquear datos defectuosos y soportar reejecuciones sin duplicar operaciones. Este proyecto demuestra esas capacidades con contratos verificables, orquestación metadata-driven, Landing inmutable, Bronze trazable, cuarentena y auditoría antes de consumir recursos cloud.
 
-Para un rol Data Engineer, el proyecto demostrará diseño Medallion, PySpark, Delta Lake, cargas incrementales, idempotencia, calidad, modelado dimensional, orquestación, seguridad, observabilidad y control de costos mediante servicios reales de Azure.
+Para un rol Data Engineer, el proyecto muestra diseño incremental, separación de capas, calidad de datos, idempotencia por checksum, observabilidad y traducción de un flujo local probado a componentes reales de Azure Data Factory y ADLS Gen2.
 
 ## Resumen ejecutivo
 
-La solución objetivo procesará aproximadamente 5.000 transacciones, 500 clientes y 700 cuentas en EUR, USD y GBP. Dos microlotes y una reejecución del primero permitirán comprobar cargas incrementales e idempotencia. ADF ingerirá una API histórica del ECB, CSV de transacciones y JSON de clientes/cuentas hacia ADLS Gen2. Databricks transformará Landing en Bronze, Silver y Gold con PySpark y Delta Lake. Un modelo estrella se publicará en Azure SQL y será consumido desde Power BI.
+La arquitectura objetivo integrará una API histórica del ECB, CSV de transacciones y JSON de clientes/cuentas. Azure Data Factory aterrizará los orígenes en ADLS Gen2; un único driver Databricks coordinará Bronze, Silver, Gold, calidad y snapshots; Azure SQL publicará un modelo estrella para Power BI.
 
-El Hito 1 utiliza únicamente fixtures pequeños para fijar el comportamiento esperado sin dependencias externas ni costos cloud.
+Los Hitos 1 y 2 fijan ese comportamiento sin costo cloud mediante datos sintéticos pequeños y Python estándar. La ejecución actual procesa dos microlotes, detecta el replay exacto, conserva originales en Landing, materializa 22 registros válidos en Bronze y envía tres transacciones deliberadamente inválidas a cuarentena.
 
-## Problema bancario
+## Estado actual
 
-Las transacciones llegan en distintas monedas y formatos, mientras clientes, cuentas y tipos de cambio evolucionan de forma independiente. Sin contratos y controles explícitos pueden aparecer operaciones duplicadas, cuentas inexistentes, montos inválidos o conversiones incompletas que distorsionen los indicadores de negocio.
+**Hitos 1 y 2 implementados localmente.** Existen contratos, JSON Schemas, fixtures determinísticos, configuración central de fuentes, artefactos ADF Azure-style, pipeline Landing/Bronze, estado de idempotencia, auditoría y pruebas automatizadas.
 
-La plataforma debe entregar una vista reconciliada y auditable para analizar volumen, monto normalizado, estado, canal, comercio, segmento y moneda.
+No se han desplegado ni ejecutado recursos Azure. Los JSON de `adf/` representan un diseño versionado y no son evidencia de Azure Data Factory. El origen ECB sigue siendo un mock local; todos los datos son sintéticos.
 
-## Fuentes de datos
+## Caso bancario y fuentes
 
-| Fuente | Formato | Contenido | Estado en Hito 1 |
-|---|---|---|---|
-| Transacciones bancarias | CSV | Operaciones, moneda, comercio, canal y lote | Fixture local sintético |
-| Clientes y cuentas | JSON | Maestros sin atributos identificables | Fixtures locales sintéticos |
-| Tipos de cambio ECB | JSON API | Tasas EUR, USD y GBP por fecha | Mock local sintético |
+El caso integra transacciones en EUR, USD y GBP con maestros de clientes/cuentas y tasas de cambio. Los fixtures pequeños preservan las relaciones y errores previstos para acelerar el desarrollo; el volumen objetivo posterior será de aproximadamente 5.000 transacciones, 500 clientes y 700 cuentas.
 
-Los contratos completos están en [Contratos de datos](contracts/data_contracts.md) y los esquemas verificables en `schemas/`.
+| Fuente | Formato actual | Entidad | Carga | Resultado local |
+|---|---|---|---|---|
+| Transacciones sintéticas | CSV | `transactions` | Incremental, dos microlotes | 8 aceptadas |
+| Replay del microlote 1 | CSV | `transactions` | Incremental | 4 filas `SKIPPED` |
+| Clientes sintéticos | JSON | `customers` | Full snapshot | 5 aceptados |
+| Cuentas sintéticas | JSON | `accounts` | Full snapshot | 7 aceptadas |
+| ECB API mock | JSON | `fx_rates` | Incremental | 2 fechas aceptadas |
+| Casos de contrato | CSV | `transactions` | Incremental | 3 en cuarentena |
 
-## Arquitectura objetivo
+Los campos y reglas están en [Contratos de datos](contracts/data_contracts.md); los esquemas Draft 2020-12 están en `schemas/`.
+
+## Arquitectura Landing/Bronze
 
 ```mermaid
 flowchart LR
-    S["ECB mock / CSV / JSON"] --> A["Azure Data Factory"]
-    A --> L["ADLS Landing"]
-    L --> B["Bronze Delta"]
-    B --> V["Silver Delta + quarantine"]
-    V --> G["Gold star model"]
-    G --> Q["Azure SQL"]
-    Q --> P["Power BI"]
+    C["Metadata de fuentes"] --> P["Pipeline local / diseño ADF"]
+    S["CSV + JSON + ECB mock"] --> P
+    P --> L["Landing inmutable"]
+    L --> V{"Contratos válidos"}
+    V -->|Sí| B["Bronze + metadata técnica"]
+    V -->|No| Q["Quarantine + motivos"]
+    B --> A["Audit + control idempotente"]
+    Q --> A
 ```
 
-El diseño detallado y la separación entre implementación actual y futura se documentan en [Arquitectura](docs/architecture.md).
+Landing conserva los bytes originales y metadata SHA-256. Bronze preserva los campos válidos, aplana únicamente la colección técnica de cada JSON y agrega `_run_id`, `_ingested_at`, `_source_name`, `_source_file`, `_record_checksum`, `_ingestion_date` y `_landing_path`. No hay conversión monetaria ni reglas Silver en este hito.
 
-## Capas Landing, Bronze, Silver y Gold
+El diseño completo está en [Arquitectura](docs/architecture.md).
 
-- **Landing:** conservará una copia inmutable de cada respuesta o archivo recibido.
-- **Bronze:** normalizará técnicamente cada fuente y agregará metadata de ingesta, lote y ejecución.
-- **Silver:** aplicará tipado, deduplicación, integridad referencial, reglas de negocio, conversión monetaria y cuarentena.
-- **Gold:** publicará dimensiones, hechos, métricas y reconciliaciones preparadas para consumo.
+## Flujo metadata-driven y artefactos ADF
 
-## Estrategia de calidad
+`config/sources.json` define cada fuente mediante nombre, entidad, tipo, path, formato, esquema, habilitación, tipo de carga, destino y clave de negocio. Incorporar otra fuente CSV o JSON compatible no requiere duplicar el bucle principal.
 
-Los controles locales verifican presencia de archivos, encabezados, JSON válido, campos obligatorios, unicidad, referencias entre cuentas y clientes, referencias de transacciones, dominios permitidos, fechas, montos, cobertura FX y conteos esperados.
+Los artefactos en `adf/` modelan:
 
-Los casos deliberadamente inválidos se almacenan en `data/fixtures/invalid/`. Una validación correcta exige detectar exactamente sus errores esperados; no se mezclan silenciosamente con los registros válidos.
+- Linked Services parametrizados para HTTP y ADLS Gen2;
+- referencia conceptual opcional a Key Vault, sin valores reales;
+- datasets parametrizados para metadata, CSV, JSON y Landing;
+- pipeline maestro con `Lookup`, `ForEach` y `ExecutePipeline`;
+- pipeline reutilizable con `Switch`, `Copy` y control de fallos;
+- trigger de ejemplo en estado `Stopped` para conservar ejecución manual.
 
-## Idempotencia
+No contienen contraseñas, tokens, connection strings ni IDs personales o de suscripción.
 
-`transactions_batch_001_replay.csv` debe ser idéntico byte a byte al primer microlote. En Delta Lake, la estrategia futura combinará:
-
-- `transaction_id`;
-- `source_batch_id`;
-- checksum SHA-256 del archivo;
-- fecha lógica de procesamiento.
-
-El `MERGE` futuro insertará registros nuevos, actualizará cambios controlados y evitará duplicados al repetir un lote ya procesado.
-
-## Conversión a EUR
-
-EUR será la moneda analítica común. El mock define tasas como unidades de moneda por `1 EUR`. Conceptualmente:
+## Convenciones de rutas
 
 ```text
-fx_rate_to_eur = 1 / source_rate_per_eur
-amount_eur = amount_original * fx_rate_to_eur
+data/output/landing/{source}/{entity}/ingestion_date={date}/run_id={run_id}/
+data/output/bronze/{entity}/ingestion_date={date}/source_checksum={prefix}/records.jsonl
+data/output/quarantine/{source}/{entity}/ingestion_date={date}/run_id={run_id}/
+data/output/audit/ingestion_audit.jsonl
+data/output/audit/run_summary_{run_id}.json
+data/output/control/processed_files.json
 ```
 
-Para operaciones en EUR, ambas tasas son `1`. Los importes de los fixtures no representan cifras financieras productivas.
+Los outputs generados se ignoran en Git. Los fixtures, contratos y esquemas nunca son eliminados por el comando de limpieza.
 
-## Modelo estrella objetivo
+## Idempotencia, auditoría y cuarentena
 
-La tabla `fact_transactions` tendrá grano de una transacción e incluirá `amount_original`, `currency_original`, `fx_rate_to_eur` y `amount_eur`.
+La clave `source_name + entity_name + file_sha256` identifica un archivo ya procesado. El replay conserva el mismo checksum aunque tenga otro nombre y queda `SKIPPED`; una segunda ejecución completa tampoco crea archivos ni filas Bronze adicionales. El checksum canónico de cada registro aporta trazabilidad adicional.
 
-Dimensiones previstas:
+Cada fuente registra rutas, conteos, checksum, timestamps, duración, estado y error. Los estados son:
 
-- `dim_date`;
-- `dim_customer`;
-- `dim_account`;
-- `dim_merchant`;
-- `dim_channel`;
-- `dim_currency`.
+- `SUCCESS`: archivo procesado sin rechazos;
+- `PARTIAL`: se conservaron aceptados y/o rechazos de calidad;
+- `FAILED`: error técnico recuperable, sin marcar el archivo como procesado;
+- `SKIPPED`: checksum ya completado, contabilizado como duplicado.
 
-El modelo está documentado, pero no implementado ni desplegado en este hito.
+Los rechazos guardan el registro original y todos sus motivos. La fuente inválida no borra ni sobrescribe las particiones válidas.
 
-## Seguridad y gobierno previstos
+## Ejecución local reproducible
 
-- Solo datos sintéticos y no identificables.
-- Managed Identities para accesos entre servicios Azure.
-- OIDC para GitHub Actions en un hito posterior.
-- RBAC con alcance mínimo y endpoints públicos controlados para el PoC.
-- Sin Key Vault mientras no existan secretos reales.
-- Sin credenciales, correos, tenant IDs o subscription IDs versionados.
-- Nombres y etiquetas definidos en [Convenciones Azure](docs/naming_and_tagging.md).
-
-## Control de costos
-
-El objetivo operacional futuro es mantener el gasto total de demostración bajo USD 10; no es un límite automático garantizado. El presupuesto preventivo permanece pendiente de habilitación en Cost Management.
-
-La cuenta gratuita dispone de un límite de gasto, pero el proyecto no dependerá únicamente de esa protección. Se limitarán las corridas, se usará Job Compute temporal, no habrá triggers programados y los recursos se eliminarán después de capturar evidencia. Azure SQL usará la oferta gratuita y su opción de pausa al alcanzar el límite si están disponibles.
-
-## Observabilidad prevista
-
-Cada ejecución futura registrará `pipeline_run_id`, lote, archivo fuente, checksum, timestamps, conteos por capa, registros en cuarentena, resultado de calidad y estado final. Las evidencias distinguirán validaciones locales, Databricks Free Edition y ejecuciones reales de Azure.
-
-## Alcance implementado en el Hito 1
-
-- contratos de CSV y JSON;
-- JSON Schemas Draft 2020-12;
-- dos microlotes pequeños y un replay exacto;
-- clientes, cuentas y tasas sintéticas;
-- casos inválidos separados;
-- manifiesto con conteos y errores esperados;
-- generador determinístico con semilla fija;
-- validador y pruebas con Python estándar.
-
-## Resultados locales verificados
-
-| Validación | Resultado |
-|---|---:|
-| Controles del validador | 42/42 PASSED |
-| Pruebas unitarias | 4/4 PASSED |
-| Clientes sintéticos | 5 |
-| Cuentas sintéticas | 7 |
-| Transacciones válidas sin contar replay | 8 |
-| Registros inválidos detectados como se esperaba | 3/3 |
-| Replay del microlote 1 | Idéntico byte a byte |
-
-Estos resultados corresponden exclusivamente a fixtures locales; no demuestran ejecución en Databricks ni Azure.
-
-## Generación y validación local
-
-No se requieren dependencias externas:
+No se requieren dependencias externas. Desde la carpeta del proyecto:
 
 ```bash
-python3 scripts/generate_fixtures.py
+python3 scripts/clean_outputs.py
+python3 scripts/run_ingestion.py --run-id demo-h2-run-001 --ingestion-date 2026-07-22
+python3 scripts/run_ingestion.py --run-id demo-h2-run-002 --ingestion-date 2026-07-22
+python3 scripts/show_audit.py
+```
+
+La primera corrida finaliza `PARTIAL` porque los tres rechazos son intencionales. La segunda finaliza `SUCCESS` con todas las fuentes `SKIPPED` y Bronze sin cambios.
+
+Para validar contratos y ejecutar toda la regresión:
+
+```bash
 python3 scripts/validate_fixtures.py
 PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v
 ```
 
-El generador sobrescribe únicamente los fixtures y el manifiesto de este proyecto con contenido determinístico. El validador termina con código distinto de cero ante cualquier incumplimiento inesperado.
+## Resultados locales verificados
 
-## Próximos hitos
+| Evidencia | Resultado |
+|---|---:|
+| Controles de fixtures del Hito 1 | 42/42 `PASSED` |
+| Pruebas Hitos 1 y 2 | 17/17 `PASSED` |
+| Registros Bronze | 22 |
+| Transacciones Bronze únicas | 8 |
+| Rechazos en cuarentena | 3 |
+| Replay dentro de la primera corrida | 4 filas `SKIPPED` |
+| Segunda corrida | 7/7 fuentes `SKIPPED`, 29 filas duplicadas auditadas |
+| Artefactos ADF | JSON válido y sin claves de secretos |
 
-- **Hito 2:** código PySpark/Delta modular, SQL, Bicep declarativo y CI sin despliegue.
-- **Hito 3:** ejecución de Bronze, Silver, Gold, `MERGE`, calidad e idempotencia en Databricks Free Edition.
-- **Hitos 4–8:** recursos Azure mínimos, ingesta ADF, ventana temporal de Azure Databricks, Azure SQL, Power BI, CD con OIDC, evidencia y cleanup.
+Estos resultados corresponden exclusivamente a ejecución local. No demuestran actividad en Databricks Free Edition ni en Azure.
 
-## Limitaciones actuales
+## Seguridad y control de costos
 
-- No se consulta la API real del ECB.
-- No existen tablas Delta ni transformaciones PySpark implementadas.
-- No se han desplegado ni ejecutado servicios Azure.
-- No existe modelo físico en Azure SQL ni reporte Power BI.
-- El volumen de fixtures es deliberadamente pequeño.
-- El proyecto todavía no representa una plataforma productiva.
+- Solo datos sintéticos y no identificables.
+- Sin credenciales, correos, tenant IDs o subscription IDs versionados.
+- Key Vault permanece conceptual y fuera del MVP mientras no existan secretos reales.
+- Ningún trigger ADF está activo.
+- El objetivo operacional futuro es mantener el gasto de demostración bajo USD 10; no es un límite automático garantizado.
+- Los recursos Azure se crearán en ventanas controladas y se eliminarán después de capturar evidencia.
+
+## Limitaciones explícitas
+
+- Los artefactos ADF no se han importado, validado ni ejecutado en un Data Factory real.
+- Landing y Bronze usan filesystem/JSONL local, no ADLS Gen2 ni Delta Lake.
+- No se consulta todavía la API real del ECB.
+- No hay Silver, Gold, PySpark, Databricks, Azure SQL ni Power BI implementados.
+- La validación local cubre el subconjunto JSON Schema usado por estos contratos, no un motor JSON Schema general.
+- Los volúmenes son deliberadamente pequeños y no representan rendimiento productivo.
+
+## Próximo hito
+
+El siguiente hito implementará PySpark y Delta Lake parametrizados en **Databricks Free Edition**, incluyendo capa Silver, controles de calidad, `MERGE` e idempotencia. Las evidencias identificarán expresamente Free Edition; Azure Databricks solo se usará después durante una ventana temporal de validación Azure.

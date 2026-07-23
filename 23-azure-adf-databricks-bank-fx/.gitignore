@@ -1,5 +1,8 @@
 __pycache__/
 *.py[cod]
 
+data/output/*
+!data/output/.gitkeep
+
 !manifest/
 !manifest/expected_results.json

@@ -1,0 +1,102 @@
+{
+  "name": "pl_master_metadata_ingestion",
+  "properties": {
+    "annotations": ["DESIGN_ONLY", "NOT_DEPLOYED", "MANUAL_EXECUTION_MVP"],
+    "parameters": {
+      "environment": {"type": "String", "defaultValue": "dev"},
+      "run_id": {"type": "String"},
+      "ingestion_date": {"type": "String"},
+      "storage_account_url": {"type": "String"},
+      "metadata_file_system": {"type": "String", "defaultValue": "config"},
+      "metadata_folder_path": {"type": "String", "defaultValue": "project23"},
+      "metadata_file_name": {"type": "String", "defaultValue": "sources.json"},
+      "landing_file_system": {"type": "String", "defaultValue": "landing"}
+    },
+    "variables": {
+      "pipeline_status": {"type": "String", "defaultValue": "RUNNING"}
+    },
+    "activities": [
+      {
+        "name": "LookupSourceMetadata",
+        "type": "Lookup",
+        "policy": {"timeout": "0.01:00:00", "retry": 1, "retryIntervalInSeconds": 30},
+        "typeProperties": {
+          "source": {"type": "JsonSource"},
+          "dataset": {
+            "referenceName": "ds_ingestion_metadata",
+            "type": "DatasetReference",
+            "parameters": {
+              "storageAccountUrl": "@pipeline().parameters.storage_account_url",
+              "fileSystem": "@pipeline().parameters.metadata_file_system",
+              "folderPath": "@pipeline().parameters.metadata_folder_path",
+              "fileName": "@pipeline().parameters.metadata_file_name"
+            }
+          },
+          "firstRowOnly": true
+        }
+      },
+      {
+        "name": "FilterEnabledSources",
+        "type": "Filter",
+        "dependsOn": [
+          {"activity": "LookupSourceMetadata", "dependencyConditions": ["Succeeded"]}
+        ],
+        "typeProperties": {
+          "items": "@activity('LookupSourceMetadata').output.firstRow.sources",
+          "condition": "@equals(item().enabled, true)"
+        }
+      },
+      {
+        "name": "ForEachEnabledSource",
+        "type": "ForEach",
+        "dependsOn": [
+          {"activity": "FilterEnabledSources", "dependencyConditions": ["Succeeded"]}
+        ],
+        "typeProperties": {
+          "isSequential": true,
+          "items": "@activity('FilterEnabledSources').output.value",
+          "activities": [
+            {
+              "name": "ExecuteReusableIngestion",
+              "type": "ExecutePipeline",
+              "typeProperties": {
+                "pipeline": {
+                  "referenceName": "pl_ingest_source",
+                  "type": "PipelineReference"
+                },
+                "waitOnCompletion": true,
+                "parameters": {
+                  "environment": "@pipeline().parameters.environment",
+                  "run_id": "@pipeline().parameters.run_id",
+                  "source_name": "@item().source_name",
+                  "entity_name": "@item().entity_name",
+                  "ingestion_date": "@pipeline().parameters.ingestion_date",
+                  "file_format": "@item().file_format",
+                  "source_path": "@item().source_path",
+                  "storage_account_url": "@pipeline().parameters.storage_account_url",
+                  "landing_file_system": "@pipeline().parameters.landing_file_system"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "SetMasterSuccess",
+        "type": "SetVariable",
+        "dependsOn": [
+          {"activity": "ForEachEnabledSource", "dependencyConditions": ["Succeeded"]}
+        ],
+        "typeProperties": {"variableName": "pipeline_status", "value": "SUCCESS"}
+      },
+      {
+        "name": "SetMasterFailure",
+        "type": "SetVariable",
+        "dependsOn": [
+          {"activity": "ForEachEnabledSource", "dependencyConditions": ["Failed"]}
+        ],
+        "typeProperties": {"variableName": "pipeline_status", "value": "FAILED"}
+      }
+    ]
+  }
+}
