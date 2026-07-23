@@ -121,3 +121,49 @@ data/output/bronze/{destination_path}/ingestion_date=YYYY-MM-DD/source_checksum=
 Los errores de datos producen registros JSONL en `data/output/quarantine/` con el registro original, tipo `DATA_QUALITY` y todos los motivos de rechazo. Los errores técnicos se registran con `error_type=TECHNICAL` y estado `FAILED`; no marcan el archivo como procesado.
 
 La clave de idempotencia es `source_name + entity_name + file_sha256`. Un archivo ya completado queda `SKIPPED`, informa sus filas como duplicadas y no vuelve a escribir Landing, Bronze ni cuarentena. Cada intento conserva un registro estructurado con rutas, conteos, checksum, tiempos, estado y mensaje de error.
+
+## Contrato Silver del Hito 3
+
+Silver utiliza esquemas PySpark explícitos para cada lectura Bronze. No se permite inferencia de esquema en el flujo productivo. Las claves de negocio son:
+
+| Entidad | Tabla Delta | Clave de negocio |
+|---|---|---|
+| Clientes | `silver_customers` | `customer_id` |
+| Cuentas | `silver_accounts` | `account_id` |
+| Tipos de cambio | `silver_fx_rates` | `effective_date` |
+| Transacciones | `silver_transactions` | `transaction_id` |
+
+Las transformaciones Silver normalizan espacios, mayúsculas, fechas, timestamps, decimales y dominios respaldados por los contratos de origen. `rates.EUR`, `rates.USD` y `rates.GBP` se materializan como `rate_eur`, `rate_usd` y `rate_gbp`; no se calcula todavía `amount_eur`.
+
+Toda fila aceptada conserva la metadata Bronze y agrega:
+
+| Campo | Tipo lógico | Descripción |
+|---|---|---|
+| `_silver_processed_at` | timestamp UTC | Instante de la ejecución que insertó o actualizó la fila |
+| `_silver_run_id` | string | Identificador de esa ejecución Silver |
+| `_quality_status` | string | `PASSED` para filas publicadas |
+| `_source_bronze_path` | string | Archivo JSONL Bronze leído por Spark |
+
+## Quality gates Silver
+
+- claves obligatorias y patrones de identificadores;
+- fechas y timestamps parseables;
+- importes positivos con escala decimal de dos posiciones;
+- dominios de monedas, estados, tipos, segmentos, canales y categorías;
+- referencia cuenta → cliente;
+- referencia transacción → cuenta;
+- tasas EUR, USD y GBP presentes y positivas, con EUR igual a `1.0`;
+- una ganadora determinística por clave de negocio dentro del input.
+
+Los registros rechazados no se escriben en las tablas Silver. La cuarentena Delta conserva `original_record`, entidad, clave, regla, motivo, run ID, timestamp Silver y ruta Bronze. Una fila con varias reglas genera una entrada por regla. `_quarantine_id` evita repetir la misma evidencia en una reejecución.
+
+## MERGE e idempotencia Silver
+
+El `MERGE` compara cada clave de negocio y `_record_checksum`:
+
+- clave nueva: `INSERT`;
+- clave existente con checksum diferente: `UPDATE`;
+- clave existente con checksum idéntico: `SKIPPED`, sin ejecutar un `MERGE` físico innecesario;
+- duplicado dentro del input: cuarentena con `DUPLICATE_BUSINESS_KEY`.
+
+Las tablas mantienen el contenido válido de ejecuciones anteriores. La auditoría registra por entidad filas fuente, válidas, rechazadas, duplicadas, insertadas, actualizadas y omitidas, junto con la versión, operación y métricas disponibles en el historial Delta.
