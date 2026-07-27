@@ -13,10 +13,13 @@ GENERATED_NAMES = {
     "audit",
     "bronze",
     "control",
+    "gold",
+    "gold_quarantine",
     "landing",
     "quarantine",
     "silver",
     "silver_quarantine",
+    "serving",
 }
 
 

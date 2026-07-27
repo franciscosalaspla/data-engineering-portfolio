@@ -1,6 +1,6 @@
 # Databricks notebook source
 # MAGIC %md
-# MAGIC # Project 23 — Bronze to Silver configuration
+# MAGIC # Project 23 — Medallion configuration
 # MAGIC All paths and namespaces are parameters; no secret is stored in this notebook.
 
 # COMMAND ----------
@@ -12,6 +12,9 @@ dbutils.widgets.text("bronze_root", "/Volumes/REPLACE_CATALOG/REPLACE_SCHEMA/ban
 dbutils.widgets.text("silver_root", "/Volumes/REPLACE_CATALOG/REPLACE_SCHEMA/bankfx/silver")
 dbutils.widgets.text("quarantine_path", "/Volumes/REPLACE_CATALOG/REPLACE_SCHEMA/bankfx/silver_quarantine")
 dbutils.widgets.text("audit_root", "/Volumes/REPLACE_CATALOG/REPLACE_SCHEMA/bankfx/audit")
+dbutils.widgets.text("gold_root", "/Volumes/REPLACE_CATALOG/REPLACE_SCHEMA/bankfx/gold")
+dbutils.widgets.text("gold_quarantine_path", "/Volumes/REPLACE_CATALOG/REPLACE_SCHEMA/bankfx/gold_quarantine")
+dbutils.widgets.text("serving_root", "/Volumes/REPLACE_CATALOG/REPLACE_SCHEMA/bankfx/serving")
 dbutils.widgets.text("catalog", "REPLACE_CATALOG")
 dbutils.widgets.text("schema", "REPLACE_SCHEMA")
 
@@ -22,5 +25,8 @@ BRONZE_ROOT = dbutils.widgets.get("bronze_root")
 SILVER_ROOT = dbutils.widgets.get("silver_root")
 QUARANTINE_PATH = dbutils.widgets.get("quarantine_path")
 AUDIT_ROOT = dbutils.widgets.get("audit_root")
+GOLD_ROOT = dbutils.widgets.get("gold_root")
+GOLD_QUARANTINE_PATH = dbutils.widgets.get("gold_quarantine_path")
+SERVING_ROOT = dbutils.widgets.get("serving_root")
 CATALOG = dbutils.widgets.get("catalog")
 SCHEMA = dbutils.widgets.get("schema")
