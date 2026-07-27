@@ -1,0 +1,21 @@
+{
+  "config_version": "1.0.0",
+  "environment": "local",
+  "catalog": "",
+  "schema": "",
+  "silver_root": "data/output/silver",
+  "gold_root": "data/output/gold",
+  "quarantine_path": "data/output/gold_quarantine",
+  "audit_root": "data/output/audit",
+  "serving_root": "data/output/serving",
+  "storage_format": "delta",
+  "tables": [
+    {"table_name": "dim_date", "business_key": ["full_date"]},
+    {"table_name": "dim_customer", "business_key": ["customer_id"]},
+    {"table_name": "dim_account", "business_key": ["account_id"]},
+    {"table_name": "dim_merchant", "business_key": ["merchant_id"]},
+    {"table_name": "dim_channel", "business_key": ["channel_code"]},
+    {"table_name": "dim_currency", "business_key": ["currency_code"]},
+    {"table_name": "fact_transactions", "business_key": ["transaction_id"]}
+  ]
+}

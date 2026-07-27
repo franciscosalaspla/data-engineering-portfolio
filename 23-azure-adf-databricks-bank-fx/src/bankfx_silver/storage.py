@@ -37,6 +37,7 @@ class DeltaTableStore:
         incoming: DataFrame,
         path: str,
         business_key: tuple[str, ...],
+        checksum_column: str = "_record_checksum",
     ) -> MergeMetrics:
         incoming_count = incoming.count()
         if not self.is_table(path):
@@ -66,7 +67,11 @@ class DeltaTableStore:
         updated = (
             incoming.alias("source")
             .join(existing.alias("target"), combined_condition, "inner")
-            .filter(~F.col("source._record_checksum").eqNullSafe(F.col("target._record_checksum")))
+            .filter(
+                ~F.col(f"source.`{checksum_column}`").eqNullSafe(
+                    F.col(f"target.`{checksum_column}`")
+                )
+            )
             .count()
         )
         skipped = incoming_count - inserted - updated
@@ -88,7 +93,9 @@ class DeltaTableStore:
             .alias("target")
             .merge(incoming.alias("source"), merge_condition)
             .whenMatchedUpdateAll(
-                condition="NOT (target._record_checksum <=> source._record_checksum)"
+                condition=(
+                    f"NOT (target.`{checksum_column}` <=> source.`{checksum_column}`)"
+                )
             )
             .whenNotMatchedInsertAll()
             .execute()

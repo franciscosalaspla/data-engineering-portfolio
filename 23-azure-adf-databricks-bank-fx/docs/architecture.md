@@ -2,7 +2,7 @@
 
 ## Estado verificable
 
-Los Hitos 1, 2 y 3 están implementados localmente. La ejecución real comprobada llega hasta cuatro tablas Silver Delta mediante PySpark. Los artefactos ADF y notebooks Databricks están versionados, pero no se han importado ni ejecutado en Azure Data Factory, Databricks Free Edition o Azure Databricks.
+Los Hitos 1–4 están implementados localmente. La ejecución comprobable llega a un modelo estrella Gold Delta y un snapshot Parquet mediante PySpark. Los artefactos ADF y notebooks Databricks están versionados, pero no se han importado ni ejecutado en Azure Data Factory, Databricks Free Edition o Azure Databricks.
 
 ## Flujo actual
 
@@ -16,6 +16,8 @@ flowchart LR
     Q -->|Aceptado| M["Delta MERGE"]
     Q -->|Rechazado| X["Delta quarantine"]
     M --> C["4 tablas Silver"]
+    C --> G["6 dimensiones + fact_transactions"]
+    G --> R["Reconciliación + snapshot Parquet"]
     M --> A["Audit + Delta history"]
     X --> A
 ```
@@ -61,6 +63,53 @@ data/output/audit/silver_audit.jsonl
 
 No se particionan las tablas Silver porque solo contienen 22 filas y una partición física añadiría archivos pequeños sin beneficio. El diseño permite cambiar las rutas a Unity Catalog Volumes antes de aumentar el volumen.
 
+### Gold
+
+- seis dimensiones Type 1 con claves sustitutas determinísticas;
+- hecho `fact_transactions` con grano de una fila por `transaction_id`;
+- conversión EUR por fecha y moneda usando decimales;
+- cuarentena para FX o referencias faltantes y duplicados;
+- `MERGE` Delta por clave natural y checksum de contenido;
+- controles de claves, huérfanos, conteos e importes;
+- snapshot Parquet desnormalizado para consumo analítico.
+
+```text
+data/output/gold/dim_date
+data/output/gold/dim_customer
+data/output/gold/dim_account
+data/output/gold/dim_merchant
+data/output/gold/dim_channel
+data/output/gold/dim_currency
+data/output/gold/fact_transactions
+data/output/gold_quarantine
+data/output/serving/transactions_analytics
+data/output/audit/gold_audit.jsonl
+```
+
+El modelo tampoco se particiona con ocho hechos: esa decisión evita archivos pequeños y queda abierta a revisión cuando exista volumen representativo.
+
+## Modelo estrella Gold
+
+```mermaid
+erDiagram
+    DIM_DATE ||--o{ FACT_TRANSACTIONS : date_key
+    DIM_CUSTOMER ||--o{ FACT_TRANSACTIONS : customer_key
+    DIM_ACCOUNT ||--o{ FACT_TRANSACTIONS : account_key
+    DIM_MERCHANT ||--o{ FACT_TRANSACTIONS : merchant_key
+    DIM_CHANNEL ||--o{ FACT_TRANSACTIONS : channel_key
+    DIM_CURRENCY ||--o{ FACT_TRANSACTIONS : currency_key
+```
+
+`dim_customer` y `dim_account` se construyen desde sus tablas Silver completas; fecha, comercio, canal y moneda se derivan de transacciones Silver. Las claves hash incorporan un namespace de entidad y se validan contra colisiones dentro de cada dimensión. `date_key` usa el formato estable `yyyyMMdd`.
+
+Las tasas ECB representan unidades de moneda cotizada por `1 EUR`. La fórmula es:
+
+```text
+amount_eur = amount_original / fx_rate_to_eur
+```
+
+`amount_original` y `amount_eur` son `decimal(18,2)`; `fx_rate_to_eur` es `decimal(18,8)`. EUR utiliza tasa `1.00000000`.
+
 ## Calidad y dependencias
 
 El driver procesa en este orden:
@@ -85,9 +134,20 @@ Cada entidad declara su clave de negocio en `config/silver_pipeline.json`. La co
 
 Cuando todas las filas coinciden, el pipeline devuelve `SKIPPED` y evita un `MERGE` físico. Una prueba específica modifica un checksum, ejecuta un `MERGE` Delta real y verifica `numTargetRowsUpdated=1` en el historial.
 
+## Idempotencia Gold
+
+Cada dimensión usa su clave natural y el hecho usa `transaction_id`. `_gold_record_checksum` solo incluye contenido analítico, no run ID ni timestamps de proceso:
+
+1. una clave nueva se inserta;
+2. un cambio real de contenido se actualiza como Type 1;
+3. una reejecución idéntica se omite sin `MERGE` físico;
+4. el snapshot se reescribe únicamente cuando cambió alguna tabla Gold.
+
+La reconciliación posterior verifica grano, claves no nulas, huérfanos, unicidad de claves sustitutas, conteos y suma de importes originales. La suma EUR se publica como métrica, pero no se compara directamente con la suma original porque mezcla monedas antes de la conversión.
+
 ## Diseño para Databricks Free Edition
 
-Los notebooks en `databricks/notebooks/` exponen widgets para entorno, run ID, proyecto, Bronze, Silver, cuarentena, auditoría, catálogo y schema. El notebook driver importa los módulos del repositorio; las reglas no están duplicadas en celdas.
+Los notebooks en `databricks/notebooks/` exponen widgets para entorno, run ID, proyecto, Bronze, Silver, Gold, ambas cuarentenas, auditoría, serving, catálogo y schema. Los drivers importan los módulos del repositorio; las reglas no están duplicadas en celdas.
 
 En Free Edition se usarán rutas `/Volumes/...` y el runtime proporcionará Spark/Delta. Esa fase sigue pendiente: la evidencia actual debe llamarse **PySpark/Delta local**, no Databricks Free Edition ni Azure Databricks.
 
@@ -104,4 +164,4 @@ flowchart LR
     SQL --> BI["Power BI"]
 ```
 
-Gold, conversión EUR, dimensiones, serving, Azure SQL y Power BI no forman parte del Hito 3.
+El Hito 5 incorporará la ingesta real API + CSV + JSON mediante ADF y ADLS. Azure SQL, Power BI y la ventana temporal de Azure Databricks permanecen en hitos posteriores.

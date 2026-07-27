@@ -167,3 +167,42 @@ El `MERGE` compara cada clave de negocio y `_record_checksum`:
 - duplicado dentro del input: cuarentena con `DUPLICATE_BUSINESS_KEY`.
 
 Las tablas mantienen el contenido válido de ejecuciones anteriores. La auditoría registra por entidad filas fuente, válidas, rechazadas, duplicadas, insertadas, actualizadas y omitidas, junto con la versión, operación y métricas disponibles en el historial Delta.
+
+## Contrato dimensional Gold del Hito 4
+
+El grano de `fact_transactions` es exactamente una fila por `transaction_id`. Sus claves foráneas no admiten nulos y deben resolver contra estas dimensiones Type 1:
+
+| Tabla | Clave natural | Clave sustituta | Origen |
+|---|---|---|---|
+| `dim_date` | `full_date` | `date_key` | fecha UTC de transacción |
+| `dim_customer` | `customer_id` | `customer_key` | Silver clientes completo |
+| `dim_account` | `account_id` | `account_key` | Silver cuentas completo |
+| `dim_merchant` | `merchant_id` | `merchant_key` | Silver transacciones |
+| `dim_channel` | `channel_code` | `channel_key` | Silver transacciones |
+| `dim_currency` | `currency_code` | `currency_key` | Silver transacciones |
+
+Las claves sustitutas son `long` determinísticos. La fecha usa `yyyyMMdd`; las restantes incorporan un namespace de dimensión al hash. El pipeline comprueba claves sustitutas duplicadas antes de aprobar la reconciliación.
+
+### Medidas monetarias y FX
+
+| Campo | Tipo | Regla |
+|---|---|---|
+| `amount_original` | `decimal(18,2)` | importe Silver sin alterar |
+| `currency_code` | string | EUR, USD o GBP |
+| `fx_rate_to_eur` | `decimal(18,8)` | unidades de moneda por `1 EUR` |
+| `fx_rate_date` | date | misma fecha UTC que la transacción |
+| `amount_eur` | `decimal(18,2)` | `amount_original / fx_rate_to_eur` |
+
+EUR requiere tasa `1.00000000`. Una tasa ausente, nula o no positiva impide publicar el hecho y produce `FX_RATE_MISSING` en la cuarentena Gold. También se explican duplicados de `transaction_id` y referencias faltantes a cuenta o cliente.
+
+### Trazabilidad e idempotencia Gold
+
+Cada fila conserva `_source_silver_run_id` y `_source_silver_path`, y agrega `_gold_run_id`, `_gold_processed_at` y `_gold_record_checksum`. El checksum excluye metadata volátil: solo un cambio de contenido provoca actualización Type 1. Una reejecución idéntica queda `SKIPPED`.
+
+La auditoría reconcilia:
+
+- transacciones Silver = hechos publicados + transacciones rechazadas;
+- suma original aceptada = suma `amount_original` del hecho;
+- cero claves de negocio duplicadas;
+- cero claves foráneas nulas o huérfanas;
+- cero claves sustitutas duplicadas por dimensión.

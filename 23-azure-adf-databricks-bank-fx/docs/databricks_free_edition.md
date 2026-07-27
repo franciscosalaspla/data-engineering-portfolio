@@ -24,6 +24,9 @@ El notebook `00_configuration.py` define widgets para:
 - `silver_root`;
 - `quarantine_path`;
 - `audit_root`;
+- `gold_root`;
+- `gold_quarantine_path`;
+- `serving_root`;
 - `catalog`;
 - `schema`.
 
@@ -31,9 +34,11 @@ Se deben reemplazar todos los valores `REPLACE_*`. Los paths no dependen del alm
 
 ## Orden de ejecución
 
-1. `01_bronze_to_silver.py` ejecuta el driver completo.
-2. Repetir el driver con otro `run_id` para validar idempotencia.
-3. `02_quality_checks.py` valida nulos y duplicados de claves.
-4. `03_validate_results.py` compara los conteos de los fixtures pequeños.
+1. `01_bronze_to_silver.py` ejecuta el driver Bronze→Silver.
+2. `02_quality_checks.py` valida nulos y duplicados Silver.
+3. `03_validate_results.py` compara los conteos Silver.
+4. `04_silver_to_gold.py` ejecuta dimensiones, hecho, calidad, reconciliación y snapshot.
+5. Repetir únicamente el driver Gold con otro `run_id` para validar idempotencia.
+6. `05_validate_gold.py` verifica los conteos Gold y el snapshot.
 
-Las evidencias deben mostrar los parámetros no sensibles, conteos, auditoría, versiones Delta y nombre del entorno **Databricks Free Edition**. No deben presentarse como ejecución de Azure Databricks.
+Las evidencias deben mostrar los parámetros no sensibles, conteos, sumas reconciliadas, auditoría, versiones Delta y nombre del entorno **Databricks Free Edition**. No deben presentarse como ejecución de Azure Databricks.
