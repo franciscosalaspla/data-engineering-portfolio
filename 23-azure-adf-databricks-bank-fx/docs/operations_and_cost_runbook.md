@@ -1,131 +1,172 @@
 # Runbook operativo y de costos
 
-## Objetivo
+Guía breve para **validar la arquitectura Medallion, ejecutar la orquestación y cerrar los recursos** sin dejar consumo variable activo. No contiene credenciales ni crea o elimina infraestructura.
 
-Ejecutar el Proyecto 23 de forma controlada, preservar evidencia útil y cerrar los recursos con consumo variable. Este runbook no contiene credenciales ni automatiza la creación o eliminación de infraestructura.
+## Hitos 1–3 — Validar antes de orquestar
 
-## Recursos críticos
+### 1.1 Contratos y fuentes
 
-| Componente | Nombre | Riesgo operativo principal |
-|---|---|---|
-| Data Factory | `adf-project23-dev-2026` | Ejecución accidental o repetida |
-| Pipeline | `pl_project23_medallion_orchestration` | Reprocesamiento no planificado |
-| Databricks | `compute-project23-dev-2026` | DBU/compute activo sin trabajo |
-| Azure SQL | `sqldb-project23-serving-dev-2026` | Permanecer online por conexiones activas |
-| Cost Management | Alcance `rg-project23-dev` | Desviación del presupuesto |
+Confirmar que los contratos, schemas y fixtures estén versionados y que Landing contenga las fuentes esperadas.
 
-## Antes de ejecutar
+### 2.1 Calidad Silver
 
-1. Confirmar que la ejecución es necesaria y que existe una ventana de trabajo.
-2. Revisar Cost Management en `rg-project23-dev`:
-   - costo acumulado;
-   - proyección;
-   - estado del presupuesto mensual de USD 2;
-   - alerta al 50 %.
-3. Confirmar que no hay un pipeline ADF en curso.
-4. Verificar que los triggers estén desactivados. El JSON local de ejemplo está desactivado, pero no demuestra el estado cloud actual.
-5. Confirmar que Azure SQL mantiene:
-   - plan serverless gratuito;
-   - facturación por encima del límite deshabilitada.
-6. Encender `compute-project23-dev-2026` solo al comenzar la ejecución.
-7. No copiar usuarios, contraseñas, tokens, endpoints completos o IDs a notebooks, logs o capturas.
+Confirmar tipificación, dominios, relaciones, deduplicación y cuarentena antes de promover datos.
 
-## Ejecución controlada
+### 3.1 Quality Gate Gold
 
-1. Abrir ADF y seleccionar `pl_project23_medallion_orchestration`.
-2. Ejecutar manualmente una sola vez.
-3. Supervisar el orden:
+Confirmar el modelo estrella, la conversión FX, el grano y la reconciliación antes de ejecutar la publicación cloud.
+
+## Recursos que se deben controlar
+
+| Hito | Componente | Referencia | Riesgo principal |
+|---:|---|---|---|
+| 4 | Data Factory | Instancia del proyecto | Ejecución accidental o repetida |
+| 4 | Pipeline | `pl_project23_medallion_orchestration` | Reprocesamiento no planificado |
+| 4 | Databricks compute | Compute de desarrollo | DBU activo sin trabajo |
+| 5 | Azure SQL | Base de serving | Base online por conexiones activas |
+| 7 | Cost Management | Grupo de recursos del proyecto | Desviación del presupuesto |
+
+## Hito 4 — Ejecutar la arquitectura Medallion
+
+### 4.1 Preflight
+
+Antes de iniciar:
+
+1. Confirmar que la ejecución es necesaria y que no existe otra en curso.
+2. Revisar en el grupo de recursos del proyecto el costo, la proyección y la alerta.
+3. Verificar que los triggers ADF estén desactivados.
+4. Encender el compute de Databricks solo al comenzar.
+5. No copiar usuarios, contraseñas, tokens, endpoints o IDs a notebooks o capturas.
+
+El trigger local desactivado no demuestra el estado cloud actual; este debe comprobarse en ADF.
+
+### 4.2 Ejecución
+
+1. Abrir `pl_project23_medallion_orchestration`.
+2. Iniciar una sola ejecución manual.
+3. Supervisar este orden:
    - `nb_01_landing_to_bronze`;
    - `nb_02_bronze_to_silver`;
    - `nb_03_silver_to_gold`.
-4. No iniciar una segunda ejecución mientras la primera esté activa.
-5. Si falla una actividad:
-   - conservar el nombre de la actividad, timestamp y mensaje técnico sanitizado;
-   - revisar la causa antes de reintentar;
-   - preferir la reejecución desde el punto soportado por ADF;
-   - no publicar capturas con run IDs.
-6. Para Gold → Azure SQL:
-   - comprobar el preflight antes de conectar;
-   - verificar que se esperan siete tablas y 953 filas para los fixtures actuales;
-   - confirmar el resultado `LOADED` o `NO_OP`;
-   - no sustituir valores de Key Vault por credenciales hardcodeadas.
+4. No iniciar otra ejecución mientras la primera esté activa.
 
-## Quality gates de cierre
+### 4.3 Si una actividad falla
+
+1. Registrar el nombre de la actividad, la hora y el mensaje sanitizado.
+2. Revisar la causa antes de reintentar.
+3. Reejecutar desde el punto soportado por ADF.
+4. No publicar capturas con run IDs u otros identificadores.
+
+### 4.4 Validación
+
+| Control | Criterio de aprobación |
+|---|---|
+| ADF pipeline | Estado `Correcto` |
+| Actividades | 3/3 correctas |
+| Orden | Bronze → Silver → Gold |
+| Databricks | Quality gates y reconciliación aprobados |
+
+## Hito 5 — Publicar Gold en Azure SQL
+
+### 5.1 Preflight
+
+1. Confirmar que Azure SQL mantiene el plan serverless gratuito.
+2. Confirmar que la facturación sobre el límite está deshabilitada.
+3. Ejecutar el preflight Gold antes de abrir la conexión JDBC.
+4. Verificar que el dataset actual espera siete tablas y 953 filas.
+5. Mantener las credenciales en Key Vault y Secret Scope.
+
+### 5.2 Publicación
+
+1. Ejecutar `04_gold_to_azure_sql`.
+2. Confirmar `LOADED` en una carga nueva o `NO_OP` si no existen cambios.
+3. No reemplazar los secretos por credenciales escritas en el notebook.
+
+### 5.3 Quality gates
 
 | Gate | Criterio de aprobación |
 |---|---|
-| ADF | Pipeline `Correcto`; 3/3 actividades correctas |
-| Gold | Quality gates y reconciliación aprobados |
-| Azure SQL | 7 tablas; 953 filas para el dataset actual |
-| Integridad | PK/FK 7/7; 0 huérfanos |
-| Idempotencia | Segunda ejecución `NO_OP`; conteos sin cambios |
-| Power BI | 8 transacciones; 4 clientes; 6 cuentas; canales 3/2/2/1 |
-| Seguridad | Sin secretos o IDs sensibles en artefactos públicos |
+| Serving | 7 tablas; 953 filas para el fixture actual |
+| Integridad | PK/FK 7/7 |
+| Huérfanos | 0 |
+| Reconciliación | Gold → SQL `PASSED` |
+| Idempotencia | Segunda ejecución `NO_OP` |
+| Conteos | 953 → 953 |
+| Escrituras | 0 en la segunda ejecución |
 
-Los conteos son expectativas del fixture actual. Si cambia el contrato de datos, deben actualizarse mediante un cambio versionado y no ignorarse como una falsa alarma.
+Si cambia el contrato de datos, los conteos deben actualizarse mediante un cambio versionado; no deben ignorarse como una falsa alarma.
 
-## Cierre obligatorio
+## Hito 6 — Validar Power BI
 
-1. Verificar en ADF Monitor el estado final de cada actividad.
-2. Confirmar que no quedan ejecuciones en curso o en reintento.
-3. Terminar `compute-project23-dev-2026`.
-4. Confirmar en la lista de cómputo:
-   - memoria activa: `-`;
-   - núcleos activos: `-`;
-   - DBU/h activo: `-`.
-5. Cerrar conexiones que mantengan Azure SQL activa.
-6. Esperar la pausa automática serverless y comprobar el estado `Paused`.
-7. Volver a revisar Cost Management dentro de la ventana de actualización del servicio.
-8. Registrar solo métricas y evidencia sanitizada.
+### 6.1 Modelo
 
-## Controles de costo
+1. Confirmar siete tablas.
+2. Confirmar seis relaciones activas hacia `fact_transaction`.
+3. Verificar que no exista una segunda tabla de hechos.
 
-| Control | Configuración confirmada | Acción operativa |
+### 6.2 Resultados
+
+| Indicador | Valor esperado para el fixture actual |
+|---|---:|
+| Transacciones | 8 |
+| Clientes únicos | 4 |
+| Cuentas únicas | 6 |
+| Canales Card/Mobile/Online/ATM | 3/2/2/1 |
+
+### 6.3 Seguridad
+
+Antes de publicar o documentar, comprobar que el informe no exponga usuarios, endpoints, IDs ni credenciales.
+
+## Hito 7 — Cerrar y controlar costos
+
+### 7.1 Cierre técnico
+
+1. Verificar en ADF Monitor que no existan ejecuciones pendientes o en reintento.
+2. Terminar el compute de Databricks.
+3. Confirmar memoria, núcleos y DBU activos en `-`.
+4. Cerrar conexiones que mantengan Azure SQL activa.
+5. Esperar la pausa automática y comprobar `Paused`.
+6. Revisar nuevamente los triggers ADF.
+
+### 7.2 Controles permanentes
+
+| Control | Configuración confirmada | Acción |
 |---|---|---|
-| Autoapagado Databricks | 10 minutos | Mantener habilitado; detener manualmente al finalizar |
-| Azure SQL | Serverless gratuito | Verificar `Paused` después de cada uso |
+| Databricks | Autoapagado de 10 minutos | Detener manualmente al finalizar |
+| Azure SQL | Serverless gratuito | Verificar `Paused` |
 | Exceso SQL | Deshabilitado | No habilitar sin decisión explícita |
 | Presupuesto | USD 2 mensual | Mantener activo |
 | Alerta | 50 % / USD 1 | Investigar antes de otra ejecución |
-| Triggers ADF | Ejemplo local desactivado | Verificar estado cloud antes y después |
+| Triggers ADF | Ejemplo local desactivado | Verificar el estado cloud |
 
-Valores de referencia del cierre:
+Valores históricos del cierre:
 
 - costo observado: USD 0,04;
 - proyección observada: USD 0,29.
 
-Son una fotografía histórica, no una garantía de precio futuro.
+Estos valores son una fotografía del proyecto, no una garantía de precio futuro.
 
-## Respuesta ante alerta
-
-Si el gasto alcanza el 50 % del presupuesto:
+### 7.3 Respuesta ante una alerta
 
 1. No iniciar nuevas ejecuciones.
-2. Confirmar que Databricks está detenido.
-3. Confirmar que Azure SQL está pausada.
-4. Revisar ejecuciones ADF y triggers.
-5. Agrupar costos por servicio y recurso dentro de `rg-project23-dev`.
-6. Determinar si el consumo corresponde a Storage, ADF, Key Vault, SQL u otro recurso.
-7. Reanudar solo cuando la causa esté explicada y el impacto sea aceptable.
+2. Confirmar que Databricks esté detenido.
+3. Confirmar que Azure SQL esté pausada.
+4. Revisar ejecuciones y triggers de ADF.
+5. Agrupar costos por servicio dentro del grupo de recursos del proyecto.
+6. Identificar el recurso responsable.
+7. Reanudar solo cuando la causa esté explicada.
 
-## Evidencia pública
-
-Antes de incorporar una captura:
-
-- mantener el original fuera del repositorio público;
-- trabajar sobre una copia cuando requiera recorte u ocultamiento;
-- eliminar subscription ID, tenant ID, run IDs, resource IDs, client/object IDs, correos, usuarios, contraseñas, tokens y endpoints completos;
-- comprobar el resultado visualmente y mediante OCR;
-- registrar el archivo en [evidence_catalog.md](evidence_catalog.md);
-- no reconstruir una evidencia ausente.
-
-## Estado esperado después del cierre
+### 7.4 Estado final esperado
 
 | Recurso | Estado esperado |
 |---|---|
 | ADF pipeline | Finalizado; sin ejecución pendiente |
 | ADF triggers | Desactivados salvo prueba planificada |
-| Databricks compute | Detenido / `Terminated` |
+| Databricks compute | `Terminated` |
 | Azure SQL | `Paused` |
 | Facturación SQL excedente | Deshabilitada |
 | Presupuesto y alerta | Activos |
+
+## Regla para evidencias públicas
+
+Mantener los originales fuera del repositorio. Antes de publicar una copia, eliminar subscription ID, tenant ID, run IDs, resource IDs, client/object IDs, correos, usuarios, contraseñas, tokens y endpoints completos. Validar visualmente y mediante OCR, registrar el resultado en [evidence_catalog.md](evidence_catalog.md) y nunca reconstruir una evidencia ausente.
