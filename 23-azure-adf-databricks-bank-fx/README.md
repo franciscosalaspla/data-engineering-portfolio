@@ -1,97 +1,118 @@
 # 23 — Pipeline End-to-End en Azure
 
-> **Pipeline bancario multimoneda end-to-end: Databricks procesa la arquitectura Medallion y Azure Data Factory orquesta el flujo.**
+> **Plataforma bancaria multimoneda end-to-end en Azure, orquestada con Data Factory y procesada en Databricks bajo arquitectura Medallion.**
 
-Este proyecto integra datos CSV, JSON y tasas de cambio para construir información confiable y lista para análisis. El resultado conecta ingeniería de datos, serving y visualización en una misma solución Azure.
+## 1. Valor del proyecto
 
-## Arquitectura end-to-end
+Este proyecto demuestra cómo convertir fuentes heterogéneas en datos confiables para analítica. Integra una API histórica del Banco Central Europeo, transacciones CSV y clientes/cuentas JSON; conserva los datos en ADLS Gen2; procesa capas Bronze, Silver y Gold con PySpark y Delta Lake; orquesta el pipeline con Azure Data Factory; y publica un modelo estrella en Azure SQL para consumo desde Power BI.
+
+
+## 2. Arquitectura implementada
 
 ```mermaid
 flowchart TD
     SRC["ECB API + CSV + JSON"] --> LAND["ADLS Gen2 · Landing"]
-    LAND --> B["Hito 1 · Bronze"]
-    B --> S["Hito 2 · Silver"]
-    S --> G["Hito 3 · Gold"]
-    ADF["Hito 4 · Data Factory"] -->|"Orquesta Databricks"| B
-    G --> SQL["Hito 5 · Azure SQL"]
-    SQL --> BI["Hito 6 · Power BI"]
-    MON["Hito 7 · Monitorización"] -.-> ADF
-    MON -.-> SQL
+    ADF["Azure Data Factory"] -->|"Orquesta 3 notebooks"| BRONZE
+
+    subgraph DBX["Azure Databricks · PySpark + Delta Lake"]
+        direction LR
+        BRONZE["Bronze<br/>Raw + metadata"] -->|"Quality Gate"| SILVER["Silver<br/>Limpieza + cuarentena"]
+        SILVER -->|"Quality Gate"| GOLD["Gold<br/>Modelo estrella + FX"]
+    end
+
+    LAND --> BRONZE
+    GOLD -->|"JDBC"| SQL["Azure SQL<br/>Serving"]
+    SQL --> BI["Power BI<br/>Consumo"]
+    KV["Key Vault + Secret Scope"] -->|"Secretos"| GOLD
 ```
 
-**Flujo principal:** Fuentes → ADLS Landing → Bronze → Silver → Gold → Azure SQL → Power BI.
+Flujo ejecutado:
 
-## 1. Hito 1 — Ingesta: Landing → Bronze
+1. **Landing:** recibe CSV, JSON y tasas de cambio del ECB en ADLS Gen2.
+2. **Bronze:** conserva el dato original con metadata técnica y trazabilidad.
+3. **Silver:** tipifica, normaliza, deduplica y separa registros inválidos en cuarentena.
+4. **Gold:** aplica conversión multimoneda y construye dimensiones más tabla de hechos.
+5. **Orquestación:** ADF ejecuta los tres notebooks en orden y controla sus dependencias.
+6. **Serving:** Databricks publica siete tablas en Azure SQL mediante JDBC seguro.
+7. **Consumo:** Power BI utiliza el modelo estrella para métricas de clientes, cuentas, transacciones y canales.
 
-| Subhito | Qué se hizo | Resultado |
+## 3. Problema
+
+Los datos bancarios llegaban en formatos y estructuras diferentes, con riesgo de duplicados, relaciones inválidas, tasas FX ausentes y reejecuciones que podían volver a escribir la misma información. El desafío era construir un flujo único, trazable y reejecutable que protegiera la calidad antes de exponer datos al consumo analítico.
+
+## 4. Objetivo
+
+Diseñar e implementar una plataforma de datos que:
+
+- integre fuentes CSV, JSON y API en Azure;
+- separe responsabilidades mediante arquitectura Medallion;
+- aplique controles de calidad antes de avanzar entre capas;
+- garantice reconciliación e idempotencia;
+- publique un modelo estrella en Azure SQL;
+- entregue información consumible desde Power BI;
+- mantenga credenciales y costos bajo control.
+
+## 5. Implementación
+
+| Etapa | Implementación | Decisión técnica |
 |---|---|---|
-| **1.1 Fuentes** | Ingesta de transacciones CSV, clientes y cuentas JSON, y tasas históricas del ECB | Fuentes heterogéneas centralizadas |
-| **1.2 Bronze** | Lectura con schemas explícitos, metadata y almacenamiento Delta | Datos trazables y reproducibles |
-| **1.3 Validación** | Controles estructurales y de calidad antes de persistir | Capa Bronze validada |
+| Ingesta | ECB API, transacciones CSV y clientes/cuentas JSON hacia ADLS | Separar origen y procesamiento para conservar trazabilidad |
+| Bronze | Datos raw, schemas explícitos y metadata de auditoría | Preservar fidelidad del origen antes de transformar |
+| Silver | Limpieza, tipificación, deduplicación, dominios y cuarentena | Evitar que datos inválidos lleguen al modelo analítico |
+| Gold | Conversión a EUR, reconciliación y modelo estrella | Centralizar reglas de negocio y facilitar consumo |
+| ADF | Pipeline `pl_project23_medallion_orchestration` con tres notebooks secuenciales | Separar orquestación de transformación distribuida |
+| Azure SQL | Siete tablas en el esquema `serving` | Entregar una capa estable para herramientas BI |
+| Seguridad | Azure Key Vault y Databricks Secret Scope | Mantener credenciales JDBC fuera del código |
+| Operación | Autoapagado, SQL pausado, presupuesto y alerta | Controlar explícitamente el costo cloud |
 
-## 2. Hito 2 — Calidad: Bronze → Silver
+Modelo de serving:
 
-| Subhito | Qué se hizo | Resultado |
-|---|---|---|
-| **2.1 Estandarización** | Limpieza, tipificación, fechas y dominios | Datos consistentes |
-| **2.2 Calidad** | Deduplicación, relaciones entre entidades y cuarentena | Registros válidos separados de los rechazados |
-| **2.3 Idempotencia** | Delta `MERGE` por claves y checksum | Reejecuciones sin duplicados |
+`dim_date` · `dim_customer` · `dim_account` · `dim_merchant` · `dim_channel` · `dim_currency` · `fact_transaction`
 
-## 3. Hito 3 — Modelo analítico: Silver → Gold
+## 6. Resultados verificados
 
-| Subhito | Qué se hizo | Resultado |
-|---|---|---|
-| **3.1 Conversión FX** | Conversión de EUR, USD y GBP a EUR según fecha | Métricas comparables |
-| **3.2 Modelo estrella** | Seis dimensiones y una tabla de hechos | Capa Gold lista para BI |
-| **3.3 Quality gates** | Validación de grano, claves, huérfanos y reconciliación | Modelo analítico confiable |
+| Métrica | Resultado |
+|---|---:|
+| Ejecución ADF | 3/3 notebooks correctos en 10 min 17 s |
+| Publicación Azure SQL | 7 tablas y 953 filas |
+| Integridad | PK/FK 7/7 y 0 registros huérfanos |
+| Reconciliación | `PASSED` |
+| Segunda publicación | `NO_OP`: 953 → 953 y 0 escrituras |
+| Modelo Power BI | 7 tablas y 6 relaciones activas |
+| KPI validados | 8 transacciones, 4 clientes y 6 cuentas |
+| Distribución por canal | Card 3, Mobile 2, Online 2 y ATM 1 |
+| Pruebas locales | 42/42 controles de fixtures y 37/37 pruebas |
+| Costo observado | USD 0,04; proyección USD 0,29 |
+| Control presupuestario | USD 2 mensuales y alerta al 50 % |
 
-**Tablas Gold:** `dim_date`, `dim_customer`, `dim_account`, `dim_merchant`, `dim_channel`, `dim_currency` y `fact_transaction`.
+Los volúmenes son controlados y buscan demostrar diseño, calidad e idempotencia; no representan una prueba de rendimiento a escala.
 
-## 4. Hito 4 — Orquestación con Azure Data Factory
+## 7. Estructura del proyecto
 
-| Subhito | Qué se hizo | Resultado |
-|---|---|---|
-| **4.1 Integración** | Linked Service entre ADF y Databricks | Conexión validada |
-| **4.2 Pipeline** | Ejecución secuencial de los tres notebooks Medallion | Dependencias controladas |
-| **4.3 Monitorización** | Validación de cada actividad en ADF Monitor | Pipeline completo en **10 min 17 s** |
+```text
+23-azure-adf-databricks-bank-fx/
+├── adf/                         # Diseño ADF local versionado
+├── config/                      # Configuración Silver y Gold
+├── contracts/                   # Contratos de datos
+├── data/fixtures/               # Datos sintéticos válidos e inválidos
+├── databricks/notebooks/        # Notebooks portables por capa
+├── docs/                        # Arquitectura, cloud, evidencias y operación
+├── scripts/                     # Ejecución, auditoría y validación local
+├── sql/                         # Consultas analíticas sobre Gold
+├── src/                         # Ingesta, transformaciones Silver y Gold
+├── tests/                       # Suite automatizada local
+└── README.md
+```
 
-Pipeline: `pl_project23_medallion_orchestration`.
-
-## 5. Hito 5 — Serving en Azure SQL
-
-| Subhito | Qué se hizo | Resultado |
-|---|---|---|
-| **5.1 Seguridad** | Credenciales administradas con Key Vault y Secret Scope | Secretos fuera del código |
-| **5.2 Publicación** | Carga JDBC de Gold al esquema `serving` | **7 tablas y 953 filas** |
-| **5.3 Validación** | PK/FK 7/7, 0 huérfanos y reconciliación | Quality Gate `PASSED` |
-| **5.4 Reejecución** | Segunda publicación con el mismo contenido | `NO_OP`: 953 → 953 y 0 escrituras |
-
-## 6. Hito 6 — Consumo en Power BI
-
-| Subhito | Qué se hizo | Resultado |
-|---|---|---|
-| **6.1 Conexión** | Consumo de las siete tablas desde Azure SQL | Fuente de BI habilitada |
-| **6.2 Modelo** | Seis relaciones activas entre dimensiones y hechos | Modelo estrella funcional |
-| **6.3 Dashboard** | KPI y distribución por canal | 8 transacciones, 4 clientes y 6 cuentas |
-
-## 7. Hito 7 — Monitorización y costos
-
-| Subhito | Qué se hizo | Resultado |
-|---|---|---|
-| **7.1 Operación** | Revisión de ADF, Databricks y Azure SQL | Ejecución cerrada sin procesos pendientes |
-| **7.2 Apagado** | Compute terminado y Azure SQL pausado | Consumo variable controlado |
-| **7.3 Presupuesto** | Presupuesto mensual de USD 2 y alerta al 50 % | Control preventivo habilitado |
-| **7.4 Resultado** | Revisión de costo y proyección | USD 0,04 observado y USD 0,29 proyectado |
+Los datos son sintéticos y el repositorio no contiene credenciales, correos, endpoints completos ni identificadores sensibles.
 
 ## 8. Documentación complementaria y anexos
 
-La documentación sigue el mismo orden de Hitos 1–7:
+- [Arquitectura y decisiones técnicas](docs/architecture.md)
+- [Implementación cloud por hito](docs/cloud_implementation.md)
+- [Runbook operativo y de costos](docs/operations_and_cost_runbook.md)
+- [Catálogo y alcance de evidencias](docs/evidence_catalog.md)
+- [Convenciones de nombres y regiones](docs/naming_and_tagging.md)
+- [Anexo — Cómo contar este proyecto en una entrevista](docs/interview_guide.md)
 
-1. [Arquitectura por hitos](docs/architecture.md) — cómo fluye la solución y por qué se tomaron sus decisiones técnicas.
-2. [Implementación por hitos](docs/implementation_by_milestone.md) — qué se construyó y validó desde el Hito 1 hasta el 7.
-3. [Runbook operativo y de costos](docs/operations_and_cost_runbook.md) — cómo ejecutar, validar y cerrar los recursos.
-4. [Catálogo de evidencias](docs/evidence_catalog.md) — qué resultado respalda cada evidencia disponible.
-5. [Nombres, regiones y convenciones](docs/naming_and_tagging.md) — inventario confirmado y reglas del proyecto.
-6. [Guía para entrevistas](docs/interview_guide.md) — relato breve, preguntas técnicas y respuestas.
-
-Los datos son sintéticos. El repositorio no contiene credenciales ni capturas de Azure o Power BI. Las pruebas automatizadas corresponden al código versionado; las validaciones cloud se documentan por separado.
+Las pruebas automatizadas corresponden a la implementación local versionada. Las validaciones de ADF, Azure SQL, Power BI y costos fueron comprobaciones manuales cloud. Las capturas se mantienen fuera del repositorio público.

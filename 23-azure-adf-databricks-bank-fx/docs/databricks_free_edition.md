@@ -2,7 +2,7 @@
 
 ## Estado
 
-Este runbook conserva la ruta portable diseñada durante la fase local. El Proyecto 23 también fue ejecutado y validado en **Azure Databricks**, como se documenta en [implementation_by_milestone.md](implementation_by_milestone.md).
+Este runbook conserva la ruta portable diseñada durante la fase local. No describe el despliegue cloud final: el Proyecto 23 fue ejecutado y validado en **Azure Databricks**, como se documenta en [cloud_implementation.md](cloud_implementation.md).
 
 Los notebooks de esta carpeta siguen siendo una alternativa reproducible para Free Edition, pero no son la exportación de los notebooks cloud `nb_01_landing_to_bronze`, `nb_02_bronze_to_silver` y `nb_03_silver_to_gold`. Una eventual ejecución en Free Edition debe registrarse como evidencia independiente.
 
