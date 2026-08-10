@@ -1,246 +1,202 @@
 # Proyecto 23 — Azure Banking Multicurrency Data Platform
 
-## Valor del proyecto
+## Resultado
 
-Una plataforma bancaria multimoneda necesita integrar archivos y APIs heterogéneos, conservar trazabilidad regulatoria y publicar una métrica común sin perder los importes originales. Este proyecto demuestra esas capacidades mediante contratos, ingesta metadata-driven, arquitectura Medallion, Delta Lake idempotente, calidad explicable y un modelo estrella reconciliado en EUR.
+Plataforma bancaria multimoneda implementada de extremo a extremo en Azure. Integra una API histórica del Banco Central Europeo, transacciones CSV y clientes/cuentas JSON; conserva trazabilidad en ADLS Gen2; procesa capas Bronze, Silver y Gold con Azure Databricks; orquesta el flujo con Azure Data Factory; publica un modelo estrella en Azure SQL; y lo consume desde Power BI Service.
 
-Para un rol Data Engineer, aporta evidencia ejecutable de Python modular, PySpark con esquemas explícitos, tipos decimales, Delta Lake `MERGE`, dimensiones Type 1, claves sustitutas determinísticas, cuarentena, auditoría y traducción de un flujo local probado hacia Azure Data Factory y Databricks.
-
-## Resumen ejecutivo
-
-La arquitectura objetivo integra una API histórica del ECB, CSV de transacciones y JSON de clientes/cuentas. ADF aterrizará las fuentes en ADLS Gen2; un driver Databricks coordinará Bronze, Silver, Gold, calidad y snapshots; Azure SQL servirá un modelo estrella para Power BI.
-
-Los Hitos 1–4 implementan localmente el recorrido hasta Gold. Dos microlotes producen 22 filas Bronze y cuatro tablas Silver. Gold publica seis dimensiones y ocho hechos, convierte EUR/USD/GBP a EUR según la fecha, reconcilia conteos e importes y genera un snapshot Parquet. Una segunda corrida Gold omite 36 filas sin duplicarlas ni reescribir el snapshot.
-
-## Estado actual
-
-**Hitos 1, 2, 3 y 4 implementados y verificados localmente.** Existen contratos, fixtures sintéticos, configuración metadata-driven, artefactos ADF Azure-style, Landing/Bronze, PySpark Bronze→Silver→Gold, tablas Delta, modelo estrella, cuarentena, auditoría, reconciliación y pruebas automatizadas.
-
-No se han creado ni ejecutado recursos Azure o Databricks. Los notebooks son drivers preparados para una validación posterior en **Databricks Free Edition**. La evidencia actual corresponde exclusivamente a **PySpark 4.0.1 y Delta Lake 4.0.1 locales**.
-
-## Fuentes y caso bancario
-
-| Fuente | Formato | Entidad | Resultado de los fixtures |
-|---|---|---|---:|
-| Transacciones sintéticas | CSV | `transactions` | 8 válidas en dos microlotes |
-| Replay del microlote 1 | CSV | `transactions` | 4 filas omitidas en Bronze |
-| Clientes sintéticos | JSON | `customers` | 5 |
-| Cuentas sintéticas | JSON | `accounts` | 7 |
-| ECB API mock | JSON | `fx_rates` | 2 fechas |
-| Casos inválidos Hito 2 | CSV | `transactions` | 3 en cuarentena Bronze |
-
-Los datos son completamente sintéticos y no contienen nombres, correos, documentos, credenciales ni identificadores Azure.
+El proyecto demuestra ingeniería de datos más allá del procesamiento: contratos, calidad explicable, cuarentena, reconciliación, idempotencia, secretos fuera del código, serving analítico, monitorización y controles de costos.
 
 ## Arquitectura implementada
 
 ```mermaid
-flowchart LR
-    S["CSV + JSON + ECB mock"] --> A["ADF-style metadata pipeline"]
-    A --> L["Landing inmutable"]
-    L --> B["Bronze JSONL"]
-    B --> P["PySpark schemas + quality"]
-    P -->|Válido| D["Silver Delta MERGE"]
-    P -->|Rechazado| Q["Delta quarantine"]
-    D --> G["Gold: 6 dims + fact_transactions"]
-    G --> R["Reconciliation + Parquet snapshot"]
-    D --> U["Audit + Delta history"]
-    G --> U
-    Q --> U
+flowchart TD
+    S["ECB API + CSV + JSON"] --> L["ADLS Gen2: Landing"]
+    L --> D["Azure Databricks: Bronze → Silver → Gold"]
+    A["Azure Data Factory"] -->|"Orquesta 3 notebooks"| D
+    D --> Q["Quality gates + quarantine + audit"]
+    D --> SQL["Azure SQL: serving"]
+    SQL --> BI["Power BI Service"]
+    K["Key Vault + Secret Scope"] -->|"Credenciales JDBC"| D
 ```
 
-Los artefactos ADF permanecen como diseño versionado, marcado `DESIGN_ONLY` y `NOT_DEPLOYED`. La ejecución local equivalente genera Landing y Bronze sin afirmar que ADF o ADLS hayan sido utilizados.
+Componentes confirmados:
 
-La arquitectura detallada está en [docs/architecture.md](docs/architecture.md).
+- ADLS Gen2 con contenedores `landing`, `bronze`, `silver` y `gold`.
+- Azure Databricks con catálogo `dbw_project23_dev_2026` y esquemas Bronze, Silver y Gold.
+- ADF con el pipeline `pl_project23_medallion_orchestration`.
+- Key Vault y Databricks Secret Scope para la conexión JDBC.
+- Azure SQL con siete tablas en el esquema `serving`.
+- Power BI con siete tablas, seis relaciones activas y una página ejecutiva.
+- Cost Management, presupuesto y revisión del estado final de los recursos.
 
-## Transformaciones Silver
+La explicación detallada está en [docs/architecture.md](docs/architecture.md) y la implementación cloud en [docs/cloud_implementation.md](docs/cloud_implementation.md).
 
-| Entidad | Transformaciones | Clave de negocio | Tabla Delta |
-|---|---|---|---|
-| Clientes | IDs y dominios en mayúsculas, fecha de alta tipada | `customer_id` | `silver_customers` |
-| Cuentas | IDs, tipo, moneda, estado y fecha tipados; FK a cliente | `account_id` | `silver_accounts` |
-| FX | Fecha tipada y tasas anidadas convertidas a `rate_eur`, `rate_usd`, `rate_gbp` | `effective_date` | `silver_fx_rates` |
-| Transacciones | Timestamp, decimal(18,2), IDs, moneda, canal, estado y dominios; FK a cuenta | `transaction_id` | `silver_transactions` |
+## Alcance por fases
 
-Silver conserva la metadata Bronze y agrega `_silver_processed_at`, `_silver_run_id`, `_quality_status` y `_source_bronze_path`. No calcula todavía importes EUR ni construye dimensiones Gold.
+La numeración histórica de los PR locales y la numeración del cierre cloud se superponen en el Hito 4. Se preserva esa trazabilidad en vez de reescribir el historial.
 
-## Modelo estrella Gold
+### Fase local versionada — PR #26 a #29
 
-El grano de `fact_transactions` es una fila por `transaction_id`. Cliente y cuenta se publican desde sus tablas Silver completas; fecha, comercio, canal y moneda se derivan de las transacciones válidas.
+| Hito histórico | Entrega | Estado |
+|---:|---|---|
+| 1 | Contratos, schemas, fixtures determinísticos y configuración | Completado |
+| 2 | Ingesta metadata-driven, Landing/Bronze, auditoría e idempotencia | Completado |
+| 3 | PySpark Bronze → Silver, Delta `MERGE`, calidad y cuarentena | Completado |
+| 4 local | Modelo estrella Gold, FX, reconciliación e idempotencia | Completado |
 
-| Tabla | Clave natural | Clave sustituta | Filas fixture |
-|---|---|---|---:|
-| `dim_date` | `full_date` | `date_key` | 2 |
-| `dim_customer` | `customer_id` | `customer_key` | 5 |
-| `dim_account` | `account_id` | `account_key` | 7 |
-| `dim_merchant` | `merchant_id` | `merchant_key` | 7 |
-| `dim_channel` | `channel_code` | `channel_key` | 4 |
-| `dim_currency` | `currency_code` | `currency_key` | 3 |
-| `fact_transactions` | `transaction_id` | `fact_transaction_key` | 8 |
+### Fase cloud — numeración definitiva del cierre
 
-Las dimensiones son Type 1. Sus claves `long` son determinísticas y el pipeline detecta duplicados de clave sustituta. El hecho conserva identificadores de negocio, importe/moneda original, tasa, fecha FX, importe EUR, run Silver, path Silver y metadata Gold.
+| Hito | Entrega | Resultado confirmado |
+|---:|---|---|
+| 4 | Orquestación con Azure Data Factory | Pipeline publicado; 3/3 notebooks correctos en 10 min 17 s |
+| 5 | Serving en Azure SQL | 7 tablas, 953 filas, PK/FK 7/7, cero huérfanos y segunda ejecución `NO_OP` |
+| 6 | Power BI | Modelo estrella, KPI 8/4/6, distribución 3/2/2/1 y publicación en Service |
+| 7 | Monitorización y costos | Compute detenido, SQL pausado, costo USD 0,04 y presupuesto mensual USD 2 |
 
-Las tasas se interpretan como unidades de moneda cotizada por `1 EUR`:
+## Fuentes y datos
+
+Los datos de clientes, cuentas y transacciones son completamente sintéticos. No contienen nombres, correos, documentos, credenciales ni identificadores personales.
+
+| Fuente | Formato | Contenido validado |
+|---|---|---:|
+| Transacciones sintéticas | CSV | 8 válidas en dos microlotes |
+| Replay del microlote 1 | CSV | 4 filas omitidas por idempotencia |
+| Clientes sintéticos | JSON | 5 |
+| Cuentas sintéticas | JSON | 7 |
+| Tasas ECB | API/JSON | EUR, USD y GBP por fecha |
+| Casos inválidos locales | CSV | 3 rechazados en Bronze |
+
+Las tasas ECB expresan unidades de moneda cotizada por `1 EUR`:
 
 ```text
 amount_eur = amount_original / fx_rate_to_eur
 ```
 
-`amount_original` y `amount_eur` usan `decimal(18,2)`; `fx_rate_to_eur` usa `decimal(18,8)`. La tasa EUR es `1.00000000`. Una tasa ausente o no positiva envía la transacción a cuarentena y nunca publica un hecho incompleto.
+Los importes usan tipos decimales; una tasa ausente o no positiva envía el registro a cuarentena y evita publicar un hecho incompleto.
 
-## Quality gates
+## Modelo estrella
 
-- claves obligatorias no nulas;
-- formatos `CUS-NNN`, `ACC-NNN`, `TXN-NNNN` y `MER-NNN`;
-- fechas y timestamps parseables;
-- importes positivos con dos decimales;
-- monedas EUR, USD y GBP;
-- dominios contractuales de estados, tipos, segmentos, canales y categorías;
-- integridad cuenta → cliente y transacción → cuenta;
-- tasas FX positivas y EUR igual a `1.0`;
-- duplicados por clave de negocio con ganadora determinística;
-- checksum Bronze obligatorio y detección de JSON corrupto.
+La implementación local conserva `fact_transactions` como nombre histórico de la tabla Delta. La capa Azure SQL/Power BI utiliza `serving.fact_transaction` en singular. La diferencia se documenta como un mapeo de serving; no se renombra la implementación local para no romper contratos, pruebas ni el historial fusionado.
 
-Gold añade estos gates:
+| Tabla serving | Filas Azure SQL | Propósito |
+|---|---:|---|
+| `dim_date` | 919 | Calendario analítico expandido |
+| `dim_customer` | 5 | Clientes sintéticos |
+| `dim_account` | 7 | Cuentas sintéticas |
+| `dim_merchant` | 7 | Comercios |
+| `dim_channel` | 4 | Canales |
+| `dim_currency` | 3 | Monedas y cobertura FX |
+| `fact_transaction` | 8 | Una fila por transacción |
+| **Total** | **953** | Modelo publicado |
 
-- una fila por `transaction_id`;
-- referencias a cuenta y cliente Silver;
-- cobertura FX por fecha UTC y moneda;
-- seis claves foráneas no nulas y sin huérfanos;
+## Calidad, reconciliación e idempotencia
+
+Los controles principales cubren:
+
+- esquemas explícitos y contratos de dominio;
+- claves obligatorias, fechas, timestamps y decimales válidos;
+- referencias cuenta → cliente y transacción → cuenta;
+- cobertura FX por fecha y moneda;
 - claves naturales y sustitutas únicas;
-- conteo Silver = hechos + rechazados;
-- suma original aceptada = suma original del hecho.
+- seis claves foráneas no nulas y sin huérfanos;
+- conteos Silver = hechos Gold + rechazados;
+- reconciliación de importes aceptados;
+- checksums de contenido para distinguir replays de cambios reales.
 
-La cuarentena Delta guarda una fila por regla incumplida con registro original, entidad, clave, regla, motivo, run ID, timestamp y ruta Bronze. Su `_quarantine_id` evita repetir la misma evidencia.
+La primera carga local materializa las tablas Delta. Una reejecución idéntica evita el `MERGE` físico y la reescritura del snapshot. En Azure SQL, la segunda publicación fue `NO_OP`: 953 filas antes, 953 después y cero escrituras.
 
-## Delta Lake e idempotencia
+## Resultados verificados
 
-Las tablas Silver y Gold son path-based y no se particionan en este volumen pequeño para evitar archivos innecesarios. Silver compara `_record_checksum`; Gold compara `_gold_record_checksum`, calculado solo con contenido analítico y sin metadata volátil:
+### Pruebas automatizadas locales
 
-- nueva clave: inserción;
-- checksum cambiado: actualización;
-- checksum idéntico: omisión;
-- clave duplicada dentro del input: cuarentena.
+| Validación | Resultado |
+|---|---:|
+| Controles de fixtures | 42/42 `PASSED` |
+| Suite local | 37/37 `PASSED` |
+| Bronze leído por PySpark | 22 filas |
+| Silver | 5 clientes, 7 cuentas, 2 fechas FX y 8 transacciones |
+| Segunda ejecución Silver | 22 omitidas; 0 insertadas; 0 actualizadas |
+| Gold local | 36 filas entre seis dimensiones y el hecho |
+| Segunda ejecución Gold | 36 omitidas; 0 insertadas; 0 actualizadas |
+| Reconciliación local | 8 hechos; 1.230,75 original; 1.202,05 EUR |
 
-Si no existen inserciones ni actualizaciones, el pipeline devuelve `SKIPPED` y evita ejecutar un `MERGE` físico. Gold también evita reescribir el snapshot. La suite prueba una actualización controlada y confirma un `MERGE` Delta real.
+### Validaciones cloud manuales
 
-## Auditoría
+| Servicio | Validación | Resultado |
+|---|---|---|
+| ADF | Pipeline completo | `Correcto`; 10 min 17 s |
+| ADF | Notebooks secuenciales | 2 min 37 s, 3 min 6 s y 4 min 22 s |
+| Azure SQL | Publicación | 7 tablas; 953 filas; `LOADED` |
+| Azure SQL | Integridad | PK/FK 7/7; 0 huérfanos; reconciliación `PASSED` |
+| Azure SQL | Idempotencia | `NO_OP`; 953 → 953; 0 escrituras |
+| Power BI | Modelo | 7 tablas; 6 relaciones activas |
+| Power BI | Dashboard | 8 transacciones; 4 clientes; 6 cuentas |
+| Power BI | Canales | Card 3; Mobile 2; Online 2; ATM 1 |
+| Operación | Cierre | Databricks detenido y Azure SQL `Paused` |
+| Costos | Observación | USD 0,04; proyección USD 0,29 |
 
-`data/output/audit/silver_audit.jsonl` registra por entidad:
+Las validaciones cloud son comprobaciones operativas verificadas; no se presentan como parte de la suite automatizada local. Su inventario, alcance y limitaciones están en [docs/evidence_catalog.md](docs/evidence_catalog.md). Las capturas originales y sanitizadas se conservan fuera del repositorio público.
 
-- paths Bronze y Silver;
-- filas fuente, válidas, rechazadas y duplicadas;
-- filas insertadas, actualizadas y omitidas;
-- timestamps, duración, estado y error;
-- versión, operación y métricas del historial Delta.
+## Reproducción local
 
-Los estados posibles son `SUCCESS`, `PARTIAL`, `SKIPPED` y `FAILED`.
-
-`gold_audit.jsonl` y cada `gold_run_summary_{run_id}.json` agregan métricas de las siete tablas, cuarentena, reconciliación financiera, integridad dimensional y estado del snapshot. `scripts/show_gold_audit.py` imprime una vista compacta.
-
-## Ejecución local reproducible
-
-Requisitos comprobados para este hito:
+Requisitos comprobados para la base local:
 
 - Python 3.10 o superior;
 - OpenJDK 17;
 - PySpark 4.0.1;
 - Delta Lake 4.0.1.
 
-Preparación aislada:
-
 ```bash
-brew install openjdk@17
 python3 -m venv .venv
 .venv/bin/pip install -r requirements-spark.txt
-```
-
-El script detecta las rutas Homebrew habituales de Java en macOS. En otros sistemas se debe definir `JAVA_HOME`.
-
-Ejecución completa desde la carpeta del proyecto:
-
-```bash
-python3 scripts/clean_outputs.py
-python3 scripts/run_ingestion.py --run-id demo-h3-bronze --ingestion-date 2026-07-22
-.venv/bin/python scripts/run_silver.py --run-id demo-h3-silver-001
-.venv/bin/python scripts/run_silver.py --run-id demo-h3-silver-002
-.venv/bin/python scripts/run_gold.py --run-id demo-h4-gold-001
-.venv/bin/python scripts/run_gold.py --run-id demo-h4-gold-002
-.venv/bin/python scripts/show_silver_audit.py
-.venv/bin/python scripts/show_gold_audit.py
-.venv/bin/python scripts/validate_silver.py
-.venv/bin/python scripts/validate_gold.py
-```
-
-La primera inicialización local de Delta puede descargar sus JAR oficiales desde Maven Central. No se consulta ningún servicio Azure.
-
-Pruebas completas:
-
-```bash
 python3 scripts/validate_fixtures.py
 .venv/bin/python -m unittest discover -s tests -v
 ```
 
-## Resultados locales verificados
-
-| Evidencia | Resultado |
-|---|---:|
-| Controles Hito 1 | 42/42 `PASSED` |
-| Pruebas Hitos 1–4 | 37/37 `PASSED` |
-| Bronze leído por PySpark | 22 filas |
-| `silver_customers` | 5 |
-| `silver_accounts` | 7 |
-| `silver_fx_rates` | 2 |
-| `silver_transactions` | 8 |
-| Primera corrida Silver | 22 insertadas, 0 rechazadas |
-| Segunda corrida Silver | 22 omitidas, 0 insertadas, 0 actualizadas |
-| Prueba de cuarentena Silver | 1 registro rechazado, 2 reglas explicadas |
-| Prueba de duplicado | 1 ganador, 1 rechazo determinístico |
-| Prueba Delta `MERGE` | 1 actualización, historial `MERGE` verificado |
-| Dimensiones Gold | 2 fechas, 5 clientes, 7 cuentas, 7 comercios, 4 canales, 3 monedas |
-| `fact_transactions` | 8 |
-| Suma original reconciliada | 1.230,75 |
-| Suma convertida a EUR | 1.202,05 |
-| Primera corrida Gold | 36 insertadas, 0 rechazadas |
-| Segunda corrida Gold | 36 omitidas, 0 insertadas, 0 actualizadas |
-| Snapshot analítico | 8 filas Parquet |
-
-Los tres registros inválidos del Hito 2 no llegan a Bronze; por eso la corrida Silver principal no los vuelve a rechazar. Las pruebas Silver inyectan datos inválidos únicamente en directorios temporales y validan la cuarentena sin alterar los resultados del Hito 2.
-
-## Presentación de 1 minuto
-
-“Este proyecto modela una plataforma bancaria multimoneda con arquitectura Medallion. Integra CSV y JSON sintéticos y un mock histórico del ECB mediante una ingesta metadata-driven que conserva Landing y Bronze trazables. PySpark aplica esquemas explícitos y quality gates para publicar cuatro tablas Silver Delta. Desde Silver construyo seis dimensiones Type 1 y `fact_transactions`, convierto EUR, USD y GBP a una métrica EUR con tipos decimales y envío tasas o referencias faltantes a cuarentena. Cada tabla usa claves estables y `MERGE` por checksum de contenido: la primera corrida Gold inserta 36 filas y la segunda omite las 36 sin duplicar ni reescribir el snapshot. Finalmente reconcilio ocho transacciones, 1.230,75 de importe original y 1.202,05 EUR, con cero huérfanos. Todo lo demostrado hasta ahora es local; ADF, ADLS y Azure Databricks quedan para los próximos hitos con evidencia real y costos controlados.”
-
-## Preguntas de entrevista
-
-1. **¿Por qué la conversión divide por la tasa ECB?** La fuente expresa unidades de moneda cotizada por `1 EUR`; por eso `250 USD / 1,15 USD por EUR = 217,39 EUR`. La tasa se une por moneda y fecha UTC, y los cálculos usan decimales para evitar errores binarios.
-2. **¿Cómo garantizas idempotencia sin ocultar actualizaciones reales?** El `MERGE` usa la clave natural y un checksum calculado solo con contenido analítico. Un run ID nuevo no cambia el checksum, así que una reejecución se omite; un atributo o medida realmente cambiado produce un `UPDATE` Type 1.
-3. **¿Qué demuestra que el modelo estrella es íntegro?** La reconciliación valida una fila por transacción, seis claves foráneas no nulas, cero huérfanos, claves sustitutas únicas, conteo Silver igual a hechos más rechazados y suma original aceptada igual a la suma del hecho.
-
-## Databricks Free Edition
-
-Los notebooks parametrizados cubren configuración, Bronze→Silver, quality checks, Silver→Gold y validaciones. Usan paths `/Volumes/...` configurables y delegan la lógica a `src/bankfx_silver/` y `src/bankfx_gold/`.
-
-El procedimiento está en [docs/databricks_free_edition.md](docs/databricks_free_edition.md). Todavía no se ha ejecutado; cualquier evidencia futura deberá identificarse explícitamente como **Databricks Free Edition**, no Azure Databricks.
+La ejecución local completa y sus scripts siguen disponibles para Landing, Bronze, Silver y Gold. No necesita una suscripción Azure y no reproduce por sí sola las validaciones cloud.
 
 ## Seguridad y costos
 
-- Solo datos sintéticos.
-- Sin secretos, tokens, correos, tenant IDs o subscription IDs.
-- Ningún trigger ADF activo.
-- Sin recursos cloud creados durante este hito.
-- La ejecución local de Spark y Delta no genera consumo Azure.
+- Datos de negocio sintéticos.
+- Credenciales SQL fuera del código mediante Key Vault y Secret Scope.
+- Sin tokens, contraseñas, correos, tenant IDs, subscription IDs ni endpoints completos en el repositorio.
+- Compute Databricks con autoapagado de 10 minutos y estado final detenido.
+- Azure SQL serverless gratuito, estado final `Paused` y cobro por exceso deshabilitado.
+- Presupuesto mensual de USD 2 y alerta al 50 %.
+- Trigger de ejemplo versionado como desactivado; el estado cloud actual no se infiere desde el JSON local.
 
-## Limitaciones
+El procedimiento de apertura, ejecución y cierre está en [docs/operations_and_cost_runbook.md](docs/operations_and_cost_runbook.md).
 
-- ADF y los notebooks no se han importado ni ejecutado en servicios reales.
-- Bronze sigue siendo JSONL local; la validación Delta comienza en Silver.
-- Las tablas locales son path-based, no están registradas en Unity Catalog.
-- No se consulta todavía la API ECB real.
-- Los volúmenes son pequeños y no prueban rendimiento distribuido.
-- El catálogo y schema están parametrizados para Databricks, pero el registro de tablas se reserva para esa validación.
-- Las dimensiones son Type 1; no se conserva historia SCD2.
-- El snapshot Parquet local no reemplaza todavía Azure SQL ni Power BI.
+## Estructura relevante
 
-## Próximo hito
+```text
+23-azure-adf-databricks-bank-fx/
+├── adf/                         # Diseño ADF local versionado; no equivale a la exportación cloud final
+├── config/                      # Configuración Silver y Gold
+├── contracts/                   # Contratos de datos
+├── data/fixtures/               # Datos sintéticos válidos e inválidos
+├── databricks/notebooks/        # Drivers locales/portables versionados
+├── docs/
+│   ├── architecture.md
+│   ├── cloud_implementation.md
+│   ├── evidence_catalog.md
+│   ├── naming_and_tagging.md
+│   └── operations_and_cost_runbook.md
+├── scripts/                     # Ejecución, auditoría y validación local
+├── sql/                         # Consultas analíticas portables sobre Gold
+├── src/                         # Paquetes de ingesta, Silver y Gold
+└── tests/                       # Suite automatizada local
+```
 
-El Hito 5 realizará la ingesta real API + CSV + JSON mediante ADF y ADLS con recursos mínimos y evidencia verificable. Azure SQL, Power BI y la ventana temporal de Azure Databricks permanecen en hitos posteriores.
+## Límites conocidos
+
+- Los JSON bajo `adf/` pertenecen al diseño local inicial y conservan `DESIGN_ONLY`/`NOT_DEPLOYED`; no son la exportación del pipeline cloud ejecutado.
+- El notebook cloud `04_gold_to_azure_sql` no fue exportado al repositorio y no se reconstruye por inferencia.
+- No están disponibles el PBIX original, las fórmulas DAX exactas ni la exportación del modelo semántico.
+- DirectQuery fue probado, pero el modo final del modelo publicado no quedó demostrado por una evidencia recuperable.
+- PK/FK, cero huérfanos, reconciliación y `NO_OP` están confirmados en el historial, pero sus capturas específicas no fueron recuperadas.
+- Los volúmenes son pequeños y demuestran corrección, no rendimiento a escala.
+
+## Presentación de 1 minuto
+
+“Construí una plataforma bancaria multimoneda end-to-end en Azure. Integré una API histórica del ECB, CSV de transacciones y JSON de clientes y cuentas en ADLS Gen2. Azure Databricks procesa Bronze, Silver y Gold con PySpark, Delta Lake, quality gates, cuarentena, reconciliación e idempotencia. ADF orquesta tres notebooks secuenciales y la ejecución final terminó correctamente en 10 minutos 17 segundos. Después publiqué siete tablas y 953 filas en Azure SQL, validé integridad sin huérfanos y una segunda carga `NO_OP`. Power BI consume el modelo estrella y muestra ocho transacciones en cuatro canales. Finalmente dejé Databricks detenido, SQL pausado y controles de presupuesto; el costo observado fue USD 0,04.”

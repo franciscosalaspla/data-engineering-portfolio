@@ -1,8 +1,10 @@
-# Ejecución prevista en Databricks Free Edition
+# Runbook alternativo para Databricks Free Edition
 
 ## Estado
 
-Este runbook es una guía de ejecución futura. Los notebooks todavía no se han ejecutado en Databricks Free Edition y no constituyen evidencia de Azure Databricks.
+Este runbook conserva la ruta portable diseñada durante la fase local. No describe el despliegue cloud final: el Proyecto 23 fue ejecutado y validado en **Azure Databricks**, como se documenta en [cloud_implementation.md](cloud_implementation.md).
+
+Los notebooks de esta carpeta siguen siendo una alternativa reproducible para Free Edition, pero no son la exportación de los notebooks cloud `nb_01_landing_to_bronze`, `nb_02_bronze_to_silver` y `nb_03_silver_to_gold`. Una eventual ejecución en Free Edition debe registrarse como evidencia independiente.
 
 ## Preparación
 
@@ -41,4 +43,4 @@ Se deben reemplazar todos los valores `REPLACE_*`. Los paths no dependen del alm
 5. Repetir únicamente el driver Gold con otro `run_id` para validar idempotencia.
 6. `05_validate_gold.py` verifica los conteos Gold y el snapshot.
 
-Las evidencias deben mostrar los parámetros no sensibles, conteos, sumas reconciliadas, auditoría, versiones Delta y nombre del entorno **Databricks Free Edition**. No deben presentarse como ejecución de Azure Databricks.
+Las evidencias deben mostrar los parámetros no sensibles, conteos, sumas reconciliadas, auditoría, versiones Delta y nombre del entorno **Databricks Free Edition**. Deben mantenerse separadas de las evidencias de Azure Databricks registradas en `docs/evidence_catalog.md` y conservadas fuera del repositorio público.

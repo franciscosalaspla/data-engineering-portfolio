@@ -1,8 +1,8 @@
 # Portafolio de Ingeniería de Datos
 
-Portfolio práctico de Ingeniería de Datos construido desde mi experiencia conectando cliente, datos, integración y negocio. He trabajado en proyectos relacionados con telemedicina, encuestas de satisfacción, biometría facial, transacciones digitales, venta de productos y pólizas, integrando información desde APIs, JSON, SFTP, SQL, Power BI y servicios cloud.
+Portafolio de Ingeniería de Datos construido desde mi experiencia conectando cliente, datos, integración y negocio. He trabajado en proyectos relacionados con telemedicina, encuestas de satisfacción, biometría facial, transacciones digitales, venta de productos y pólizas, integrando información desde APIs, JSON, SFTP, SQL, Power BI y servicios cloud.
 
-Este trabajo me ha permitido desarrollar criterio para entender el viaje del cliente, transformar datos operacionales en información analítica, validar calidad, documentar procesos y colaborar con equipos de negocio, producto, BI y desarrollo. Actualmente estoy consolidando ese perfil hacia Ingeniería de Datos mediante proyectos prácticos de pipelines, PySpark, SQL, Data Lake, calidad de datos y arquitecturas cloud-style.
+Este trabajo me ha permitido desarrollar criterio para entender el viaje del cliente, transformar datos operacionales en información analítica, validar calidad, documentar procesos y colaborar con equipos de negocio, producto, BI y desarrollo. Actualmente estoy consolidando ese perfil hacia Ingeniería de Datos mediante proyectos de pipelines, PySpark, SQL, Data Lake, calidad de datos y arquitecturas cloud-style.
 
 ## Contacto
 
@@ -13,9 +13,9 @@ Este trabajo me ha permitido desarrollar criterio para entender el viaje del cli
 
 ## Perfil
 
-Soy Ingeniero Civil Industrial con experiencia en analítica digital, integración de datos, SQL, APIs/JSON, validación QA/producción, Power BI, Databricks SQL y documentación técnica. Este repositorio consolida mi transición hacia roles de Data Engineer mediante proyectos prácticos, reproducibles y orientados a problemas reales de datos.
+Soy Ingeniero Civil Industrial con experiencia en analítica digital, integración de datos, SQL, APIs/JSON, validación QA/producción, Power BI, Databricks SQL y documentación técnica. Este repositorio consolida mi transición hacia roles de Data Engineer mediante proyectos reproducibles y orientados a problemas reales de datos.
 
-Actualmente estoy reforzando proyectos asociados a entornos Azure, pipelines ETL/ELT, PySpark, Databricks, arquitectura Medallion, optimización SQL y calidad de datos.
+Actualmente estoy profundizando en Ingeniería de Datos sobre Azure, pipelines ETL/ELT, PySpark, Databricks, arquitectura Medallion, optimización SQL, calidad y operación cloud con costos controlados.
 
 ## Top 3 proyectos destacados
 
@@ -23,11 +23,29 @@ Estos son los tres proyectos que recomiendo revisar primero. Están seleccionado
 
 | Prioridad | Proyecto | Foco técnico | Qué demuestra |
 |---:|---|---|---|
-| 1 | [20 - Data Lake Bancario estilo AWS](./20-aws-style-banking-data-lake) | Data Lake, Parquet, capas landing/bronze/silver/gold, DuckDB | Diseño de arquitectura cloud-style, separación por capas, transformación de datos, consultas analíticas y documentación de gobierno básico como IAM least privilege y control de costos |
-| 2 | [19 - Procesamiento Bancario con PySpark](./19-pyspark-banking-processing) | PySpark, Spark SQL, limpieza, enriquecimiento y métricas bancarias | Procesamiento distribuido, transformación de datos, validaciones, joins y generación de datasets analíticos aplicables a entornos tipo Databricks |
+| 1 | [23 - Azure Banking Multicurrency Data Platform](./23-azure-adf-databricks-bank-fx) | ADF, ADLS Gen2, Azure Databricks, Delta Lake, Unity Catalog, Azure SQL y Power BI | Implementación end-to-end real en Azure: arquitectura Medallion, calidad e idempotencia, orquestación, serving, visualización, monitorización y control de costos |
+| 2 | [20 - Data Lake Bancario estilo AWS](./20-aws-style-banking-data-lake) | Data Lake, Parquet, capas landing/bronze/silver/gold, DuckDB | Diseño de arquitectura cloud-style, separación por capas, transformación de datos, consultas analíticas y documentación de gobierno básico como IAM least privilege y control de costos |
 | 3 | [21 - Optimización de Queries SQL](./21-sql-query-optimization-banking) | SQL, EXPLAIN ANALYZE, benchmark, reescritura de queries, preagregación | Capacidad para medir performance, leer planes de ejecución, detectar cuellos de botella y optimizar consultas con evidencia |
 
 ## Proyectos principales
+
+### 23 - Azure Banking Multicurrency Data Platform
+
+Proyecto end-to-end desplegado y validado en Azure. Integra una API histórica del ECB, CSV y JSON sintéticos; aterriza datos en ADLS Gen2; procesa Bronze, Silver y Gold con Azure Databricks; orquesta tres notebooks mediante ADF; publica un modelo estrella en Azure SQL; y lo consume desde Power BI Service.
+
+**Habilidades demostradas:**
+
+* orquestación secuencial con Azure Data Factory;
+* arquitectura Medallion en ADLS Gen2 y Delta Lake;
+* transformaciones PySpark, quality gates, cuarentena e idempotencia;
+* gobierno básico con Unity Catalog y secretos fuera del código;
+* serving de siete tablas en Azure SQL;
+* modelo estrella y dashboard mínimo viable en Power BI;
+* monitorización operativa y controles de costos en Azure.
+
+**Resultados verificados:** pipeline ADF correcto en 10 min 17 s, 953 filas publicadas en Azure SQL, 7/7 validaciones de integridad aprobadas, cero huérfanos, segunda publicación `NO_OP` y costo observado de USD 0,04.
+
+---
 
 ### 20 - Data Lake Bancario estilo AWS
 
@@ -94,8 +112,11 @@ Proyecto enfocado en performance SQL. Construye un laboratorio local con logs tr
 * Diseño de pipelines ETL/ELT.
 * Arquitectura Data Lake y enfoque Medallion.
 * Capas landing, bronze, silver y gold.
-* Procesamiento con Python, SQL, DuckDB y PySpark.
-* Base técnica aplicable a Databricks y Spark SQL.
+* Orquestación con Azure Data Factory.
+* ADLS Gen2, Azure Databricks, Delta Lake y Unity Catalog.
+* Procesamiento con Python, SQL, DuckDB, PySpark y Spark SQL.
+* Serving con Azure SQL y consumo con Power BI.
+* Monitorización y control de costos cloud.
 * Almacenamiento analítico en Parquet.
 * Optimización SQL con EXPLAIN ANALYZE.
 * Validaciones de calidad de datos.

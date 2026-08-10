@@ -1,70 +1,85 @@
 # Convenciones Azure de nombres y etiquetas
 
-## Región acordada
+## Estado del documento
 
-| Uso | Valor |
-|---|---|
-| Nombre Azure | `chilecentral` |
-| Nombre visible | `Chile Central` |
-| Abreviación | `clc` |
+El diseño inicial proponía Chile Central y un patrón con sufijo regional. El despliegue real utilizó nombres simplificados y disponibilidad regional distinta. Esta versión conserva ambos contextos: la convención prevista como antecedente y el inventario efectivamente validado.
 
-La disponibilidad, cuota y precio de cada servicio deberán verificarse en la suscripción antes de desplegar. Este documento no confirma que los recursos ya existan.
+## Inventario real confirmado
 
-## Patrón general
+| Recurso o artefacto | Nombre confirmado | Región confirmada | Estado |
+|---|---|---|---|
+| Resource Group | `rg-project23-dev` | No aplica | Creado y utilizado |
+| Storage Account | `stproject23dev2026` | No recuperada | Creado y utilizado |
+| Data Factory | `adf-project23-dev-2026` | No recuperada | Publicado y ejecutado |
+| Pipeline ADF | `pl_project23_medallion_orchestration` | No aplica | Ejecución correcta |
+| Databricks Workspace | `dbw-project23-dev-2026` | No recuperada | Creado y utilizado |
+| Databricks compute | `compute-project23-dev-2026` | Workspace | Detenido al cierre |
+| Unity Catalog | `dbw_project23_dev_2026` | Workspace | Bronze, Silver y Gold |
+| Key Vault | `kv-project23-dev-2026` | No recuperada | Creado y utilizado |
+| Secret Scope | `project23-serving-dev` | Workspace | Dos secretos configurados |
+| SQL Server | `sqlsrv-project23-serving-dev-2026` | Central US | Creado y utilizado |
+| Azure SQL Database | `sqldb-project23-serving-dev-2026` | Central US | `Paused` al cierre |
 
-```text
-<resource-type>-p23-bankfx-<environment>-<region>-<suffix>
-```
+La evidencia ADF muestra `AutoResolveIntegrationRuntime (East US 2)` durante las actividades. Eso identifica el runtime de integración observado, no demuestra por sí solo la región de todos los recursos. No se completan regiones faltantes por inferencia.
 
-El sufijo global será calculado posteriormente por Bicep para los recursos que requieran nombres únicos. No se genera en el Hito 1.
+## Mapeo entre diseño inicial y despliegue
 
-## Nombres base
+| Tipo | Nombre previsto históricamente | Nombre real |
+|---|---|---|
+| Resource Group | `rg-p23-bankfx-dev-clc` | `rg-project23-dev` |
+| Data Factory | `adf-p23-bankfx-dev-clc-{suffix}` | `adf-project23-dev-2026` |
+| Storage Account | `stp23bankfxdev{suffix}` | `stproject23dev2026` |
+| Key Vault | `kv-p23-bankfx-dev-{suffix}` | `kv-project23-dev-2026` |
+| Databricks Workspace | `dbw-p23-bankfx-dev-clc-{suffix}` | `dbw-project23-dev-2026` |
+| Azure SQL Server | `sql-p23-bankfx-dev-clc-{suffix}` | `sqlsrv-project23-serving-dev-2026` |
+| Azure SQL Database | `sqldb-p23-bankfx-dev` | `sqldb-project23-serving-dev-2026` |
 
-| Recurso | Nombre previsto |
-|---|---|
-| Resource Group | `rg-p23-bankfx-dev-clc` |
-| Data Factory | `adf-p23-bankfx-dev-clc-{suffix}` |
-| Storage Account | `stp23bankfxdev{suffix}` |
-| Key Vault reservado | `kv-p23-bankfx-dev-{suffix}` |
-| Databricks Workspace | `dbw-p23-bankfx-dev-clc-{suffix}` |
-| Azure SQL Server | `sql-p23-bankfx-dev-clc-{suffix}` |
-| Azure SQL Database | `sqldb-p23-bankfx-dev` |
-
-Key Vault no se desplegará en el MVP mientras no existan secretos reales. Su nombre se reserva para mantener coherencia si un hito futuro justifica su uso.
+La convención real prioriza legibilidad para un proyecto de entrenamiento. Los nombres no se cambian retrospectivamente porque ya identifican recursos ejecutados y evidencia histórica.
 
 ## Nombres de datos y orquestación
 
-| Artefacto | Convención | Ejemplo |
-|---|---|---|
-| ADF pipeline | `pl_<action>_<domain>` | `pl_ingest_bankfx_sources` |
-| Linked service | `ls_<technology>_<purpose>` | `ls_adls_bankfx` |
-| Dataset | `ds_<format>_<entity>` | `ds_csv_transactions` |
-| Notebook driver | `nb_<layer>_<purpose>` | `nb_run_bankfx_medallion` |
-| Delta table | `<layer>.<entity>` | `silver.transactions` |
-| SQL table | `<schema>.<entity>` | `mart.fact_transactions` |
+| Elemento | Valor cloud confirmado |
+|---|---|
+| Pipeline | `pl_project23_medallion_orchestration` |
+| Actividad 1 | `nb_01_landing_to_bronze` |
+| Actividad 2 | `nb_02_bronze_to_silver` |
+| Actividad 3 | `nb_03_silver_to_gold` |
+| Catálogo | `dbw_project23_dev_2026` |
+| Esquemas Lakehouse | `bronze`, `silver`, `gold` |
+| Esquema Azure SQL | `serving` |
+| Hecho Delta local | `fact_transactions` |
+| Hecho Azure SQL/Power BI | `fact_transaction` |
 
-## Etiquetas obligatorias
+Los nombres de los Linked Services de la ejecución cloud no quedaron recuperados. Los archivos bajo `adf/linkedService/` pertenecen al diseño inicial y no deben presentarse como exportación del despliegue final.
+
+## Etiquetas observadas y recomendadas
+
+La evidencia de Azure SQL confirma al menos:
 
 ```text
-project=p23-bankfx
-environment=dev
-workload=data-engineering
-managed-by=bicep
-cost-control=training
-data-classification=synthetic
+Project=project23
+Environment=dev
 ```
 
-Etiquetas futuras recomendadas:
+Para futuros despliegues se recomienda completar un conjunto consistente:
 
-- `owner-role=data-engineer` sin correos personales;
-- `expires-on=<YYYY-MM-DD>` para la ventana temporal;
-- `repository=data-engineering-portfolio`;
-- `region-code=clc`.
+```text
+Project=project23
+Environment=dev
+Workload=data-engineering
+CostControl=training
+DataClassification=synthetic
+Repository=data-engineering-portfolio
+```
+
+No se afirma que todas esas etiquetas estén aplicadas actualmente.
 
 ## Reglas
 
 - Usar minúsculas y guiones donde el servicio lo permita.
-- No incluir correos, nombres personales, tenant IDs o subscription IDs.
-- No guardar sufijos calculados como constantes en el código de transformación.
-- Pasar nombres, catálogos, schemas y paths mediante parámetros de entorno.
-- Mantener las etiquetas en un único objeto Bicep reutilizable durante el Hito 2.
+- Mantener el entorno (`dev`) y el propósito del recurso en el nombre.
+- No incluir nombres personales, correos, tenant IDs, subscription IDs o credenciales.
+- Pasar catálogos, esquemas, paths y nombres de destino mediante parámetros.
+- Mantener secretos fuera del repositorio mediante Key Vault y Secret Scope.
+- No reemplazar nombres reales por la convención histórica en documentación de evidencia.
+- Verificar disponibilidad, precio y región antes de recrear un recurso; Central US solo está confirmado para Azure SQL.
