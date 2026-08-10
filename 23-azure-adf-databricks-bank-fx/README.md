@@ -1,4 +1,4 @@
-# 23 — Azure Banking Medallion Data Platform
+# 23 — Plataforma de datos bancarios arquitectura medallion
 
 > **Plataforma bancaria multimoneda end-to-end en Azure, orquestada con Data Factory y procesada en Databricks bajo arquitectura Medallion.**
 
