@@ -6,7 +6,6 @@
 
 Este proyecto demuestra cómo convertir fuentes heterogéneas en datos confiables para analítica. Integra una API histórica del Banco Central Europeo, transacciones CSV y clientes/cuentas JSON; conserva los datos en ADLS Gen2; procesa capas Bronze, Silver y Gold con PySpark y Delta Lake; orquesta el pipeline con Azure Data Factory; y publica un modelo estrella en Azure SQL para consumo desde Power BI.
 
-El foco no está solo en mover datos: incluye contratos, quality gates, cuarentena, reconciliación, idempotencia, secretos fuera del código, monitorización y control de costos.
 
 ## 2. Arquitectura implementada
 
