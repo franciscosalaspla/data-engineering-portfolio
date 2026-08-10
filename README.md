@@ -1,127 +1,22 @@
 # Portafolio de Ingeniería de Datos
 
-Portafolio de Ingeniería de Datos construido desde mi experiencia conectando cliente, datos, integración y negocio. He trabajado en proyectos relacionados con telemedicina, encuestas de satisfacción, biometría facial, transacciones digitales, venta de productos y pólizas, integrando información desde APIs, JSON, SFTP, SQL, Power BI y servicios cloud.
+Soy Ingeniero Civil Industrial con especialización en **Analítica de Negocios** y más de cuatro años de experiencia trabajando con datos en seguros, banca y previsión.
 
-Este trabajo me ha permitido desarrollar criterio para entender el viaje del cliente, transformar datos operacionales en información analítica, validar calidad, documentar procesos y colaborar con equipos de negocio, producto, BI y desarrollo. Actualmente estoy consolidando ese perfil hacia Ingeniería de Datos mediante proyectos de pipelines, PySpark, SQL, Data Lake, calidad de datos y arquitecturas cloud-style.
+En mi experiencia profesional he trabajado como puente entre Negocio, Producto, BI y equipos técnicos. He participado en la captura de eventos digitales, integración y consumo de APIs, procesamiento de archivos CSV y JSON, procesos ETL, validaciones con SQL, modelamiento, automatizaciones y disponibilización de información para servicios y productos en Azure.
 
-## Contacto
-
-* LinkedIn: [https://bit.ly/4u9E6eU](https://bit.ly/4u9E6eU)
-* GitHub: [https://bit.ly/4vouAFH](http://bit.ly/4vouAFH)
-* Email: [franciscosalaspla@gmail.com](mailto:franciscosalaspla@gmail.com)
-* CV: [Descargar CV](./CV_Francisco_Salas.pdf)
-
-## Perfil
-
-Soy Ingeniero Civil Industrial con experiencia en analítica digital, integración de datos, SQL, APIs/JSON, validación QA/producción, Power BI, Databricks SQL y documentación técnica. Este repositorio consolida mi transición hacia roles de Data Engineer mediante proyectos reproducibles y orientados a problemas reales de datos.
-
-Actualmente estoy profundizando en Ingeniería de Datos sobre Azure, pipelines ETL/ELT, PySpark, Databricks, arquitectura Medallion, optimización SQL, calidad y operación cloud con costos controlados.
+También he participado en proyectos de encuestas de satisfacción, telemedicina y biometría facial, resolviendo problemas de **integración de datos, calidad de datos y detección de duplicados**. Cuento con las certificaciones **Microsoft Certified: Azure Fundamentals (AZ-900)** y **Data Engineer de DataCamp**.
 
 ## Top 3 proyectos destacados
 
-Estos son los tres proyectos que recomiendo revisar primero. Están seleccionados porque muestran arquitectura de datos, procesamiento distribuido y optimización SQL: habilidades relevantes para posiciones Data Engineer en entornos cloud.
+| Proyecto | Hook | Problema | Acción | Resultado | Tecnologías |
+|---|---|---|---|---|---|
+| [23 — Pipeline bancario multimoneda](./23-azure-adf-databricks-bank-fx) | **Pipeline bancario end-to-end en Azure** | Integrar CSV, JSON y API con calidad, trazabilidad e idempotencia | Construí capas Medallion, quality gates, orquestación con ADF y serving analítico | 3/3 notebooks ejecutados; 7 tablas y 953 filas en Azure SQL; 0 huérfanos y reejecución `NO_OP` | ADF, ADLS Gen2, Databricks, PySpark, Delta Lake, Azure SQL, Power BI |
+| [20 — Data Lake bancario AWS-style](./20-aws-style-banking-data-lake) | **Data Lake end-to-end con arquitectura AWS-style** | Transformar datos bancarios crudos y separar registros inválidos | Implementé capas Landing, Bronze, Silver y Gold, cuarentena y consultas analíticas | 1.257 registros en Landing; 1.135 en Silver; 120 en cuarentena; 5 datasets Gold y 5 consultas aprobadas | Python, Parquet, DuckDB; equivalencias con S3, Glue y Athena |
+| [19 — Procesamiento bancario con PySpark](./19-pyspark-banking-processing) | **Procesamiento bancario end-to-end con PySpark** | Convertir CSV crudos en datos analíticos limpios, enriquecidos y trazables | Definí schemas, validaciones, joins, agregaciones, Window Functions y particionamiento | Pipeline local reproducible con salidas Parquet, métricas, rankings y resumen de ejecución | PySpark, Spark SQL, DataFrames, Window Functions, Parquet |
 
-| Prioridad | Proyecto | Foco técnico | Qué demuestra |
-|---:|---|---|---|
-| 1 | [23 - Azure Banking Multicurrency Data Platform](./23-azure-adf-databricks-bank-fx) | ADF, ADLS Gen2, Azure Databricks, Delta Lake, Unity Catalog, Azure SQL y Power BI | Implementación end-to-end real en Azure: arquitectura Medallion, calidad e idempotencia, orquestación, serving, visualización, monitorización y control de costos |
-| 2 | [20 - Data Lake Bancario estilo AWS](./20-aws-style-banking-data-lake) | Data Lake, Parquet, capas landing/bronze/silver/gold, DuckDB | Diseño de arquitectura cloud-style, separación por capas, transformación de datos, consultas analíticas y documentación de gobierno básico como IAM least privilege y control de costos |
-| 3 | [21 - Optimización de Queries SQL](./21-sql-query-optimization-banking) | SQL, EXPLAIN ANALYZE, benchmark, reescritura de queries, preagregación | Capacidad para medir performance, leer planes de ejecución, detectar cuellos de botella y optimizar consultas con evidencia |
+## Contacto
 
-## Proyectos principales
-
-### 23 - Azure Banking Multicurrency Data Platform
-
-Proyecto end-to-end desplegado y validado en Azure. Integra una API histórica del ECB, CSV y JSON sintéticos; aterriza datos en ADLS Gen2; procesa Bronze, Silver y Gold con Azure Databricks; orquesta tres notebooks mediante ADF; publica un modelo estrella en Azure SQL; y lo consume desde Power BI Service.
-
-**Habilidades demostradas:**
-
-* orquestación secuencial con Azure Data Factory;
-* arquitectura Medallion en ADLS Gen2 y Delta Lake;
-* transformaciones PySpark, quality gates, cuarentena e idempotencia;
-* gobierno básico con Unity Catalog y secretos fuera del código;
-* serving de siete tablas en Azure SQL;
-* modelo estrella y dashboard mínimo viable en Power BI;
-* monitorización operativa y controles de costos en Azure.
-
-**Resultados verificados:** pipeline ADF correcto en 10 min 17 s, 953 filas publicadas en Azure SQL, 7/7 validaciones de integridad aprobadas, cero huérfanos, segunda publicación `NO_OP` y costo observado de USD 0,04.
-
----
-
-### 20 - Data Lake Bancario estilo AWS
-
-Proyecto principal de arquitectura de datos. Simula localmente un Data Lake bancario con capas landing, bronze, silver y gold. El flujo genera datos bancarios, transforma información cruda en datasets analíticos, escribe salidas en Parquet y permite consultas tipo Athena usando DuckDB.
-
-**Habilidades demostradas:**
-
-* diseño de arquitectura Data Lake;
-* separación por capas landing, bronze, silver y gold;
-* transformación de datos con Python;
-* almacenamiento analítico en Parquet;
-* consultas analíticas con DuckDB;
-* documentación de equivalencias con servicios AWS;
-* criterios de gobierno básico como IAM least privilege y control de costos.
-
----
-
-### 19 - Procesamiento Bancario con PySpark
-
-Proyecto enfocado en procesamiento distribuido. Procesa datos bancarios en CSV usando PySpark, limpia registros problemáticos, normaliza entidades, cruza transacciones con cuentas, clientes y sucursales, y genera salidas analíticas.
-
-**Habilidades demostradas:**
-
-* procesamiento con PySpark;
-* uso de Spark SQL/DataFrames;
-* limpieza y normalización de datos;
-* validación de nulos, duplicados y fechas;
-* joins entre entidades bancarias;
-* generación de métricas por cliente, sucursal y periodo;
-* base técnica aplicable a Databricks y pipelines distribuidos.
-
----
-
-### 21 - Optimización de Queries SQL
-
-Proyecto enfocado en performance SQL. Construye un laboratorio local con logs transaccionales bancarios, ejecuta queries baseline y optimizadas, analiza planes con EXPLAIN ANALYZE y mide mejoras con benchmark reproducible.
-
-**Habilidades demostradas:**
-
-* SQL analítico;
-* lectura de EXPLAIN ANALYZE;
-* identificación de cuellos de botella;
-* reescritura de queries;
-* uso de preagregaciones;
-* uso de índices con criterio;
-* medición de performance con benchmark.
-
-## Otros proyectos
-
-| Proyecto | Descripción | Herramientas |
-|---|---|---|
-| [14 - Data Quality con Great Expectations](./14-data-quality-great-expectations) | Validaciones de calidad, revisión de errores y reportes de control sobre datos tabulares | Great Expectations, Python |
-| [18 - Pipeline Dockerizado Agent Loop](./18-pipeline-dockerizado-agent-loop) | Pipeline dbt dockerizado con validación reproducible y flujo tipo agent loop | Docker, dbt, DuckDB |
-| [17 - dbt Profesional E-commerce](./17-dbt-professional-ecommerce) | Proyecto dbt con staging, intermediate, marts, tests, snapshot SCD Type 2 y modelo incremental | dbt, DuckDB, SQL |
-| [16 - Orquestación Airflow](./16-orquestacion-airflow) | Orquestación de pipelines y validaciones con DAGs | Airflow, Python |
-| [15 - dbt Profesional](./15-dbt-profesional) | Transformaciones SQL modulares con dbt, modelos, tests y documentación | dbt, DuckDB, SQL |
-| [13 - Data Warehouse Dimensional](./13-data-warehouse-dimensional) | Modelo dimensional con dimensiones, tabla de hechos y análisis SQL | DuckDB, SQL |
-| [09 - Pipeline con API REST](./09-pipeline-api-rest) | Consumo de API REST, transformación de JSON y generación de outputs analíticos | Python, requests, pandas |
-| [08 - Análisis SQL de Logs](./08-analisis-sql-logs) | Análisis SQL de logs, errores, tráfico y tiempos de respuesta | DuckDB, SQL |
-| [07 - ETL Simple con Python](./07-etl-simple-python) | Pipeline ETL básico con limpieza, transformación y exportación | Python, pandas |
-
-## Habilidades aplicadas
-
-* Diseño de pipelines ETL/ELT.
-* Arquitectura Data Lake y enfoque Medallion.
-* Capas landing, bronze, silver y gold.
-* Orquestación con Azure Data Factory.
-* ADLS Gen2, Azure Databricks, Delta Lake y Unity Catalog.
-* Procesamiento con Python, SQL, DuckDB, PySpark y Spark SQL.
-* Serving con Azure SQL y consumo con Power BI.
-* Monitorización y control de costos cloud.
-* Almacenamiento analítico en Parquet.
-* Optimización SQL con EXPLAIN ANALYZE.
-* Validaciones de calidad de datos.
-* Revisión de errores y trazabilidad.
-* Modelado dimensional y transformaciones dbt.
-* Orquestación con Airflow.
-* Dockerización y flujos reproducibles.
-* Git, ramas, pull requests y documentación técnica.
+- LinkedIn: [https://bit.ly/4u9E6eU](https://bit.ly/4u9E6eU)
+- GitHub: [https://bit.ly/4vouAFH](https://bit.ly/4vouAFH)
+- Email: [franciscosalaspla@gmail.com](mailto:franciscosalaspla@gmail.com)
+- CV: [Descargar CV](./CV_Francisco_Salas.pdf)
