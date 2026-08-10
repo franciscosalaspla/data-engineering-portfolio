@@ -8,11 +8,11 @@ También he participado en proyectos de encuestas de satisfacción, telemedicina
 
 ## Top 3 proyectos destacados
 
-| Proyecto | Hook | Problema | Acción | Resultado | Tecnologías |
-|---|---|---|---|---|---|
-| [23 — Pipeline bancario multimoneda](./23-azure-adf-databricks-bank-fx) | **Pipeline bancario end-to-end en Azure** | Integrar CSV, JSON y API con calidad, trazabilidad e idempotencia | Construí capas Medallion, quality gates, orquestación con ADF y serving analítico | 3/3 notebooks ejecutados; 7 tablas y 953 filas en Azure SQL; 0 huérfanos y reejecución `NO_OP` | ADF, ADLS Gen2, Databricks, PySpark, Delta Lake, Azure SQL, Power BI |
-| [20 — Data Lake bancario AWS-style](./20-aws-style-banking-data-lake) | **Data Lake end-to-end con arquitectura AWS-style** | Transformar datos bancarios crudos y separar registros inválidos | Implementé capas Landing, Bronze, Silver y Gold, cuarentena y consultas analíticas | 1.257 registros en Landing; 1.135 en Silver; 120 en cuarentena; 5 datasets Gold y 5 consultas aprobadas | Python, Parquet, DuckDB; equivalencias con S3, Glue y Athena |
-| [19 — Procesamiento bancario con PySpark](./19-pyspark-banking-processing) | **Procesamiento bancario end-to-end con PySpark** | Convertir CSV crudos en datos analíticos limpios, enriquecidos y trazables | Definí schemas, validaciones, joins, agregaciones, Window Functions y particionamiento | Pipeline local reproducible con salidas Parquet, métricas, rankings y resumen de ejecución | PySpark, Spark SQL, DataFrames, Window Functions, Parquet |
+| Proyecto | Hook | Acción | Tecnologías |
+|---|---|---|---|
+| [23 — Pipeline bancario multimoneda](./23-azure-adf-databricks-bank-fx) | **Pipeline bancario end-to-end en Azure que integra CSV, JSON y tipos de cambio para entregar datos gobernados y listos para análisis.** | Construí capas Medallion, quality gates y orquestación con ADF; publiqué 7 tablas y 953 filas en Azure SQL, con 0 huérfanos y reejecución idempotente `NO_OP`. | ADF, ADLS Gen2, Databricks, PySpark, Delta Lake, Azure SQL, Power BI |
+| [20 — Data Lake bancario AWS-style](./20-aws-style-banking-data-lake) | **Data Lake bancario AWS-style que transforma datos crudos en datasets analíticos con calidad, cuarentena y consultas tipo Athena.** | Implementé capas Landing, Bronze, Silver y Gold; procesé 1.257 registros, consolidé 1.135 en Silver, separé 120 en cuarentena y generé 5 datasets Gold. | Python, Parquet, DuckDB; equivalencias con S3, Glue y Athena |
+| [19 — Procesamiento bancario con PySpark](./19-pyspark-banking-processing) | **Procesamiento reproducible con PySpark que convierte transacciones crudas en métricas, rankings y datasets Parquet listos para análisis.** | Definí schemas, validaciones, joins, agregaciones, Window Functions y particionamiento; transformé 5.365 transacciones de entrada en 3.628 registros limpios. | PySpark, Spark SQL, DataFrames, Window Functions, Parquet |
 
 ## Contacto
 
