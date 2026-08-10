@@ -1,44 +1,59 @@
-# Implementación cloud — Hitos 4 a 7
+# Implementación end-to-end
 
 ## Propósito
 
-Este documento registra qué se implementó y validó realmente en Azure después de cerrar la base local del Proyecto 23. Las capturas originales respaldan la evidencia operativa, pero se conservan fuera del repositorio público; no sustituyen la suite automatizada local ni se presentan como exportaciones reproducibles de los servicios.
+Este documento registra, en el orden de los Hitos 1–7, qué se construyó y cómo se validó. La suite automatizada corresponde al código versionado; ADF, Azure SQL, Power BI y costos se validaron directamente en Azure.
 
-## Inventario
+## 1. Landing → Bronze
 
-| Categoría | Nombre confirmado | Tipo | Propósito | Estado observado al cierre |
-|---|---|---|---|---|
-| Grupo | `rg-project23-dev` | Resource Group | Agrupar recursos y costos | Activo |
-| Storage | `stproject23dev2026` | ADLS Gen2 | Landing, Bronze, Silver y Gold | Activo |
-| Orquestación | `adf-project23-dev-2026` | Data Factory V2 | Ejecutar notebooks secuenciales | Publicado |
-| Pipeline | `pl_project23_medallion_orchestration` | ADF pipeline | Landing → Bronze → Silver → Gold | Ejecución correcta |
-| Procesamiento | `dbw-project23-dev-2026` | Databricks Workspace | PySpark y Delta | Activo |
-| Compute | `compute-project23-dev-2026` | Single-node compute | Ejecutar notebooks | Detenido |
-| Catálogo | `dbw_project23_dev_2026` | Unity Catalog | Organizar tablas por capa | Utilizado |
-| Secretos | `kv-project23-dev-2026` | Key Vault | Credenciales SQL | Utilizado |
-| Secret Scope | `project23-serving-dev` | Databricks Secret Scope | Acceso a dos secretos | Validado |
-| SQL Server | `sqlsrv-project23-serving-dev-2026` | Logical SQL Server | Host de serving | Activo |
-| Base | `sqldb-project23-serving-dev-2026` | Azure SQL Database | Modelo estrella serving | `Paused` |
-| Consumo | `My Workspace` | Power BI workspace | Publicar informe | Publicado |
+### Construcción
 
-No se incluyen IDs, endpoints, cuentas ni valores de secretos.
+- Se definieron contratos y schemas para clientes, cuentas, transacciones y tasas FX.
+- Se integraron transacciones CSV, clientes/cuentas JSON y la API histórica del ECB.
+- ADLS Gen2 conserva los archivos en Landing y Databricks crea Bronze con metadata técnica.
+- El checksum permite reconocer archivos ya procesados y mantener trazabilidad por lote.
 
-## Hito 4 — Azure Data Factory
+### Validación
 
-### Objetivo
+- Fixtures sintéticos determinísticos: **42/42 controles aprobados**.
+- Datos válidos, inválidos y reejecución incluidos en la cobertura.
+- La ejecución cloud dejó las entidades Bronze creadas y validadas.
 
-Orquestar las tres capas de Azure Databricks desde ADF y comprobar una ejecución completa desde Landing hasta Gold.
+## 2. Bronze → Silver
 
-### Configuración confirmada
+### Construcción
 
-- Data Factory: `adf-project23-dev-2026`.
-- Workspace: `dbw-project23-dev-2026`.
-- Integración mediante Linked Service de Azure Databricks con prueba de conexión correcta.
-- Pipeline: `pl_project23_medallion_orchestration`.
-- Publicación: validada y publicada.
-- Patrón: ejecución secuencial con dependencia de éxito.
+- PySpark aplica schemas explícitos y normaliza tipos, fechas, dominios e identificadores.
+- Se controlan nulos, duplicados y relaciones cuenta → cliente y transacción → cuenta.
+- Los registros que no cumplen el contrato se separan en cuarentena con causa identificable.
+- Delta `MERGE` actualiza por clave de negocio sin duplicar registros.
 
-Orden de actividades:
+### Validación
+
+- Quality gates de clientes, cuentas, transacciones y tasas FX: **`PASSED`**.
+- Conteos, claves, dominios y cuarentena reconciliados antes de avanzar.
+- Segunda ejecución sin cambios comprobada como idempotente.
+
+## 3. Silver → Gold
+
+### Construcción
+
+- Se convirtieron importes de EUR, USD y GBP a EUR usando la tasa de la fecha.
+- Se generaron claves sustitutas determinísticas.
+- Se construyeron seis dimensiones Type 1 y una tabla de hechos.
+- El grano quedó definido como una fila por `transaction_id`.
+
+### Validación
+
+- Grano, claves, huérfanos, importes y reconciliación: **`PASSED`**.
+- La suite local completa de ingesta, Silver y Gold terminó **37/37**.
+- Un contenido sin cambios evita un nuevo snapshot o `MERGE` innecesario.
+
+## 4. Orquestación con Azure Data Factory
+
+### Construcción
+
+ADF ejecuta tres notebooks de Databricks con dependencia de éxito:
 
 | Orden | Actividad | Resultado | Duración |
 |---:|---|---|---:|
@@ -47,43 +62,23 @@ Orden de actividades:
 | 3 | `nb_03_silver_to_gold` | Correcto | 4 min 22 s |
 |  | **Pipeline completo** | **Correcto** | **10 min 17 s** |
 
-La diferencia entre la suma de actividades y la duración total corresponde al tiempo de orquestación y transición.
+### Validación
 
-### Incidente
+- Linked Service de Azure Databricks: conexión correcta.
+- Pipeline validado, publicado y ejecutado.
+- ADF Monitor: **3/3 actividades correctas**.
 
-ADF Monitor conserva al menos una ejecución fallida anterior a la ejecución correcta. La causa y la corrección exactas no quedaron respaldadas por un artefacto recuperable; por ello no se atribuye una causa por inferencia.
+Existe una ejecución fallida anterior en el historial, pero no se conserva evidencia suficiente para atribuirle una causa. La documentación no la infiere.
 
-### Evidencia
+## 5. Serving en Azure SQL
 
-- E04-01 — pipeline correcto y ejecución anterior fallida.
-- E04-02 — tres notebooks y duraciones.
+### Construcción
 
-Los archivos bajo `adf/` pertenecen a la ingesta local inicial y conservan su condición `DESIGN_ONLY`/`NOT_DEPLOYED`. El pipeline ejecutado no fue exportado al repositorio.
+- El modelo Gold se publicó mediante JDBC en el esquema `serving`.
+- Key Vault y Databricks Secret Scope mantienen usuario y contraseña fuera del código.
+- Azure SQL se configuró en modalidad serverless con exceso sobre el límite gratuito deshabilitado.
 
-## Hito 5 — Azure SQL
-
-### Objetivo
-
-Publicar el modelo Gold como capa de serving relacional y validar conteos, integridad, reconciliación e idempotencia.
-
-### Seguridad y conexión
-
-- SQL Server: `sqlsrv-project23-serving-dev-2026`.
-- Base: `sqldb-project23-serving-dev-2026`.
-- Región: Central US.
-- Plan: uso general serverless con oferta gratuita.
-- Facturación sobre el límite gratuito: deshabilitada.
-- Key Vault: `kv-project23-dev-2026`.
-- Secret Scope: `project23-serving-dev`.
-- Secretos: dos, destinados a usuario y contraseña SQL.
-- Notebook cloud: `04_gold_to_azure_sql`.
-- Conexión: JDBC con secretos fuera del código.
-
-El notebook cloud no fue exportado y no se reconstruye en este repositorio.
-
-### Publicación
-
-| Tabla `serving` | Filas |
+| Tabla | Filas |
 |---|---:|
 | `dim_date` | 919 |
 | `dim_customer` | 5 |
@@ -94,130 +89,69 @@ El notebook cloud no fue exportado y no se reconstruye en este repositorio.
 | `fact_transaction` | 8 |
 | **Total** | **953** |
 
-### Validaciones
+### Validación
 
 | Control | Resultado |
 |---|---|
-| Preflight Gold | 7 tablas y 953 filas esperadas; `PASSED` |
-| Publicación | 7 tablas y 953 filas; `LOADED` |
-| Claves primarias y foráneas | 7/7 aprobadas |
+| Preflight y publicación | 7 tablas, 953 filas y `LOADED` |
+| PK/FK | 7/7 aprobadas |
 | Registros huérfanos | 0 |
 | Reconciliación Gold → SQL | `PASSED` |
-| Segunda ejecución | `NO_OP` |
+| Segunda publicación | `NO_OP` |
 | Filas antes/después | 953 → 953 |
-| Escrituras segunda ejecución | 0 |
-| Quality Gate final | `PASSED` |
+| Escrituras en segunda ejecución | 0 |
 
-Las validaciones de integridad, reconciliación y `NO_OP` están confirmadas en el historial, pero sus capturas específicas no fueron recuperadas. Se registran como validaciones cloud manuales, no como tests automatizados versionados.
+Durante la implementación se corrigieron consultas con `ORDER BY`, se reintentó la disponibilidad JDBC y se restablecieron credenciales SQL. La publicación final quedó validada.
 
-### Incidentes resueltos
+## 6. Consumo en Power BI
 
-| Problema | Acción confirmada | Resultado |
-|---|---|---|
-| Uso de `ORDER BY` en la definición SQL utilizada | Corrección de consultas/vistas | Flujo continuó |
-| Disponibilidad temporal para JDBC | Reintentos de disponibilidad | Conexión validada |
-| Credenciales SQL no operativas | Restablecimiento de credenciales | Publicación correcta |
+### Construcción
 
-No se conservan mensajes de error completos y no se agregan causas adicionales.
+- Se cargaron las siete tablas de `serving`.
+- Se configuraron seis relaciones activas, una por dimensión hacia `fact_transaction`.
+- Se creó y publicó una página ejecutiva mínima para mantener el foco en Data Engineering.
+- DirectQuery fue probado; el modo final publicado no se afirma sin el PBIX.
 
-### Evidencia
-
-- E05-01 — preflight Gold.
-- E05-02 — publicación de 953 filas.
-- E05-03 — siete tablas serving.
-- E05-04 — SQL pausado y serverless.
-
-## Hito 6 — Power BI
-
-### Objetivo
-
-Consumir Azure SQL, construir un modelo estrella mínimo viable y publicar una página ejecutiva. El alcance se mantuvo acotado para conservar el foco en Data Engineering.
-
-### Modelo
-
-- Siete tablas de `serving`.
-- Seis relaciones activas, desde cada dimensión hacia `fact_transaction`.
-- Cardinalidad esperada uno a muchos.
-- Una tabla de hechos duplicada durante la preparación fue eliminada antes de recargar el modelo.
-- Una relación automática incorrecta fue corregida manualmente; sus columnas exactas no quedaron registradas.
-
-DirectQuery fue probado durante la conexión. El modo final del modelo publicado no está demostrado por el PBIX ni por una exportación del modelo semántico, por lo que no se afirma como Import o DirectQuery.
-
-### Página ejecutiva
+### Validación
 
 | Indicador | Resultado |
 |---|---:|
-| Total de transacciones | 8 |
+| Transacciones | 8 |
 | Clientes únicos con transacciones | 4 |
 | Cuentas únicas con transacciones | 6 |
+| Canales | Card 3 · Mobile 2 · Online 2 · ATM 1 |
 
-| Canal | Transacciones |
-|---|---:|
-| Card | 3 |
-| Mobile | 2 |
-| Online | 2 |
-| ATM | 1 |
+`dim_customer` contiene cinco clientes; cuatro aparecen en la tabla de hechos.
 
-Los cuatro clientes son clientes presentes en la tabla de hechos; `dim_customer` contiene cinco registros.
+## 7. Monitorización, costos y cierre
 
-Se crearon tres medidas, pero sus fórmulas DAX exactas no fueron recuperadas. El informe visible en Power BI Service se identifica como `project23-banking-report.pbix`; el PBIX original y la exportación del modelo semántico no están versionados.
+### Controles aplicados
 
-### Evidencia
-
-- E06-01 — modelo estrella.
-- E06-02 — KPI 8/4/6.
-- E06-03 — publicación completada.
-
-## Hito 7 — Monitorización y costos
-
-### Objetivo
-
-Comprobar el resultado operativo, detener recursos de consumo variable y configurar un límite básico de gasto.
-
-| Control | Resultado observado |
+| Control | Resultado al cierre |
 |---|---|
 | ADF Monitor | Pipeline correcto; 3/3 actividades correctas |
-| Databricks | `compute-project23-dev-2026` detenido |
-| Recursos compute | Sin memoria, núcleos ni DBU activos |
-| Autoapagado | 10 minutos |
+| Databricks compute | Detenido; autoapagado de 10 minutos |
 | Azure SQL | `Paused` |
-| Exceso plan gratuito | Deshabilitado |
-| Costo acumulado | USD 0,04 |
-| Proyección | USD 0,29 |
+| Exceso del plan gratuito | Deshabilitado |
+| Costo observado | USD 0,04 |
+| Proyección observada | USD 0,29 |
 | Presupuesto | USD 2 mensual |
 | Alerta | 50 %, equivalente a USD 1 |
 
-La captura de costos fue tomada antes de que el presupuesto apareciera asociado en esa vista; la creación posterior del presupuesto y la alerta está confirmada por el historial. La captura E07-02 demuestra la configuración del umbral, no la pantalla final del presupuesto creado.
+El [runbook operativo](operations_and_cost_runbook.md) define el preflight, la ejecución y el cierre de recursos.
 
-### Evidencia
+## Resumen de validación
 
-- E07-01 — costo y proyección.
-- E07-02 — alerta al 50 %.
-- E07-03 — compute detenido.
-- E05-04 — Azure SQL pausado.
+| Alcance | Tipo | Resultado |
+|---|---|---|
+| Fixtures | Automatizada local | 42/42 |
+| Ingesta, Silver y Gold | Automatizada local | 37/37 |
+| Capas Medallion | Ejecución Databricks | Quality gates `PASSED` |
+| Orquestación | Validación cloud | 3/3 actividades correctas |
+| Azure SQL | Validación cloud | 7 tablas, 953 filas, integridad e idempotencia aprobadas |
+| Power BI | Validación cloud | Modelo y KPI publicados |
+| Operación y costos | Validación cloud | Recursos cerrados y controles activos |
 
-El detalle de cada ID y la política de conservación fuera del repositorio está en [evidence_catalog.md](evidence_catalog.md).
+## Alcance de los artefactos
 
-## Matriz de validación
-
-| Tipo | Alcance | Resultado | Evidencia |
-|---|---|---|---|
-| Automatizada local | Fixtures | 42/42 | Salida reproducible de `validate_fixtures.py` |
-| Automatizada local | Ingesta, Silver y Gold | 37/37 | Suite `unittest` |
-| Databricks | Quality gates de capas | `PASSED` | Confirmación de ejecución |
-| ADF manual | Pipeline y actividades | `PASSED` | E04-01, E04-02 |
-| Azure SQL manual | Conteos y publicación | `PASSED` | E05-01 a E05-03 |
-| Azure SQL manual | Integridad e idempotencia | `PASSED` | Confirmación textual; sin captura recuperada |
-| Power BI manual | Modelo, KPI y publicación | `PASSED` | E06-01 a E06-03 |
-| Operativa | Recursos y costos | `PASSED` | E07-01 a E07-03, E05-04 |
-
-## Artefactos no exportados
-
-- Pipeline ADF cloud definitivo y sus Linked Services.
-- Notebook `04_gold_to_azure_sql`.
-- DDL final usado para materializar todas las tablas serving.
-- PBIX original, fórmulas DAX y modelo semántico.
-- Exportación del presupuesto.
-- Capturas específicas de PK/FK, huérfanos, reconciliación y `NO_OP`.
-
-Estas ausencias se documentan como límites. No se rellenan mediante código o capturas reconstruidas.
+No están versionados el pipeline ADF definitivo, el notebook `04_gold_to_azure_sql`, el PBIX, las fórmulas DAX ni las capturas. Estas ausencias se declaran como límites y no se completan con artefactos reconstruidos. El detalle está en [Catálogo de evidencias](evidence_catalog.md).
