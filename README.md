@@ -1,6 +1,6 @@
 # Portafolio de Ingeniería de Datos
 
-Soy Ingeniero Civil Industrial con especialización en Analítica de Negocios y más de cuatro años de experiencia trabajando con datos en consultoría financiera, seguros, banca y previsión en áreas de  **analítica, arquitectura e ia.**
+Soy Ingeniero Civil Industrial con especialización en Analítica de Negocios y más de cuatro años de experiencia trabajando con datos en consultoría financiera, seguros, banca y previsión en áreas de  **Analítica, Arquitectura e IA.**
 
 En mi experiencia profesional he trabajado como puente entre Negocio, Producto, BI y equipos técnicos, backend y frontend. He participado en la captura de eventos digitales, integración y consumo de APIs, procesamiento de archivos CSV y JSON, procesos ETL, validaciones con SQL, modelamiento, automatizaciones y disponibilización de información para servicios y productos en Azure.
 
