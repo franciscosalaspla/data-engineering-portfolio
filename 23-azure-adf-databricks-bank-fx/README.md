@@ -1,4 +1,4 @@
-# 23 — Plataforma de datos bancarios arquitectura medallion
+# 23 — Pipeline End-to-End en Azure
 
 > **Plataforma bancaria multimoneda end-to-end en Azure, orquestada con Data Factory y procesada en Databricks bajo arquitectura Medallion.**
 
