@@ -109,7 +109,7 @@ Los datos son sintéticos y el repositorio no contiene credenciales, correos, en
 ## 8. Documentación complementaria y anexos
 
 - [Arquitectura y decisiones técnicas](docs/architecture.md)
-- [Implementación cloud por hito](docs/cloud_implementation.md)
+- [Implementación end-to-end](docs/cloud_implementation.md)
 - [Runbook operativo y de costos](docs/operations_and_cost_runbook.md)
 - [Catálogo y alcance de evidencias](docs/evidence_catalog.md)
 - [Convenciones de nombres y regiones](docs/naming_and_tagging.md)

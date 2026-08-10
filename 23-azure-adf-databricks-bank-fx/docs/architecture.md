@@ -1,84 +1,71 @@
-# Arquitectura del Proyecto 23
+# Arquitectura y decisiones técnicas
 
-## Estado verificable
+## Propósito
 
-La arquitectura cloud fue implementada y validada. La ejecución comprobable cubre fuentes, ADLS Gen2, Azure Data Factory, Azure Databricks, Azure SQL y Power BI. La suite local y las validaciones cloud se mantienen separadas porque no comparten el mismo mecanismo de prueba.
+Este documento explica cómo se distribuyen las responsabilidades del Proyecto 23. La secuencia completa de construcción y validación está en [Implementación end-to-end](cloud_implementation.md).
 
-## Flujo end-to-end
+## Vista end-to-end
 
 ```mermaid
 flowchart TD
-    S["Fuentes: ECB API + CSV + JSON"] --> L["ADLS Gen2: Landing"]
-    L --> B["Databricks: Bronze"]
-    B --> SI["Databricks: Silver"]
-    SI --> G["Databricks: Gold"]
-    G --> SQL["Azure SQL: serving"]
-    SQL --> BI["Power BI Service"]
-    ADF["ADF: pl_project23_medallion_orchestration"] -->|"Orquesta"| B
-    ADF -->|"Orquesta"| SI
-    ADF -->|"Orquesta"| G
+    SRC["ECB API + CSV + JSON"] --> LAND["ADLS Gen2 · Landing"]
+    LAND --> BRONZE["Databricks · Bronze"]
+    BRONZE --> SILVER["Databricks · Silver"]
+    SILVER --> GOLD["Databricks · Gold"]
+    ADF["Azure Data Factory"] -->|"Orquesta 3 notebooks"| BRONZE
+    GOLD -->|"JDBC"| SQL["Azure SQL · serving"]
+    SQL --> BI["Power BI"]
+    KV["Key Vault + Secret Scope"] -->|"Credenciales"| GOLD
 ```
 
-El pipeline ADF ejecuta secuencialmente:
+## Responsabilidades por etapa
 
-1. `nb_01_landing_to_bronze`;
-2. `nb_02_bronze_to_silver`;
-3. `nb_03_silver_to_gold`.
+| # | Etapa | Tecnología principal | Responsabilidad | Salida |
+|---:|---|---|---|---|
+| 1 | Landing → Bronze | ADLS Gen2, Databricks y Delta Lake | Ingerir y conservar el dato original con trazabilidad | Tablas Bronze |
+| 2 | Bronze → Silver | PySpark y Delta Lake | Limpiar, tipificar, deduplicar y aislar errores | Tablas Silver y cuarentena |
+| 3 | Silver → Gold | PySpark, Delta Lake y FX | Aplicar reglas de negocio y construir el modelo estrella | Seis dimensiones y una tabla de hechos |
+| 4 | Orquestación | Azure Data Factory | Ejecutar los tres notebooks en orden y monitorizar dependencias | Pipeline controlado |
+| 5 | Serving | Azure SQL, JDBC, Key Vault | Publicar una capa relacional segura y estable | Esquema `serving` |
+| 6 | Consumo | Power BI | Modelar relaciones y exponer indicadores | Informe ejecutivo |
+| 7 | Operación | Azure Monitor y Cost Management | Verificar estados, detener cómputo y controlar gasto | Cierre operativo |
 
-Cada actividad depende del éxito de la anterior. La ejecución final terminó `Correcto` en 10 min 17 s; las actividades duraron 2 min 37 s, 3 min 6 s y 4 min 22 s.
+## Decisiones principales
 
-## Componentes desplegados
-
-| Capa | Recurso confirmado | Responsabilidad |
+| Decisión | Motivo | Resultado |
 |---|---|---|
-| Grupo de recursos | `rg-project23-dev` | Límite operativo y de costos del proyecto |
-| Almacenamiento | `stproject23dev2026` | Contenedores `landing`, `bronze`, `silver` y `gold` |
-| Orquestación | `adf-project23-dev-2026` | Ejecución secuencial de notebooks |
-| Procesamiento | `dbw-project23-dev-2026` | PySpark, Delta, calidad y modelo dimensional |
-| Compute | `compute-project23-dev-2026` | Single node, Runtime 17.3 LTS, autoapagado de 10 min |
-| Gobierno | `dbw_project23_dev_2026` | Catálogo con esquemas Bronze, Silver y Gold |
-| Secretos | `kv-project23-dev-2026` | Custodia de credenciales de Azure SQL |
-| Secret Scope | `project23-serving-dev` | Lectura segura de dos secretos desde Databricks |
-| SQL Server | `sqlsrv-project23-serving-dev-2026` | Servidor lógico de la capa serving |
-| Base de datos | `sqldb-project23-serving-dev-2026` | Siete tablas analíticas en el esquema `serving` |
-| Consumo | `My Workspace` | Informe y modelo semántico de Power BI |
+| Arquitectura Medallion | Separar fidelidad, calidad y reglas de negocio | Los errores se detectan antes de llegar a Gold |
+| ADF para orquestar | Centralizar orden, dependencias y monitorización | Databricks queda enfocado en procesamiento |
+| PySpark + Delta Lake | Trabajar con schemas explícitos, `MERGE` y transacciones ACID | Pipeline reejecutable e idempotente |
+| Cuarentena en Silver | No descartar ni mezclar registros inválidos | Errores explicables y trazables |
+| Modelo estrella en Gold | Simplificar consultas y consumo analítico | Seis dimensiones y una tabla de hechos |
+| Azure SQL como serving | Desacoplar el Lakehouse de la herramienta BI | Contrato estable para Power BI |
+| Key Vault + Secret Scope | Mantener credenciales fuera del código | Conexión JDBC sin secretos versionados |
+| Cómputo bajo demanda | Reducir consumo fuera de las ventanas de trabajo | Autoapagado, SQL pausado y presupuesto activo |
 
-El nombre del Access Connector no quedó disponible en la evidencia recuperada y no se completa por inferencia.
+## Capas Medallion
 
-## Capas de datos
+### Bronze: conservar
 
-### Landing
+- Mantiene el dato recibido y su metadata técnica.
+- Registra fuente, archivo, fecha de ingesta y checksum.
+- Conserva CSV, JSON y tasas históricas del ECB sin aplicar reglas de negocio.
 
-- conserva el archivo recibido sin transformaciones de negocio;
-- registra fuente, entidad, fecha, ejecución y checksum;
-- permite rastrear cada registro hasta el archivo de entrada;
-- separa CSV, JSON y la respuesta histórica del ECB.
+### Silver: validar
 
-### Bronze
+- Usa `StructType` explícitos para evitar inferencias ambiguas.
+- Normaliza IDs, dominios, fechas, timestamps y decimales.
+- Valida relaciones cuenta → cliente y transacción → cuenta.
+- Separa registros inválidos en cuarentena y aplica `MERGE` por clave de negocio.
 
-- conserva campos originales y metadata de ingesta;
-- aplica validaciones estructurales mínimas;
-- evita reprocesar un archivo ya completado mediante checksum;
-- mantiene registros rechazados explicables.
+### Gold: publicar
 
-### Silver
+- Convierte EUR, USD y GBP a EUR según la fecha de la transacción.
+- Genera claves sustitutas determinísticas.
+- Construye seis dimensiones Type 1 y una tabla de hechos.
+- Valida grano, claves, huérfanos, conteos, importes e idempotencia.
 
-- usa `StructType` explícitos en PySpark;
-- normaliza IDs, dominios, fechas, timestamps y decimales;
-- valida cuenta → cliente y transacción → cuenta;
-- materializa clientes, cuentas, tasas FX y transacciones;
-- aplica Delta `MERGE` por clave de negocio y checksum;
-- registra cuarentena y auditoría idempotentes.
-
-### Gold
-
-- construye seis dimensiones Type 1 y una tabla de hechos;
-- genera claves sustitutas determinísticas;
-- convierte EUR, USD y GBP a EUR según fecha;
-- valida grano, claves, huérfanos, conteos e importes;
-- evita `MERGE` y snapshot físico cuando no cambia el contenido.
-
-## Modelo estrella y serving
+## Modelo estrella
 
 ```mermaid
 erDiagram
@@ -90,69 +77,36 @@ erDiagram
     DIM_CURRENCY ||--o{ FACT_TRANSACTION : currency_key
 ```
 
-El grano es una fila por `transaction_id`. La base local usa `fact_transactions`; el destino cloud usa `serving.fact_transaction`. Las seis dimensiones conservan sus nombres. Este mapeo mantiene el historial local y hace explícito el contrato de serving.
+El grano es una fila por `transaction_id`. El modelo contiene:
 
-La capa Azure SQL contiene:
+`dim_date` · `dim_customer` · `dim_account` · `dim_merchant` · `dim_channel` · `dim_currency` · `fact_transaction`
 
-| Tabla | Filas |
-|---|---:|
-| `dim_date` | 919 |
-| `dim_customer` | 5 |
-| `dim_account` | 7 |
-| `dim_merchant` | 7 |
-| `dim_channel` | 4 |
-| `dim_currency` | 3 |
-| `fact_transaction` | 8 |
-| **Total** | **953** |
+La implementación local usa `fact_transactions`; Azure SQL y Power BI usan `fact_transaction`. El cambio de nombre está documentado y no altera el grano.
 
-La dimensión fecha de serving tiene 919 filas, frente a las dos fechas transaccionales del fixture local, porque el destino cloud utiliza un calendario analítico expandido.
+## Seguridad y operación
 
-## Seguridad
+- Los datos son sintéticos.
+- Las credenciales de Azure SQL se almacenan en Key Vault y se leen mediante Secret Scope.
+- El repositorio no contiene contraseñas, tokens, correos, IDs de suscripción ni endpoints completos.
+- Las capturas se conservan fuera del repositorio público.
+- Databricks usa autoapagado de 10 minutos y se detiene manualmente al finalizar.
+- Azure SQL utiliza serverless y se comprueba en estado `Paused` después del uso.
 
-```mermaid
-flowchart LR
-    KV["Key Vault"] --> SS["Databricks Secret Scope"]
-    SS --> NB["Notebook JDBC"]
-    NB --> DB["Azure SQL"]
-```
+## Frontera entre repositorio y cloud
 
-- Dos secretos almacenan usuario y contraseña SQL; sus valores no se versionan.
-- Los notebooks y documentos no contienen credenciales, tokens, correos, IDs de suscripción ni endpoints completos.
-- Los datos de negocio son sintéticos.
-- Las capturas originales y sanitizadas se mantienen fuera del repositorio público; su inventario y tratamiento están documentados en [evidence_catalog.md](evidence_catalog.md).
-
-## Observabilidad y control de costos
-
-| Control | Estado final confirmado |
-|---|---|
-| ADF Monitor | Pipeline correcto; 3/3 actividades correctas |
-| Databricks compute | Detenido; sin memoria, núcleos ni DBU activos |
-| Autoapagado | 10 minutos |
-| Azure SQL | `Paused` |
-| Plan SQL | Serverless gratuito; exceso deshabilitado |
-| Costo observado | USD 0,04 |
-| Proyección observada | USD 0,29 |
-| Presupuesto | USD 2 mensual; alerta al 50 % |
-
-El [runbook operativo](operations_and_cost_runbook.md) define las comprobaciones antes y después de cada ejecución.
-
-## Frontera entre artefactos locales y cloud
-
-| Elemento | Qué representa |
+| Artefacto | Alcance verificable |
 |---|---|
 | `src/`, `scripts/`, `tests/` | Implementación reproducible y pruebas automatizadas locales |
-| `adf/` | Diseño de ingesta del Hito local 2; conserva `DESIGN_ONLY` y `NOT_DEPLOYED` |
-| `databricks/notebooks/` | Drivers portables de la fase local, no exportación de los notebooks cloud finales |
-| `sql/gold_analytics.sql` | Consultas portables sobre el modelo Gold local |
-| `docs/evidence_catalog.md` | Inventario de evidencias cloud conservadas fuera del repositorio público |
+| `databricks/notebooks/` | Drivers portables de Silver y Gold |
+| `adf/` | Diseño inicial marcado `DESIGN_ONLY` / `NOT_DEPLOYED` |
+| Azure Databricks y ADF | Ejecución cloud validada manualmente |
+| `docs/evidence_catalog.md` | Inventario de evidencias cloud mantenidas fuera del repositorio |
 
-No se modifica el significado de los JSON ADF existentes. El pipeline cloud de tres notebooks fue ejecutado, pero su exportación definitiva no está versionada. Tampoco se reconstruye el notebook cloud `04_gold_to_azure_sql` sin su fuente original.
+El pipeline ADF definitivo, el notebook `04_gold_to_azure_sql` y el PBIX no fueron exportados. No se reconstruyen ni se presentan como artefactos versionados.
 
-## Decisiones y límites
+## Límites del diseño
 
-- Las tablas Delta no se particionan por el volumen reducido para evitar archivos pequeños.
+- Las tablas no se particionan por el volumen reducido, evitando archivos pequeños.
 - Las dimensiones son Type 1; no se conserva historia SCD2.
-- DirectQuery fue probado en Power BI, pero el modo final publicado no se afirma sin el PBIX o la configuración del modelo semántico.
-- Las fórmulas DAX exactas y el PBIX original no están disponibles.
-- Las 37 pruebas automatizadas validan la base local; ADF, Azure SQL, Power BI y costos se documentan como validaciones cloud manuales.
-- Los resultados demuestran corrección funcional, reconciliación y operación; no constituyen una prueba de rendimiento a escala.
+- DirectQuery fue probado, pero el modo final publicado no se afirma sin el PBIX.
+- Los resultados demuestran corrección funcional, calidad e idempotencia; no rendimiento a escala.
