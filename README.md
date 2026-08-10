@@ -20,3 +20,15 @@ También he participado en proyectos de encuestas de satisfacción, telemedicina
 - GitHub: [https://bit.ly/4vouAFH](https://bit.ly/4vouAFH)
 - Email: [franciscosalaspla@gmail.com](mailto:franciscosalaspla@gmail.com)
 - CV: [Descargar CV](./CV_Francisco_Salas.pdf)
+  
+## Certificaciones
+
+<p align="left">
+  <img src="./assets/certifications/microsoft-azure-fundamentals.png"
+       alt="Microsoft Certified: Azure Fundamentals (AZ-900)"
+       height="150">
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="./assets/certifications/datacamp-data-engineer.png"
+       alt="DataCamp Certified Data Engineer"
+       height="150">
+</p>
