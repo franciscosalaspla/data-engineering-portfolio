@@ -23,16 +23,13 @@ También he participado en proyectos de encuestas de satisfacción, telemedicina
 
 ## Libros leídos
 - **Fundamentos de ingeniería de datos — Joe Reis y Matt Housley**
-  
-Principios para diseñar arquitecturas y sistemas de datos robustos, escalables y gobernados.
+  Principios para diseñar arquitecturas y sistemas de datos robustos, escalables y gobernados.
 
 - **Diseño de aplicaciones intensivas en datos — Martin Kleppmann**
-  
-Fundamentos de sistemas distribuidos, procesamiento de datos, confiabilidad y escalabilidad.
+  Fundamentos de sistemas distribuidos, procesamiento de datos, confiabilidad y escalabilidad.
 
 - **Ingeniería de IA — Chip Huyen**
-  
-Diseño y construcción de aplicaciones basadas en modelos fundacionales y sistemas modernos de inteligencia artificial.
+  Diseño y construcción de aplicaciones basadas en modelos fundacionales y sistemas modernos de inteligencia artificial.
   
 ## Certificaciones
 
