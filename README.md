@@ -20,6 +20,14 @@ También he participado en proyectos de encuestas de satisfacción, telemedicina
 - GitHub: [https://bit.ly/4vouAFH](https://bit.ly/4vouAFH)
 - Email: [franciscosalaspla@gmail.com](mailto:franciscosalaspla@gmail.com)
 - CV: [Descargar CV](./CV_Francisco_Salas.pdf)
+
+## Libros leídos
+Fundamentos de ingeniería de datos — Joe Reis y Matt Housley
+Principios para diseñar arquitecturas y sistemas de datos robustos, escalables y gobernados.
+Diseño de aplicaciones intensivas en datos — Martin Kleppmann
+Fundamentos de sistemas distribuidos, procesamiento de datos, confiabilidad y escalabilidad.
+Ingeniería de IA — Chip Huyen
+Diseño y construcción de aplicaciones basadas en modelos fundacionales y sistemas modernos de inteligencia artificial.
   
 ## Certificaciones
 
