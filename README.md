@@ -8,11 +8,11 @@ También he participado en proyectos de encuestas de satisfacción, telemedicina
 
 ## Top 3 proyectos destacados
 
-| Proyecto | Hook | Acción | Tecnologías |
-|---|---|---|---|
-| [23 — Pipeline bancario multimoneda](./23-azure-adf-databricks-bank-fx) | **Pipeline bancario end-to-end en Azure que integra CSV, JSON y tipos de cambio para entregar datos gobernados y listos para análisis.** | Construí capas Medallion, quality gates y orquestación con ADF; publiqué 7 tablas y 953 filas en Azure SQL, con 0 huérfanos y reejecución idempotente `NO_OP`. | ADF, ADLS Gen2, Databricks, PySpark, Delta Lake, Azure SQL, Power BI |
-| [20 — Data Lake bancario AWS-style](./20-aws-style-banking-data-lake) | **Data Lake bancario AWS-style que transforma datos crudos en datasets analíticos con calidad, cuarentena y consultas tipo Athena.** | Implementé capas Landing, Bronze, Silver y Gold; procesé 1.257 registros, consolidé 1.135 en Silver, separé 120 en cuarentena y generé 5 datasets Gold. | Python, Parquet, DuckDB; equivalencias con S3, Glue y Athena |
-| [19 — Procesamiento bancario con PySpark](./19-pyspark-banking-processing) | **Procesamiento reproducible con PySpark que convierte transacciones crudas en métricas, rankings y datasets Parquet listos para análisis.** | Definí schemas, validaciones, joins, agregaciones, Window Functions y particionamiento; transformé 5.365 transacciones de entrada en 3.628 registros limpios. | PySpark, Spark SQL, DataFrames, Window Functions, Parquet |
+| Proyecto | Hook | Tecnologías |
+|---|---|---|
+| [23 — Pipeline bancario multimoneda](./23-azure-adf-databricks-bank-fx) | **Arquitectura Medallion multifuente en Azure, con gobierno, quality gates e idempotencia desde la ingesta hasta el serving analítico.** | ADF, ADLS Gen2, Databricks, PySpark, Delta Lake, Azure SQL, Power BI |
+| [20 — Data Lake bancario AWS-style](./20-aws-style-banking-data-lake) | **Arquitectura Data Lake por capas que incorpora calidad, cuarentena y datasets Gold bajo un diseño AWS-style reproducible.** | Python, Parquet, DuckDB; equivalencias con S3, Glue y Athena |
+| [19 — Procesamiento bancario con PySpark](./19-pyspark-banking-processing) | **Procesamiento distribuido orientado a calidad y analítica, con validaciones, joins, Window Functions, particionamiento y salidas columnares en Parquet.** | PySpark, Spark SQL, DataFrames, Window Functions, Parquet |
 
 ## Contacto
 
