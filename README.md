@@ -32,7 +32,7 @@ Fundamentos de sistemas distribuidos, procesamiento de datos, confiabilidad y es
 
 - **Ingeniería de IA — Chip Huyen**
   
-Diseño y construcción de aplicaciones basadas en modelos fundacionales y sistemas modernos de inteligencia artificial.
+Diseño y construcción de aplicaciones basadas en modelos fundacionales y sistemas modernos de ia.
   
 ## Certificaciones
 
