@@ -32,3 +32,11 @@ También he participado en proyectos de encuestas de satisfacción, telemedicina
        alt="DataCamp Certified Data Engineer"
        height="150">
 </p>
+
+## Lecturas clave
+
+- [**Fundamentos de ingeniería de datos**](https://www.amazon.com.mx/Fundamentos-ingenier%C3%ADa-datos-Planifique-desarrolle-ebook/dp/B0C7D41BRY) — Joe Reis y Matt Housley · Arquitectura y ciclo de vida de los datos.
+- [**Designing Data-Intensive Applications**](https://www.kobo.com/cl/es/ebook/designing-data-intensive-applications-2?srsltid=AfmBOoqQrB9SwBk-25zdeRzKA3ww7UqMGRsjftbekDvNJiUQmPV19fqY) — Martin Kleppmann · Sistemas distribuidos, escalabilidad y confiabilidad.
+- [**Ingeniería de IA: Creación de aplicaciones con modelos fundacionales**](https://www.amazon.com/-/es/Chip-Huyen-ebook/dp/B0G27CSC7X) — Chip Huyen · Diseño y operación de aplicaciones de IA.
+- [**Storytelling con datos**](https://anayamultimedia.es/libro/titulos-especiales/storytelling-con-datos-visualizacion-de-datos-para-profesionales-cole-nussbaumer-knaflic-9788441539303/) — Cole Nussbaumer Knaflic · Visualización y comunicación efectiva de información.
+- [**Tu modelo de negocio**](https://www.planetadelibros.com/libro-tu-modelo-de-negocio/65761) — Tim Clark, Alexander Osterwalder e Yves Pigneur · Estrategia y desarrollo profesional.
