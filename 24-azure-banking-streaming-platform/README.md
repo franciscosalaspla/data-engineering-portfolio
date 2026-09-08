@@ -4,9 +4,9 @@
 
 ## Estado
 
-**Hito 0 — Baseline y arquitectura: en revisión.**
+**Hito 1 — Integración continua: en implementación y revisión.**
 
-Este hito solo define el contrato técnico del proyecto. Todavía no despliega recursos en Azure, no crea costos y no presenta componentes futuros como implementados.
+El Hito 0 fue fusionado mediante el [PR #38](https://github.com/franciscosalaspla/data-engineering-portfolio/pull/38). El Hito 1 incorpora una base Python y una puerta de calidad sin Azure; el streaming y los recursos cloud continúan como componentes futuros.
 
 ## Problema
 
@@ -86,8 +86,26 @@ Convención de ramas: `feature/p24-hNN-descripcion`.
 ## Documentación
 
 - [Contrato del Hito 0](docs/hito_0_contract.md)
+- [Contrato del Hito 1](docs/hito_1_contract.md)
 - [Arquitectura y decisiones](docs/architecture.md)
 - [Plan de hitos y criterios de salida](docs/milestones.md)
+
+## Validación local del Hito 1
+
+Desde esta carpeta:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --requirement requirements-dev.txt
+python -m ruff check src scripts tests
+python -m ruff format --check src scripts tests
+yamllint --config-file .yamllint.yml ../.github/workflows/p24-ci.yml
+python -m pytest
+python scripts/validate_repository.py
+```
+
+Estas validaciones no leen variables Azure, no requieren credenciales y no crean recursos.
 
 ## Restricciones de seguridad y costos
 
