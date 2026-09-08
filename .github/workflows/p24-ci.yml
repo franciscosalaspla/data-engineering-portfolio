@@ -21,9 +21,12 @@ concurrency:
 
 jobs:
   quality:
-    name: Python and repository quality
+    name: Python, Bicep, and repository quality
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      BICEP_VERSION: "0.46.1"
+      BICEP_LINUX_X64_SHA256: "3e011d629ea4311b7a7dd8f0040ab2b1a072ea4ff5d02cb75e0e55a9a6703fb9"
     defaults:
       run:
         working-directory: 24-azure-banking-streaming-platform
@@ -52,6 +55,21 @@ jobs:
 
       - name: Lint workflow YAML
         run: yamllint --config-file .yamllint.yml ../.github/workflows/p24-ci.yml
+
+      - name: Install pinned Bicep CLI
+        shell: bash
+        run: |
+          bicep_path="${RUNNER_TEMP}/bicep"
+          curl --fail --location --retry 3 --proto '=https' --tlsv1.2 \
+            --output "${bicep_path}" \
+            "https://github.com/Azure/bicep/releases/download/v${BICEP_VERSION}/bicep-linux-x64"
+          printf '%s  %s\n' "${BICEP_LINUX_X64_SHA256}" "${bicep_path}" \
+            | sha256sum --check --strict
+          chmod +x "${bicep_path}"
+          echo "BICEP_BIN=${bicep_path}" >> "${GITHUB_ENV}"
+
+      - name: Lint and compile Bicep offline
+        run: scripts/validate_bicep.sh
 
       - name: Run unit tests
         run: python -m pytest

@@ -4,9 +4,9 @@
 
 ## Estado
 
-**Hito 1 — Integración continua: en implementación y revisión.**
+**Hito 2 — Infraestructura como código: en implementación y revisión local.**
 
-El Hito 0 fue fusionado mediante el [PR #38](https://github.com/franciscosalaspla/data-engineering-portfolio/pull/38). El Hito 1 incorpora una base Python y una puerta de calidad sin Azure; el streaming y los recursos cloud continúan como componentes futuros.
+El Hito 0 fue fusionado mediante el [PR #38](https://github.com/franciscosalaspla/data-engineering-portfolio/pull/38) y el Hito 1 mediante el [PR #39](https://github.com/franciscosalaspla/data-engineering-portfolio/pull/39). El Hito 2 representa el ambiente `dev` con Bicep y extiende la puerta de calidad sin autenticarse ni desplegar en Azure.
 
 ## Problema
 
@@ -87,10 +87,13 @@ Convención de ramas: `feature/p24-hNN-descripcion`.
 
 - [Contrato del Hito 0](docs/hito_0_contract.md)
 - [Contrato del Hito 1](docs/hito_1_contract.md)
+- [Contrato del Hito 2](docs/hito_2_contract.md)
 - [Arquitectura y decisiones](docs/architecture.md)
+- [Infraestructura `dev`](infra/README.md)
+- [Ruta de aprendizaje aplicada](docs/learning_roadmap.md)
 - [Plan de hitos y criterios de salida](docs/milestones.md)
 
-## Validación local del Hito 1
+## Validación local
 
 Desde esta carpeta:
 
@@ -103,9 +106,11 @@ python -m ruff format --check src scripts tests
 yamllint --config-file .yamllint.yml ../.github/workflows/p24-ci.yml
 python -m pytest
 python scripts/validate_repository.py
+BICEP_BIN=/ruta/al/bicep scripts/validate_bicep.sh
 ```
 
-Estas validaciones no leen variables Azure, no requieren credenciales y no crean recursos.
+La versión fijada para CI es Bicep 0.46.1. Estas validaciones no leen variables Azure, no requieren
+credenciales y no crean recursos.
 
 ## Restricciones de seguridad y costos
 

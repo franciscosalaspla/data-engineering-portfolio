@@ -20,7 +20,9 @@ from banking_streaming.idempotency import process_batch  # noqa: E402
 
 FORBIDDEN_PII_FIELDS = frozenset({"address", "email", "full_name", "name", "phone", "rut", "ssn"})
 MARKDOWN_LINK = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
-SCANNED_SUFFIXES = frozenset({".env", ".json", ".jsonl", ".py", ".toml", ".yaml", ".yml"})
+SCANNED_SUFFIXES = frozenset(
+    {".bicep", ".bicepparam", ".env", ".json", ".jsonl", ".py", ".sh", ".toml", ".yaml", ".yml"}
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -83,6 +85,7 @@ def validate_repository(project_root: Path = PROJECT_ROOT) -> ValidationReport:
     unique_events = _validate_idempotency(batch_001, batch_002, replay, errors)
     _validate_json_files(project_root, errors)
     _validate_markdown_links(project_root, errors)
+    _validate_infrastructure(project_root / "infra", errors)
     _validate_workflow(REPOSITORY_ROOT / ".github" / "workflows" / "p24-ci.yml", errors)
     _scan_for_secrets(project_root, errors)
 
@@ -222,14 +225,70 @@ def _validate_workflow(path: Path, errors: list[str]) -> None:
         "24-azure-banking-streaming-platform/**",
         "permissions:\n  contents: read",
         "persist-credentials: false",
+        "BICEP_VERSION:",
+        "sha256sum --check --strict",
+        "scripts/validate_bicep.sh",
     )
     for fragment in required_fragments:
         if fragment not in content:
             errors.append(f"workflow is missing required safety fragment: {fragment!r}")
-    forbidden_fragments = ("azure/login", "id-token: write", "secrets.")
+    forbidden_fragments = (
+        "azure/login",
+        "az deployment",
+        "bicep deploy",
+        "bicep what-if",
+        "id-token: write",
+        "secrets.",
+    )
     for fragment in forbidden_fragments:
         if fragment in content:
-            errors.append(f"workflow contains forbidden Hito 1 fragment: {fragment!r}")
+            errors.append(f"workflow contains forbidden pre-deployment fragment: {fragment!r}")
+
+
+def _validate_infrastructure(infra_root: Path, errors: list[str]) -> None:
+    required_files = (
+        infra_root / "bicepconfig.json",
+        infra_root / "main.bicep",
+        infra_root / "environments" / "dev.bicepparam",
+        infra_root / "modules" / "data-factory.bicep",
+        infra_root / "modules" / "databricks.bicep",
+        infra_root / "modules" / "event-hubs.bicep",
+        infra_root / "modules" / "key-vault.bicep",
+        infra_root / "modules" / "monitoring.bicep",
+        infra_root / "modules" / "sql.bicep",
+        infra_root / "modules" / "storage.bicep",
+    )
+    for path in required_files:
+        if not path.exists():
+            errors.append(f"missing infrastructure file: {path.relative_to(REPOSITORY_ROOT)}")
+
+    parameter_file = infra_root / "environments" / "dev.bicepparam"
+    if parameter_file.exists():
+        content = parameter_file.read_text(encoding="utf-8")
+        required_fragments = (
+            "using '../main.bicep'",
+            "param environment = 'dev'",
+            "replace-in-hito-3",
+        )
+        for fragment in required_fragments:
+            if fragment not in content:
+                errors.append(f"dev parameters are missing required marker: {fragment!r}")
+
+    main_template = infra_root / "main.bicep"
+    if main_template.exists():
+        content = main_template.read_text(encoding="utf-8")
+        required_modules = (
+            "./modules/data-factory.bicep",
+            "./modules/databricks.bicep",
+            "./modules/event-hubs.bicep",
+            "./modules/key-vault.bicep",
+            "./modules/monitoring.bicep",
+            "./modules/sql.bicep",
+            "./modules/storage.bicep",
+        )
+        for module in required_modules:
+            if module not in content:
+                errors.append(f"main Bicep template is missing module: {module}")
 
 
 def _scan_for_secrets(project_root: Path, errors: list[str]) -> None:
