@@ -1,0 +1,32 @@
+[
+  {
+    "customer_id": "CUS-001",
+    "segment": "RETAIL",
+    "country_code": "CL",
+    "status": "ACTIVE"
+  },
+  {
+    "customer_id": "CUS-002",
+    "segment": "RETAIL",
+    "country_code": "CL",
+    "status": "ACTIVE"
+  },
+  {
+    "customer_id": "CUS-003",
+    "segment": "SME",
+    "country_code": "CL",
+    "status": "ACTIVE"
+  },
+  {
+    "customer_id": "CUS-004",
+    "segment": "RETAIL",
+    "country_code": "CL",
+    "status": "ACTIVE"
+  },
+  {
+    "customer_id": "CUS-005",
+    "segment": "SME",
+    "country_code": "CL",
+    "status": "ACTIVE"
+  }
+]

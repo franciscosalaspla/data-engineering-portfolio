@@ -1,0 +1,51 @@
+[
+  {
+    "account_id": "ACC-001",
+    "customer_id": "CUS-001",
+    "currency": "CLP",
+    "account_type": "CHECKING",
+    "status": "ACTIVE"
+  },
+  {
+    "account_id": "ACC-002",
+    "customer_id": "CUS-001",
+    "currency": "USD",
+    "account_type": "SAVINGS",
+    "status": "ACTIVE"
+  },
+  {
+    "account_id": "ACC-003",
+    "customer_id": "CUS-002",
+    "currency": "USD",
+    "account_type": "CHECKING",
+    "status": "ACTIVE"
+  },
+  {
+    "account_id": "ACC-004",
+    "customer_id": "CUS-003",
+    "currency": "EUR",
+    "account_type": "CHECKING",
+    "status": "ACTIVE"
+  },
+  {
+    "account_id": "ACC-005",
+    "customer_id": "CUS-004",
+    "currency": "CLP",
+    "account_type": "SAVINGS",
+    "status": "ACTIVE"
+  },
+  {
+    "account_id": "ACC-006",
+    "customer_id": "CUS-005",
+    "currency": "CLP",
+    "account_type": "CHECKING",
+    "status": "ACTIVE"
+  },
+  {
+    "account_id": "ACC-007",
+    "customer_id": "CUS-005",
+    "currency": "EUR",
+    "account_type": "SAVINGS",
+    "status": "ACTIVE"
+  }
+]
