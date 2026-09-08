@@ -75,14 +75,14 @@ python scripts/validate_repository.py
 - [x] El replay exacto produce cero registros nuevos.
 - [x] El workflow tiene permisos mínimos y no usa credenciales Azure.
 - [x] Las dependencias directas de calidad están fijadas por versión.
-- [ ] El workflow finaliza en verde dentro del PR del Hito 1.
+- [x] El workflow finaliza en verde dentro del PR del Hito 1.
 
 ## Evidencia y clasificación
 
 | Evidencia | Clasificación | Estado antes del PR |
 |---|---|---|
 | Ruff, yamllint, pytest y validador integrado | Local | Verificado localmente |
-| GitHub Actions | Remota sin Azure | Pendiente de publicación |
+| GitHub Actions | Remota sin Azure | Verificado en el PR #39 |
 | Event Hubs y procesamiento streaming | Futuro | Hitos 4–5 |
 | Recursos y credenciales Azure | Cloud | No creados ni utilizados |
 
