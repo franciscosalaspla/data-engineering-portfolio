@@ -1,0 +1,189 @@
+name: Project 24 CD
+
+run-name: Project 24 CD · ${{ inputs.operation }} · ${{ github.actor }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Operation to run against the Project 24 dev resource group
+        required: true
+        default: what-if
+        type: choice
+        options:
+          - what-if
+          - deploy
+      approved_what_if_run_id:
+        description: Previously reviewed what-if run ID; required only for deploy
+        required: false
+        type: string
+      confirmation:
+        description: Type DEPLOY-P24-DEV only after explicit Azure approval
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: p24-cd-dev
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    name: Validate and preview dev changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: dev
+    env:
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+      SQL_ENTRA_ADMIN_LOGIN: ${{ vars.SQL_ENTRA_ADMIN_LOGIN }}
+      SQL_ENTRA_ADMIN_OBJECT_ID: ${{ vars.SQL_ENTRA_ADMIN_OBJECT_ID }}
+      DEPLOYMENT_NAME: p24-${{ github.run_id }}-${{ github.run_attempt }}-plan
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Validate non-secret configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          required_names=(
+            AZURE_CLIENT_ID
+            AZURE_RESOURCE_GROUP
+            AZURE_SUBSCRIPTION_ID
+            AZURE_TENANT_ID
+            SQL_ENTRA_ADMIN_LOGIN
+            SQL_ENTRA_ADMIN_OBJECT_ID
+          )
+          for name in "${required_names[@]}"; do
+            if [[ -z "${!name}" ]]; then
+              echo "Required GitHub Environment variable ${name} is empty." >&2
+              exit 1
+            fi
+          done
+          if [[ "${SQL_ENTRA_ADMIN_LOGIN}" == "replace-in-hito-3" ]]; then
+            echo "The SQL administrator login is still a static placeholder." >&2
+            exit 1
+          fi
+          guid_pattern='^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+          identity_names=(
+            AZURE_CLIENT_ID
+            AZURE_SUBSCRIPTION_ID
+            AZURE_TENANT_ID
+            SQL_ENTRA_ADMIN_OBJECT_ID
+          )
+          for name in "${identity_names[@]}"; do
+            if [[ ! "${!name}" =~ ${guid_pattern} ]] \
+              || [[ "${!name}" == "00000000-0000-0000-0000-000000000000" ]]; then
+              echo "${name} must be a verified, non-placeholder GUID." >&2
+              exit 1
+            fi
+          done
+
+      - name: Sign in to Azure with OIDC
+        uses: azure/login@7ddb5af1ef8758cf1353cf3b42f940aee27ba21c  # v3.0.2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Verify Azure CLI and target scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          minimum_version="2.76.0"
+          cli_version="$(az version --query '\"azure-cli\"' --output tsv)"
+          if [[ "$(printf '%s\n%s\n' "${minimum_version}" "${cli_version}" | sort -V | head -n 1)" \
+            != "${minimum_version}" ]]; then
+            echo "Azure CLI ${minimum_version} or newer is required; found ${cli_version}." >&2
+            exit 1
+          fi
+          az group show --name "${AZURE_RESOURCE_GROUP}" --output none
+
+      - name: Run provider-validated what-if
+        shell: bash
+        working-directory: 24-azure-banking-streaming-platform
+        run: |
+          set -euo pipefail
+          az deployment group what-if \
+            --name "${DEPLOYMENT_NAME}" \
+            --resource-group "${AZURE_RESOURCE_GROUP}" \
+            --template-file infra/main.bicep \
+            --parameters \
+              environment=dev \
+              sqlEntraAdminLogin="${SQL_ENTRA_ADMIN_LOGIN}" \
+              sqlEntraAdminObjectId="${SQL_ENTRA_ADMIN_OBJECT_ID}" \
+              tags='{"lifecycle":"ephemeral","purpose":"portfolio-learning"}' \
+            --mode Incremental \
+            --validation-level Provider \
+            --result-format FullResourcePayloads
+
+  deploy:
+    name: Deploy approved dev changes
+    if: >-
+      inputs.operation == 'deploy' &&
+      inputs.confirmation == 'DEPLOY-P24-DEV' &&
+      inputs.approved_what_if_run_id != ''
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: dev
+    env:
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+      SQL_ENTRA_ADMIN_LOGIN: ${{ vars.SQL_ENTRA_ADMIN_LOGIN }}
+      SQL_ENTRA_ADMIN_OBJECT_ID: ${{ vars.SQL_ENTRA_ADMIN_OBJECT_ID }}
+      DEPLOYMENT_NAME: p24-${{ github.run_id }}-${{ github.run_attempt }}-deploy
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Validate approval reference
+        env:
+          APPROVED_WHAT_IF_RUN_ID: ${{ inputs.approved_what_if_run_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! "${APPROVED_WHAT_IF_RUN_ID}" =~ ^[0-9]+$ ]]; then
+            echo "approved_what_if_run_id must be a numeric GitHub Actions run ID." >&2
+            exit 1
+          fi
+          echo "Deploy references reviewed what-if run ${APPROVED_WHAT_IF_RUN_ID}."
+
+      - name: Sign in to Azure with OIDC
+        uses: azure/login@7ddb5af1ef8758cf1353cf3b42f940aee27ba21c  # v3.0.2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy in incremental mode
+        shell: bash
+        working-directory: 24-azure-banking-streaming-platform
+        run: |
+          set -euo pipefail
+          az deployment group create \
+            --name "${DEPLOYMENT_NAME}" \
+            --resource-group "${AZURE_RESOURCE_GROUP}" \
+            --template-file infra/main.bicep \
+            --parameters \
+              environment=dev \
+              sqlEntraAdminLogin="${SQL_ENTRA_ADMIN_LOGIN}" \
+              sqlEntraAdminObjectId="${SQL_ENTRA_ADMIN_OBJECT_ID}" \
+              tags='{"lifecycle":"ephemeral","purpose":"portfolio-learning"}' \
+            --mode Incremental \
+            --validation-level Provider \
+            --output none

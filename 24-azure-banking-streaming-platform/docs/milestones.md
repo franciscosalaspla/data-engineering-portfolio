@@ -34,7 +34,11 @@ Cada hito se desarrolla en una rama y un PR independientes. Un hito no comienza 
 
 **Entregables:** workflow `workflow_dispatch`, OIDC, GitHub Environment `dev`, roles mínimos, Key Vault y validación `what-if`.
 
-**Salida:** autenticación federada validada, `what-if` revisado, despliegue manual controlado y logs sin secretos.
+**Salida local:** workflow y controles estáticos verdes, matriz RBAC, estimación y teardown revisados,
+sin configurar Azure.
+
+**Salida cloud:** autenticación federada validada, `what-if` revisado, despliegue manual controlado,
+logs sin secretos y teardown verificado. Cada transición requiere su aprobación independiente.
 
 ## Hito 4 — Ingesta de eventos
 
