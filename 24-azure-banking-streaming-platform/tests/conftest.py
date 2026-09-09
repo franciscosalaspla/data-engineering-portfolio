@@ -1,4 +1,4 @@
-"""Shared deterministic fixtures for Hito 1 tests."""
+"""Shared deterministic fixtures for Project 24 tests."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""Tests for deterministic normalization before streaming is introduced."""
+"""Tests for deterministic event normalization."""
 
 from __future__ import annotations
 

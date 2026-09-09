@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/franciscosalaspla/data-engineering-portfolio/main/24-azure-banking-streaming-platform/contracts/transaction-event-v1.schema.json",
+  "title": "Project 24 synthetic transaction event v1",
+  "description": "Contract for synthetic banking events. It must not contain personal data.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "event_time",
+    "event_version",
+    "transaction_id",
+    "account_id",
+    "amount",
+    "currency",
+    "transaction_type",
+    "channel"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "event_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "event_version": {
+      "const": 1
+    },
+    "transaction_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "account_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "amount": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^(?:0\\.(?:0[1-9]|[1-9][0-9]?)|[1-9][0-9]*(?:\\.[0-9]{1,2})?)$"
+        },
+        {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "multipleOf": 0.01
+        }
+      ]
+    },
+    "currency": {
+      "type": "string",
+      "pattern": "^(?:[Cc][Ll][Pp]|[Ee][Uu][Rr]|[Uu][Ss][Dd])$"
+    },
+    "transaction_type": {
+      "type": "string",
+      "pattern": "^(?:[Cc][Rr][Ee][Dd][Ii][Tt]|[Dd][Ee][Bb][Ii][Tt])$"
+    },
+    "channel": {
+      "type": "string",
+      "pattern": "^(?:[Aa][Tt][Mm]|[Cc][Aa][Rr][Dd]|[Mm][Oo][Bb][Ii][Ll][Ee]|[Oo][Nn][Ll][Ii][Nn][Ee])$"
+    }
+  }
+}

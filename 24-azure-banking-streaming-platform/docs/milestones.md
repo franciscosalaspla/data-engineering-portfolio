@@ -46,7 +46,11 @@ logs sin secretos y teardown verificado. Cada transición requiere su aprobació
 
 **Entregables:** JSON Schema v1, productor reproducible, Event Hub, partición definida, fixtures válidos e inválidos.
 
-**Salida:** conteos reconciliados productor → Event Hubs → consumidor y cero PII.
+**Salida local:** contrato, productor, consumidor simulado, partición por `account_id`, fixtures y
+conteos reconciliados sin PII ni acceso a Azure.
+
+**Salida cloud:** conteos reconciliados productor → Azure Event Hubs → consumidor. Requiere una
+aprobación independiente para configurar identidades y desplegar recursos.
 
 ## Hito 5 — Procesamiento streaming
 

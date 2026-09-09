@@ -16,6 +16,7 @@ SOURCE_ROOT = PROJECT_ROOT / "src"
 sys.path.insert(0, str(SOURCE_ROOT))
 
 from banking_streaming.contracts import ContractError, parse_event  # noqa: E402
+from banking_streaming.event_ingestion import run_local_ingestion  # noqa: E402
 from banking_streaming.idempotency import process_batch  # noqa: E402
 
 FORBIDDEN_PII_FIELDS = frozenset({"address", "email", "full_name", "name", "phone", "rut", "ssn"})
@@ -83,6 +84,8 @@ def validate_repository(project_root: Path = PROJECT_ROOT) -> ValidationReport:
     _validate_contracts(batch_001, batch_002, replay, invalid, errors)
     _validate_replay_bytes(event_root, errors)
     unique_events = _validate_idempotency(batch_001, batch_002, replay, errors)
+    _validate_event_schema(project_root / "contracts" / "transaction-event-v1.schema.json", errors)
+    _validate_local_ingestion(batch_001, batch_002, invalid, errors)
     _validate_json_files(project_root, errors)
     _validate_markdown_links(project_root, errors)
     _validate_infrastructure(project_root / "infra", errors)
@@ -197,6 +200,62 @@ def _validate_idempotency(
     if replayed.accepted or len(replayed.duplicate_event_ids) != 3 or replayed.rejected:
         errors.append("replay expected 0 accepted, 3 duplicate, and 0 rejected events")
     return len(replayed.seen_event_ids)
+
+
+def _validate_event_schema(path: Path, errors: list[str]) -> None:
+    try:
+        schema = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        errors.append(f"cannot load transaction event schema: {error}")
+        return
+
+    required = schema.get("required")
+    properties = schema.get("properties")
+    expected_fields = {
+        "account_id",
+        "amount",
+        "channel",
+        "currency",
+        "event_id",
+        "event_time",
+        "event_version",
+        "transaction_id",
+        "transaction_type",
+    }
+    if schema.get("$schema") != "https://json-schema.org/draft/2020-12/schema":
+        errors.append("transaction event schema must use JSON Schema draft 2020-12")
+    if schema.get("additionalProperties") is not False:
+        errors.append("transaction event schema must reject additional properties")
+    if not isinstance(required, list) or set(required) != expected_fields:
+        errors.append("transaction event schema required fields do not match contract v1")
+    if not isinstance(properties, dict) or set(properties) != expected_fields:
+        errors.append("transaction event schema properties do not match contract v1")
+    elif properties.get("event_version", {}).get("const") != 1:
+        errors.append("transaction event schema must fix event_version to 1")
+
+
+def _validate_local_ingestion(
+    batch_001: list[dict[str, Any]],
+    batch_002: list[dict[str, Any]],
+    invalid: list[dict[str, Any]],
+    errors: list[str],
+) -> None:
+    valid_report = run_local_ingestion([*batch_001, *batch_002])
+    if (
+        valid_report.producer.attempted,
+        valid_report.producer.published,
+        valid_report.consumer.received,
+        valid_report.consumer.accepted,
+    ) != (6, 6, 6, 6):
+        errors.append(
+            "local ingestion expected 6 attempted, published, received, and accepted events"
+        )
+    if not valid_report.reconciled:
+        errors.append("local producer and consumer counts are not reconciled")
+
+    invalid_report = run_local_ingestion(invalid)
+    if invalid_report.producer.published or len(invalid_report.producer.rejected) != 3:
+        errors.append("local producer expected 0 published and 3 rejected invalid events")
 
 
 def _validate_json_files(project_root: Path, errors: list[str]) -> None:
