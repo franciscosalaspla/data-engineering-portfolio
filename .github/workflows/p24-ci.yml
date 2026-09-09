@@ -5,12 +5,14 @@ on:
     paths:
       - "24-azure-banking-streaming-platform/**"
       - ".github/workflows/p24-ci.yml"
+      - ".github/workflows/p24-cd.yml"
   push:
     branches:
       - main
     paths:
       - "24-azure-banking-streaming-platform/**"
       - ".github/workflows/p24-ci.yml"
+      - ".github/workflows/p24-cd.yml"
 
 permissions:
   contents: read
@@ -54,7 +56,10 @@ jobs:
         run: python -m ruff format --check src scripts tests
 
       - name: Lint workflow YAML
-        run: yamllint --config-file .yamllint.yml ../.github/workflows/p24-ci.yml
+        run: >-
+          yamllint --config-file .yamllint.yml
+          ../.github/workflows/p24-ci.yml
+          ../.github/workflows/p24-cd.yml
 
       - name: Install pinned Bicep CLI
         shell: bash

@@ -29,6 +29,7 @@ No ejecuta `login`, `validate`, `what-if`, `deploy` ni ninguna operación sobre 
 
 ## Bloqueo previo al despliegue
 
-`dev.bicepparam` contiene IDs de Microsoft Entra deliberadamente inválidos. En el Hito 3 deberán
-reemplazarse por valores verificados, después de revisar costo, permisos y teardown. Este archivo no
-debe contener secretos.
+`dev.bicepparam` contiene IDs de Microsoft Entra deliberadamente inválidos para la compilación
+offline. El workflow cloud conserva esos marcadores en el repositorio y envía valores verificados
+desde variables no sensibles del GitHub Environment `dev`. Ninguno de los dos lugares debe contener
+secretos.

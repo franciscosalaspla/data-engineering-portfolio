@@ -86,7 +86,9 @@ def validate_repository(project_root: Path = PROJECT_ROOT) -> ValidationReport:
     _validate_json_files(project_root, errors)
     _validate_markdown_links(project_root, errors)
     _validate_infrastructure(project_root / "infra", errors)
-    _validate_workflow(REPOSITORY_ROOT / ".github" / "workflows" / "p24-ci.yml", errors)
+    workflow_root = REPOSITORY_ROOT / ".github" / "workflows"
+    _validate_ci_workflow(workflow_root / "p24-ci.yml", errors)
+    _validate_cd_workflow(workflow_root / "p24-cd.yml", errors)
     _scan_for_secrets(project_root, errors)
 
     return ValidationReport(
@@ -216,13 +218,14 @@ def _validate_markdown_links(project_root: Path, errors: list[str]) -> None:
                 errors.append(f"broken local link in {path.relative_to(REPOSITORY_ROOT)}: {target}")
 
 
-def _validate_workflow(path: Path, errors: list[str]) -> None:
+def _validate_ci_workflow(path: Path, errors: list[str]) -> None:
     if not path.exists():
         errors.append("missing .github/workflows/p24-ci.yml")
         return
     content = path.read_text(encoding="utf-8")
     required_fragments = (
         "24-azure-banking-streaming-platform/**",
+        '".github/workflows/p24-cd.yml"',
         "permissions:\n  contents: read",
         "persist-credentials: false",
         "BICEP_VERSION:",
@@ -243,6 +246,50 @@ def _validate_workflow(path: Path, errors: list[str]) -> None:
     for fragment in forbidden_fragments:
         if fragment in content:
             errors.append(f"workflow contains forbidden pre-deployment fragment: {fragment!r}")
+
+
+def _validate_cd_workflow(path: Path, errors: list[str]) -> None:
+    if not path.exists():
+        errors.append("missing .github/workflows/p24-cd.yml")
+        return
+    content = path.read_text(encoding="utf-8")
+    required_fragments = (
+        "workflow_dispatch:",
+        "permissions:\n  contents: read\n  id-token: write",
+        "cancel-in-progress: false",
+        "environment: dev",
+        "persist-credentials: false",
+        "azure/login@7ddb5af1ef8758cf1353cf3b42f940aee27ba21c",
+        "az deployment group what-if",
+        "--validation-level Provider",
+        "--mode Incremental",
+        "az deployment group create",
+        "inputs.confirmation == 'DEPLOY-P24-DEV'",
+        "inputs.approved_what_if_run_id != ''",
+        "vars.AZURE_CLIENT_ID",
+        "vars.AZURE_TENANT_ID",
+        "vars.AZURE_SUBSCRIPTION_ID",
+    )
+    for fragment in required_fragments:
+        if fragment not in content:
+            errors.append(f"CD workflow is missing required safety fragment: {fragment!r}")
+
+    forbidden_fragments = (
+        "\n  push:",
+        "\n  pull_request:",
+        "\n  schedule:",
+        "secrets.",
+        "client-secret",
+        "az group create",
+        "az group delete",
+        "az ad ",
+        "az role assignment",
+        "federated-credential",
+        "--mode Complete",
+    )
+    for fragment in forbidden_fragments:
+        if fragment in content:
+            errors.append(f"CD workflow contains forbidden fragment: {fragment!r}")
 
 
 def _validate_infrastructure(infra_root: Path, errors: list[str]) -> None:
@@ -305,7 +352,12 @@ def _scan_for_secrets(project_root: Path, errors: list[str]) -> None:
         and (path.suffix in SCANNED_SUFFIXES or path.name.startswith(".env"))
         and path.resolve() != Path(__file__).resolve()
     ]
-    candidates.append(REPOSITORY_ROOT / ".github" / "workflows" / "p24-ci.yml")
+    candidates.extend(
+        (
+            REPOSITORY_ROOT / ".github" / "workflows" / "p24-ci.yml",
+            REPOSITORY_ROOT / ".github" / "workflows" / "p24-cd.yml",
+        )
+    )
     for path in sorted(set(candidates)):
         if not path.exists():
             continue
