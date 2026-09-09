@@ -1,9 +1,4 @@
-"""Preliminary local contract used by Hito 1 quality checks.
-
-The externally versioned JSON Schema remains an Hito 4 deliverable. This module
-defines only the smallest stable boundary needed to test local transformations,
-fixtures, and replay behavior without Azure dependencies.
-"""
+"""Runtime validation for the versioned transaction event v1 contract."""
 
 from __future__ import annotations
 
@@ -32,7 +27,7 @@ SUPPORTED_CHANNELS = frozenset({"ATM", "CARD", "MOBILE", "ONLINE"})
 
 
 class ContractError(ValueError):
-    """Raised when an event does not satisfy the preliminary local contract."""
+    """Raised when an event does not satisfy the v1 contract."""
 
     def __init__(self, reasons: list[str] | tuple[str, ...]) -> None:
         self.reasons = tuple(reasons)

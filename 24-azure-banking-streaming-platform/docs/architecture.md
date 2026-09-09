@@ -54,7 +54,13 @@ flowchart LR
 7. Gold calcula resultados incrementales y conserva el estado analítico en Delta.
 8. Un microbatch publica cambios idempotentes en Azure SQL.
 
-El contrato JSON definitivo, la clave de partición y la tolerancia de eventos tardíos se cerrarán en el Hito 4 con fixtures y pruebas.
+El Hito 4 fija el contrato JSON v1 y usa `account_id` como clave de partición. El productor emite
+JSON canónico y el consumidor vuelve a validar cada mensaje. La tolerancia de eventos tardíos se
+cerrará en el Hito 5 junto con watermark y deduplicación.
+
+La ruta local emplea un Event Hub simulado en memoria para comprobar serialización, partición y
+conteos sin red. La evidencia contra Azure Event Hubs solo podrá obtenerse después de un despliegue
+aprobado.
 
 ## Semántica de procesamiento
 

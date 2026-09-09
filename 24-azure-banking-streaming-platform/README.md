@@ -4,14 +4,15 @@
 
 ## Estado
 
-**Hito 3 — Despliegue seguro: preparación local sin acceso a Azure.**
+**Hito 4 — Ingesta de eventos: implementación y validación local.**
 
 Los hitos anteriores fueron fusionados mediante los PR
 [#38](https://github.com/franciscosalaspla/data-engineering-portfolio/pull/38),
-[#39](https://github.com/franciscosalaspla/data-engineering-portfolio/pull/39) y
-[#40](https://github.com/franciscosalaspla/data-engineering-portfolio/pull/40). El Hito 3 prepara
-OIDC, RBAC, `what-if`, costos y teardown como código y documentación local. No se configuraron
-identidades ni recursos Azure.
+[#39](https://github.com/franciscosalaspla/data-engineering-portfolio/pull/39),
+[#40](https://github.com/franciscosalaspla/data-engineering-portfolio/pull/40) y
+[#41](https://github.com/franciscosalaspla/data-engineering-portfolio/pull/41). El Hito 4 incorpora el
+contrato JSON v1 y prueba un productor y consumidor con un Event Hub simulado en memoria. No se
+utilizan credenciales, red ni recursos Azure.
 
 ## Problema
 
@@ -94,6 +95,8 @@ Convención de ramas: `feature/p24-hNN-descripcion`.
 - [Contrato del Hito 1](docs/hito_1_contract.md)
 - [Contrato del Hito 2](docs/hito_2_contract.md)
 - [Contrato del Hito 3](docs/hito_3_contract.md)
+- [Contrato del Hito 4](docs/hito_4_contract.md)
+- [Ingesta local de eventos](docs/event_ingestion.md)
 - [Diseño de despliegue seguro](docs/secure_deployment.md)
 - [Estimación y controles de costo](docs/cost_estimate.md)
 - [Runbook de teardown](docs/teardown.md)
@@ -116,6 +119,7 @@ yamllint --config-file .yamllint.yml \
   ../.github/workflows/p24-ci.yml \
   ../.github/workflows/p24-cd.yml
 python -m pytest
+python scripts/run_local_ingestion.py data/fixtures/events/transactions_batch_001.jsonl
 python scripts/validate_repository.py
 BICEP_BIN=/ruta/al/bicep scripts/validate_bicep.sh
 ```
@@ -123,6 +127,8 @@ BICEP_BIN=/ruta/al/bicep scripts/validate_bicep.sh
 La versión fijada para CI es Bicep 0.46.1. Estas validaciones no leen variables Azure, no requieren
 credenciales y no crean recursos. El workflow de CD es exclusivamente manual y permanecerá
 inoperante hasta configurar el Environment `dev`, OIDC y sus variables después de una aprobación.
+La prueba del Hito 4 usa un transporte en memoria; la conexión real con Event Hubs queda pendiente
+de autorización cloud.
 
 ## Restricciones de seguridad y costos
 
