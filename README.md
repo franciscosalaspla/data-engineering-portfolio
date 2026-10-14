@@ -1,6 +1,6 @@
 # Portafolio de Ingeniería de Datos
 
-<img align="right" src="./assets/alien-portrait.jpeg" alt="Retrato en blanco y negro de un extraterrestre con traje" width="240" hspace="16">
+<img align="right" src="./assets/alien-portrait.jpeg" alt="Retrato en blanco y negro de un extraterrestre con traje" width="280" hspace="20">
 
 Soy Ingeniero Civil Industrial con especialización en Analítica de Negocios y más de cuatro años de experiencia en datos.
 
@@ -10,7 +10,7 @@ He participado en proyectos de satisfacción de clientes, telemedicina, biometr�
 
 **Explora mis tres proyectos destacados:** un pipeline en Azure, un Data Lake con enfoque AWS y procesamiento con PySpark.
 
-También trabajo como consultor financiero en [AvanzaPyme](https://avanzapyme.cl/) junto a excompañeros de universidad, ayudando a pymes de la región a organizar su información contable y financiera y visualizar indicadores para tomar decisiones.
+En [AvanzaPyme](https://avanzapyme.cl/), junto a excompañeros de universidad, asesoro a pymes de la región en finanzas, información contable e indicadores.
 
 En la empresa familiar [Taller Café](https://taller.cafe/), diseño interiores y layouts para cafeterías de especialidad con Autodesk Maya 2027 y código Python.
 
