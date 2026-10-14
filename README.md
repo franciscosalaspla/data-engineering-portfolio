@@ -20,9 +20,9 @@ En la empresa familiar [Taller Café](https://taller.cafe/), diseño interiores,
 
 | Proyecto | Qué resuelve | Tecnologías y enfoque |
 |---|---|---|
-| [23 — Pipeline bancario en Azure](./23-azure-adf-databricks-bank-fx/README.md) | **Cada transacción tiene una historia. Este pipeline permite analizarla.** Conecta movimientos bancarios y tipos de cambio en Power BI. | ADF · Databricks · Delta Lake · Azure SQL |
-| [20 — Data Lake bancario AWS-style](./20-aws-style-banking-data-lake/README.md) | **Un buen análisis empieza mucho antes del dashboard.** Organiza datos bancarios y separa los registros con errores antes de analizarlos. | Python · Parquet · DuckDB |
-| [Clasificación de RUT y giros — SII](./rut-classification-data-quality-case/clasificacion-calidad-datos-presentacion.pdf) | **¿A qué se dedica cada empresa? Los datos del SII ayudan a responderlo.** Clasifica actividades económicas y separa los casos que necesitan revisión. | Calidad de datos · Reglas de negocio · Reconciliación |
+| [23 — Pipeline bancario en Azure](./23-azure-adf-databricks-bank-fx/README.md) | **La misma transacción dos veces. El doble de problemas.** Integra datos bancarios sin duplicar movimientos. | ADF · Databricks · Delta Lake · Azure SQL |
+| [20 — Data Lake bancario AWS-style](./20-aws-style-banking-data-lake/README.md) | **Un Data Lake necesita más que espacio para guardar cosas.** Cada archivo pasa por controles antes de convertirse en información para analizar. | Python · Parquet · DuckDB |
+| [Clasificación de RUT y giros — SII](./rut-classification-data-quality-case/clasificacion-calidad-datos-presentacion.pdf) | **Clasificar empresas no debería ser una adivinanza.** Reglas de negocio y trazabilidad para entender cada resultado. | Calidad de datos · Reglas de negocio · Reconciliación |
 
 ## Certificaciones
 
