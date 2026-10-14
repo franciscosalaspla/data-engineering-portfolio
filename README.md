@@ -8,7 +8,7 @@ Soy Ingeniero Civil Industrial con especialización en Analítica de Negocios y 
 
 He participado en proyectos de satisfacción de clientes, telemedicina, biometría facial, transacciones digitales y clasificación de RUT y giros con información del SII.
 
-**Explora mis tres proyectos destacados:** un pipeline en Azure, un Data Lake con enfoque AWS y procesamiento con PySpark.
+**Explora mis tres proyectos destacados:** [un pipeline en Azure](./23-azure-adf-databricks-bank-fx/README.md), [un Data Lake con enfoque AWS](./20-aws-style-banking-data-lake/README.md) y [procesamiento con PySpark](./19-pyspark-banking-processing/README.md).
 
 En [AvanzaPyme](https://avanzapyme.cl/), junto a excompañeros de universidad, asesoro a pymes de la región en finanzas e indicadores, automatizo procesos contables y desarrollo sistemas ERP.
 
