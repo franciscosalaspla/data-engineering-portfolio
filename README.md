@@ -30,7 +30,7 @@ En la empresa familiar [Taller Café](https://taller.cafe/), diseño interiores,
 |:---:|:---:|
 | <img src="./microsoft-azure-fundamentals.png" alt="Microsoft Certified: Azure Fundamentals (AZ-900)" height="110"> | <img src="./datacamp-data-engineer.png" alt="DataCamp Certified Data Engineer" height="110"> |
 
-<details>
+<details open>
 <summary><strong>Lecturas que inspiran mi trabajo</strong></summary>
 
 - **Fundamentos de ingeniería de datos** — Joe Reis y Matt Housley.
