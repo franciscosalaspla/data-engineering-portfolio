@@ -27,7 +27,7 @@ En este portafolio comparto lo que construyo y aprendo. **Te invito a explorar m
 - LinkedIn: [https://bit.ly/4u9E6eU](https://bit.ly/4u9E6eU)
 - GitHub: [https://bit.ly/4vouAFH](https://bit.ly/4vouAFH)
 - Email: [franciscosalaspla@gmail.com](mailto:franciscosalaspla@gmail.com)
-- CV: [Descargar CV](./CV_Francisco_Salas.pdf)
+- CV: [Descargar en español](./CV_Francisco_Salas_Data_Engineer.pdf?raw=true) · [Download in English](./CV_Francisco_Salas_Data_Engineer_EN.pdf?raw=true)
 
 ## Libros leídos
 - **Fundamentos de ingeniería de datos — Joe Reis y Matt Housley**
