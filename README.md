@@ -10,9 +10,9 @@ He participado en proyectos de satisfacción de clientes, telemedicina, biometr�
 
 **Explora mis tres proyectos destacados:** un pipeline en Azure, un Data Lake con enfoque AWS y procesamiento con PySpark.
 
-También trabajo como consultor financiero en [AvanzaPyme](https://avanzapyme.cl/) junto a excompañeros de universidad, ayudando a pymes de la región a ordenar sus finanzas, visualizar indicadores y evaluar futuros proyectos.
+También trabajo como consultor financiero en [AvanzaPyme](https://avanzapyme.cl/) junto a excompañeros de universidad, ayudando a pymes de la región a organizar su información contable y financiera y visualizar indicadores para tomar decisiones.
 
-En la empresa familiar [Taller Café](https://taller.cafe/), diseño interiores para cafeterías de especialidad con Autodesk Maya 2027 y desarrollo propuestas para futuros espacios.
+En la empresa familiar [Taller Café](https://taller.cafe/), diseño interiores y layouts para cafeterías de especialidad con Autodesk Maya 2027 y código Python.
 
 <br clear="both">
 
