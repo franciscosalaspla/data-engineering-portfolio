@@ -8,7 +8,7 @@ Soy Ingeniero Civil Industrial con especialización en Analítica de Negocios y 
 
 He participado en proyectos de satisfacción de clientes, telemedicina, biometría facial, transacciones digitales y clasificación de RUT y giros con información del SII.
 
-**Explora mis tres proyectos destacados:** [un pipeline en Azure](./23-azure-adf-databricks-bank-fx/README.md), [un Data Lake con enfoque AWS](./20-aws-style-banking-data-lake/README.md) y [procesamiento con PySpark](./19-pyspark-banking-processing/README.md).
+**Explora mis tres proyectos destacados:** [un pipeline en Azure](./23-azure-adf-databricks-bank-fx/README.md), [un Data Lake con enfoque AWS](./20-aws-style-banking-data-lake/README.md) y [clasificación de RUT y giros con información del SII](./rut-classification-data-quality-case/clasificacion-calidad-datos-presentacion.pdf).
 
 En [AvanzaPyme](https://avanzapyme.cl/), junto a excompañeros de universidad, asesoro a pymes de la región en finanzas e indicadores, automatizo procesos contables y desarrollo sistemas ERP.
 
@@ -18,11 +18,11 @@ En la empresa familiar [Taller Café](https://taller.cafe/), diseño interiores,
 
 ## Top 3 proyectos destacados
 
-| Proyecto | Qué resuelve | Stack principal |
+| Proyecto | Qué resuelve | Tecnologías y enfoque |
 |---|---|---|
 | [23 — Pipeline bancario en Azure](./23-azure-adf-databricks-bank-fx/README.md) | Integra transacciones y tipos de cambio para análisis en Power BI, con calidad y cargas sin duplicados. | ADF · Databricks · Delta Lake · Azure SQL |
 | [20 — Data Lake bancario AWS-style](./20-aws-style-banking-data-lake/README.md) | Organiza datos por capas y separa registros inválidos en un entorno local reproducible. | Python · Parquet · DuckDB |
-| [19 — Procesamiento con PySpark](./19-pyspark-banking-processing/README.md) | Valida, cruza y transforma datos bancarios para análisis. | PySpark · Spark SQL · Parquet |
+| [Clasificación de RUT y giros — SII](./rut-classification-data-quality-case/clasificacion-calidad-datos-presentacion.pdf) | Valida RUT y clasifica giros con reglas de negocio, cuarentena y trazabilidad. Presentación del caso. | Calidad de datos · Reglas de negocio · Reconciliación |
 
 ## Certificaciones
 
