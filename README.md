@@ -41,4 +41,4 @@ En la empresa familiar [Taller Café](https://taller.cafe/), diseño interiores,
 
 ## Contacto y CV
 
-[LinkedIn](https://www.linkedin.com/in/francisco-javier-salas-605431200/) · [Email](mailto:franciscosalaspla@gmail.com) · [CV español](./CV_Francisco_Salas_Data_Engineer.pdf?raw=true) · [CV inglés](./CV_Francisco_Salas_Data_Engineer_EN.pdf?raw=true)
+[LinkedIn](https://www.linkedin.com/in/francisco-javier-salas-605431200/) · [Email](mailto:franciscosalaspla@gmail.com) · [CV español](./CV_Francisco_Salas_Data_Engineer.pdf) · [CV inglés](./CV_Francisco_Salas_Data_Engineer_EN.pdf)
