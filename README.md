@@ -21,7 +21,7 @@ En la empresa familiar [Taller Café](https://taller.cafe/), diseño interiores,
 | Proyecto | Qué resuelve | Tecnologías y enfoque |
 |---|---|---|
 | [Pipeline bancario en Azure](./23-azure-adf-databricks-bank-fx/README.md) | **La misma transacción dos veces. El doble de problemas.** Integra datos bancarios sin duplicar movimientos. | ADF · Databricks · Delta Lake · Azure SQL |
-| [Data Lake bancario AWS-style](./20-aws-style-banking-data-lake/README.md) | **Un Data Lake necesita más que espacio para guardar cosas.** Cada archivo pasa por controles antes de convertirse en información para analizar. | Python · Parquet · DuckDB |
+| [Data Lake bancario con enfoque AWS](./20-aws-style-banking-data-lake/README.md) | **Un Data Lake necesita más que espacio para guardar cosas.** Cada archivo pasa por controles antes de convertirse en información para analizar. | Python · Parquet · DuckDB |
 | [Clasificación de RUT y giros — SII](./rut-classification-data-quality-case/clasificacion-calidad-datos-presentacion.pdf) | **Clasificar empresas no debería ser una adivinanza.** Reglas de negocio y trazabilidad para entender cada resultado. | Calidad de datos · Reglas de negocio · Reconciliación |
 
 ## Certificaciones
