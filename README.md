@@ -1,6 +1,6 @@
 # Portafolio de Ingeniería de Datos
 
-<img align="right" src="./assets/processing.jpeg" alt="Ilustración de una persona con un monitor que muestra Processing" width="150">
+<img align="right" src="./assets/processing.jpeg" alt="Ilustración de una persona con un monitor que muestra Processing" width="280">
 
 ## Hola, soy Francisco 👋
 
