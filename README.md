@@ -1,16 +1,16 @@
 # Portafolio de Ingeniería de Datos
 
-<img align="right" src="./assets/processing.jpeg" alt="Ilustración de una persona con un monitor que muestra Processing" width="280">
+<img align="right" src="./assets/alien-portrait.jpeg" alt="Retrato en blanco y negro de un extraterrestre con traje" width="280">
 
 ## Hola, soy Francisco 👋
 
-Soy Ingeniero Civil Industrial con especialización en Analítica de Negocios y más de cuatro años trabajando con datos en consultoría financiera, seguros, banca y previsión.
+Soy Francisco, Ingeniero Civil Industrial con especialización en Analítica de Negocios y más de cuatro años de experiencia en datos.
 
-**Me apasiona la ingeniería de datos: entender de dónde viene la información, conectar sus piezas y transformarla en algo confiable y útil.** Disfruto automatizar tareas, resolver problemas de calidad y construir soluciones que ayuden a otros a tomar mejores decisiones.
+**Me apasiona la ingeniería de datos: conectar información, automatizar procesos y construir soluciones confiables.** Trabajo por hitos, priorizo según impacto y urgencia, y colaboro con equipos de negocio y tecnología con comunicación clara.
 
-En mi trayectoria he conectado equipos de negocio y tecnología en proyectos de satisfacción de clientes, telemedicina y biometría facial. Esa experiencia me enseñó que una buena solución empieza por entender a las personas que la necesitan.
+He participado en proyectos de satisfacción de clientes, telemedicina, biometría facial, transacciones digitales y clasificación de RUT y giros con información del SII.
 
-En este portafolio comparto lo que construyo y aprendo. **Te invito a explorar mis tres proyectos destacados:** un pipeline completo en Azure, un Data Lake bancario con enfoque AWS y procesamiento de datos con PySpark.
+**Explora mis tres proyectos destacados:** un pipeline en Azure, un Data Lake con enfoque AWS y procesamiento con PySpark.
 
 <br clear="both">
 
