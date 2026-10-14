@@ -26,9 +26,9 @@ En la empresa familiar [Taller Café](https://taller.cafe/), diseño interiores,
 
 ## Certificaciones
 
-| [Microsoft Certified: Azure Fundamentals (AZ-900)](https://learn.microsoft.com/es-mx/users/franciscosalas-0966/credentials?source=docs&tab=credentials-tab) | [DataCamp: Data Engineer](https://www.datacamp.com/certificate/DE0019458875218) |
+| [Microsoft Certified: Azure Fundamentals (AZ-900)](https://learn.microsoft.com/es-mx/users/franciscosalas-0966/credentials/certification/azure-fundamentals) | [DataCamp: Data Engineer](https://www.datacamp.com/certificate/DE0019458875218) |
 |:---:|:---:|
-| <a href="https://learn.microsoft.com/es-mx/users/franciscosalas-0966/credentials?source=docs&tab=credentials-tab"><img src="./microsoft-azure-fundamentals.png" alt="Microsoft Certified: Azure Fundamentals (AZ-900)" height="110"></a> | <a href="https://www.datacamp.com/certificate/DE0019458875218"><img src="./datacamp-data-engineer.png" alt="DataCamp Certified Data Engineer" height="110"></a> |
+| <a href="https://learn.microsoft.com/es-mx/users/franciscosalas-0966/credentials/certification/azure-fundamentals"><img src="./microsoft-azure-fundamentals.png" alt="Microsoft Certified: Azure Fundamentals (AZ-900)" height="110"></a> | <a href="https://www.datacamp.com/certificate/DE0019458875218"><img src="./datacamp-data-engineer.png" alt="DataCamp Certified Data Engineer" height="110"></a> |
 
 <details open>
 <summary><strong>Lecturas que inspiran mi trabajo</strong></summary>
