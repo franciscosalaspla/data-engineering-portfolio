@@ -1,10 +1,10 @@
 # Portafolio de Ingeniería de Datos
 
-<img align="right" src="./assets/alien-portrait.jpeg" alt="Retrato en blanco y negro de un extraterrestre con traje" width="280">
-
 ## Hola, soy Francisco 👋
 
-Soy Francisco, Ingeniero Civil Industrial con especialización en Analítica de Negocios y más de cuatro años de experiencia en datos.
+<img align="right" src="./assets/alien-portrait.jpeg" alt="Retrato en blanco y negro de un extraterrestre con traje" width="240" hspace="16">
+
+Soy Ingeniero Civil Industrial con especialización en Analítica de Negocios y más de cuatro años de experiencia en datos.
 
 **Me apasiona la ingeniería de datos: conectar información, automatizar procesos y construir soluciones confiables.** Trabajo por hitos, priorizo según impacto y urgencia, y colaboro con equipos de negocio y tecnología con comunicación clara.
 
