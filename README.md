@@ -1,18 +1,26 @@
 # Portafolio de Ingeniería de Datos
 
-Soy Ingeniero Civil Industrial con especialización en Analítica de Negocios y más de cuatro años de experiencia trabajando con datos en consultoría financiera, seguros, banca y previsión en áreas de  **Analítica, Arquitectura e IA.**
+<img align="right" src="./assets/processing.jpeg" alt="Ilustración de una persona con un monitor que muestra Processing" width="150">
 
-En mi experiencia profesional he trabajado como puente entre Negocio, Producto, Digital, BI y equipos técnicos, backend y frontend. He participado en la captura de eventos digitales, integración y consumo de APIs, procesamiento de archivos CSV y JSON, procesos ETL, validaciones con SQL, modelamiento, automatizaciones y disponibilización de información para servicios y productos en Azure.
+## Hola, soy Francisco 👋
 
-También he participado en proyectos de encuestas de satisfacción, telemedicina y biometría facial, resolviendo problemas de **integración de datos, calidad de datos y detección de duplicados**. Cuento con las certificaciones **Microsoft Certified: Azure Fundamentals (AZ-900)** y **Data Engineer de DataCamp**.
+Soy Ingeniero Civil Industrial con especialización en Analítica de Negocios y más de cuatro años trabajando con datos en consultoría financiera, seguros, banca y previsión.
+
+**Me apasiona la ingeniería de datos: entender de dónde viene la información, conectar sus piezas y transformarla en algo confiable y útil.** Disfruto automatizar tareas, resolver problemas de calidad y construir soluciones que ayuden a otros a tomar mejores decisiones.
+
+En mi trayectoria he conectado equipos de negocio y tecnología en proyectos de satisfacción de clientes, telemedicina y biometría facial. Esa experiencia me enseñó que una buena solución empieza por entender a las personas que la necesitan.
+
+En este portafolio comparto lo que construyo y aprendo. **Te invito a explorar mis tres proyectos destacados:** un pipeline completo en Azure, un Data Lake bancario con enfoque AWS y procesamiento de datos con PySpark.
+
+<br clear="both">
 
 ## Top 3 proyectos destacados
 
-| Proyecto | Hook | Tecnologías |
+| Proyecto | Qué encontrarás | Tecnologías |
 |---|---|---|
-| [23 — Pipeline bancario multimoneda](./23-azure-adf-databricks-bank-fx) | **Arquitectura Medallion multifuente en Azure, con gobierno, quality gates e idempotencia desde la ingesta hasta el serving analítico.** | ADF, ADLS Gen2, Databricks, PySpark, Delta Lake, Azure SQL, Power BI |
-| [20 — Data Lake bancario AWS-style](./20-aws-style-banking-data-lake) | **Arquitectura Data Lake por capas que incorpora calidad, cuarentena y datasets Gold bajo un diseño AWS-style reproducible.** | Python, Parquet, DuckDB; equivalencias con S3, Glue y Athena |
-| [19 — Procesamiento bancario con PySpark](./19-pyspark-banking-processing) | **Procesamiento distribuido orientado a calidad y analítica, con validaciones, joins, Window Functions, particionamiento y salidas columnares en Parquet.** | PySpark, Spark SQL, DataFrames, Window Functions, Parquet |
+| [23 — Pipeline bancario multimoneda](./23-azure-adf-databricks-bank-fx/README.md) | Integración de datos bancarios y tipos de cambio, desde la ingesta hasta Power BI, con controles de calidad y cargas sin duplicados. | ADF, ADLS Gen2, Databricks, PySpark, Delta Lake, Azure SQL, Power BI |
+| [20 — Data Lake bancario AWS-style](./20-aws-style-banking-data-lake/README.md) | Un Data Lake bancario reproducible en entorno local, con datos organizados por capas y registros inválidos separados para revisión. | Python, Parquet, DuckDB; equivalencias con S3, Glue y Athena |
+| [19 — Procesamiento bancario con PySpark](./19-pyspark-banking-processing/README.md) | Transformación de datos bancarios con PySpark para validar, cruzar y preparar información para análisis. | PySpark, Spark SQL, DataFrames, Window Functions, Parquet |
 
 ## Contacto
 
