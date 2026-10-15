@@ -22,22 +22,25 @@ El flujo comienza en ADLS Gen2. Databricks procesa los datos con PySpark y Delta
 
 Azure Data Factory coordina los tres notebooks y sus dependencias. Al finalizar, los datos se publican en Azure SQL y Power BI permite analizar clientes, cuentas, transacciones y canales.
 
-## El valor: poder explicar y repetir el resultado
+## El valor: que una nueva carga no cambie la historia
 
-La preparación de los datos queda automatizada, las reglas de negocio se concentran en el flujo y cada etapa mantiene trazabilidad. Esto permite revisar cómo se obtuvo una cifra y detectar problemas antes del consumo analítico.
+Repetir una publicación es una situación normal: puede ser necesario recuperar una ejecución o volver a procesar un archivo. Si el flujo vuelve a insertar los mismos movimientos, el reporte empieza a contar operaciones que nunca ocurrieron.
 
-La prueba decisiva llegó al repetir la publicación: **953 filas antes, 953 después y ninguna escritura nueva.** El proceso conservó el resultado sin duplicar la información.
+Por eso, una de las decisiones centrales fue diseñar **cargas que reconocen la información ya procesada** y comprobar que los registros y sus relaciones se mantengan consistentes.
 
-Esta implementación de portafolio utiliza datos sintéticos y volúmenes controlados para comprobar el diseño, la calidad y las reejecuciones seguras.
+La trazabilidad permite seguir el recorrido desde el origen. La cuarentena mantiene identificados los registros que necesitan revisión. La reconciliación comprueba que los datos cuadren antes de utilizarlos en el análisis.
 
-## Objetivos
+**El resultado es un flujo que permite investigar un error y repetir el proceso conservando la consistencia de la información.**
 
-- **Conectar las fuentes:** integrar transacciones CSV, clientes y cuentas JSON y tipos de cambio de la API del Banco Central Europeo.
-- **Proteger la calidad:** validar los datos por etapas, separar errores y comprobar que los registros y los totales cuadren.
-- **Repetir sin duplicar:** permitir reejecuciones seguras y dejar registro del recorrido de los datos.
-- **Facilitar el análisis:** publicar un modelo estrella en Azure SQL para Power BI, con credenciales y costos bajo control.
+## Objetivos: conectar, validar y entregar
 
-## Arquitectura implementada
+El proyecto se construyó con cuatro objetivos: **integrar archivos y API en un mismo flujo; proteger la calidad antes del consumo; repetir las cargas sin duplicar; y entregar un modelo listo para Power BI.**
+
+La seguridad y el costo también forman parte del diseño: las credenciales se gestionan fuera del código y los recursos cuentan con medidas de control de consumo.
+
+## La arquitectura detrás del resultado
+
+La información avanza por etapas con responsabilidades definidas. Primero se conserva el origen, después se validan los registros y finalmente se aplican las reglas del modelo analítico.
 
 ```mermaid
 flowchart TD
@@ -56,30 +59,38 @@ flowchart TD
     KV["Key Vault + Secret Scope"] -->|"Secretos"| GOLD
 ```
 
-Flujo ejecutado:
+**Bronze conserva la evidencia.** Mantiene el dato recibido junto con información técnica para seguir su recorrido.
 
-1. **Landing:** recibe CSV, JSON y tasas de cambio del ECB en ADLS Gen2.
-2. **Bronze:** conserva el dato original con metadata técnica y trazabilidad.
-3. **Silver:** tipifica, normaliza, deduplica y separa registros inválidos en cuarentena.
-4. **Gold:** aplica conversión multimoneda y construye dimensiones más tabla de hechos.
-5. **Orquestación:** ADF ejecuta los tres notebooks en orden y controla sus dependencias.
-6. **Serving:** Databricks publica siete tablas en Azure SQL mediante JDBC seguro.
-7. **Consumo:** Power BI utiliza el modelo estrella para métricas de clientes, cuentas, transacciones y canales.
+**Silver controla la calidad.** Normaliza tipos, elimina duplicados y separa registros inválidos en cuarentena.
 
-**Cada capa tiene una responsabilidad:** Bronze conserva el origen; Silver limpia y valida; Gold aplica las reglas de negocio y prepara el modelo analítico. Esta separación permite revisar dónde ocurrió un problema sin mezclar todas las transformaciones.
+**Gold prepara la lectura del negocio.** Aplica la conversión a EUR y organiza dimensiones y transacciones en un modelo estrella.
 
-## Resultados: qué comprobé
+Data Factory ejecuta los tres notebooks en orden. Azure SQL recibe las tablas preparadas y Power BI las utiliza para explorar movimientos, clientes, cuentas y canales. Esta separación ayuda a localizar dónde ocurrió un problema y qué etapa revisar.
 
-**La prueba clave fue ejecutarlo otra vez sin duplicar los datos.**
+## La prueba decisiva: publicar de nuevo
 
-| Comprobación | Resultado |
-|---|---|
-| ¿Terminó el flujo completo? | ADF ejecutó los 3 notebooks correctamente en **10 min 17 s**. |
-| ¿Las relaciones eran válidas? | Validaciones PK/FK **7/7**, con **0 registros huérfanos**. |
-| ¿Qué ocurrió al publicar otra vez? | **953 → 953 filas**, con **0 escrituras nuevas** (`NO_OP`). |
-| ¿Quedó listo para analizar? | Modelo de Power BI con **7 tablas y 6 relaciones activas**. |
+La primera ejecución completó el recorrido. La segunda puso a prueba una condición distinta: recibir los mismos datos sin volver a escribirlos.
 
-Estos resultados corresponden a las pruebas del proyecto; los volúmenes controlados permiten verificar diseño, calidad e idempotencia.
+**El resultado fue 953 filas antes, 953 después y cero escrituras nuevas.** La publicación terminó como `NO_OP`: no había cambios que aplicar.
+
+También se verificó que las relaciones entre tablas fueran válidas y que la información pudiera consumirse desde Power BI.
+
+**Resultados comprobados en el proyecto:**
+
+- **Flujo completo:** tres notebooks ejecutados correctamente en **10 min 17 s**.
+- **Integridad:** validaciones PK/FK **7/7**, con **cero registros huérfanos**.
+- **Reejecución:** **953 → 953 filas**, sin escrituras nuevas.
+- **Consumo analítico:** modelo de Power BI con **siete tablas y seis relaciones activas**.
+
+Estas comprobaciones se realizaron con datos sintéticos y volúmenes controlados. Demuestran el comportamiento de la implementación; no corresponden a una prueba de rendimiento a escala ni a resultados comerciales de un cliente.
+
+## La confianza en el reporte empieza antes del dashboard
+
+El proyecto conecta ingesta, transformación, calidad y publicación en un recorrido comprobable. Cada control responde a una pregunta concreta: de dónde viene el dato, si puede utilizarse y qué ocurre cuando se procesa otra vez.
+
+**Un pipeline aporta valor cuando podemos confiar en lo que entrega y explicar cómo llegó hasta ahí.**
+
+## Implementación y evidencias
 
 <details>
 <summary><strong>Ver todas las métricas y el alcance de las validaciones</strong></summary>
@@ -102,7 +113,6 @@ Los volúmenes son controlados y buscan demostrar diseño, calidad e idempotenci
 
 </details>
 
-## Cómo lo implementé
 
 <details>
 <summary><strong>Ver etapas, decisiones técnicas, seguridad y control de costos</strong></summary>
@@ -146,7 +156,8 @@ Los datos son sintéticos y el repositorio no contiene credenciales, correos, en
 
 </details>
 
-## Documentación para profundizar
+<details>
+<summary><strong>Consultar la documentación y los anexos</strong></summary>
 
 - [Arquitectura y decisiones técnicas](docs/architecture.md)
 - [Implementación end-to-end](docs/cloud_implementation.md)
@@ -156,5 +167,7 @@ Los datos son sintéticos y el repositorio no contiene credenciales, correos, en
 - [Anexo — Cómo contar este proyecto en una entrevista](docs/interview_guide.md)
 
 Las pruebas automatizadas corresponden a la implementación local versionada. Las validaciones de ADF, Azure SQL, Power BI y costos fueron comprobaciones manuales cloud. Las capturas se mantienen fuera del repositorio público.
+
+</details>
 
 [Volver al portafolio](../README.md)
