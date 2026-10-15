@@ -1,40 +1,64 @@
 # Pipeline bancario en Azure
 
-![El pipeline terminó en verde. ¿Y los datos? Problema, solución y resultados del pipeline bancario en Azure.](./docs/images/pipeline-azure-storytelling.png)
+![El pipeline terminó en verde. ¿Y los datos? Problema, solución e impacto de negocio del pipeline bancario en Azure.](./docs/images/pipeline-azure-storytelling.png)
 
 **El pipeline terminó en verde. El reporte podía seguir estando mal.**
 
-Una ejecución exitosa no garantiza que las cifras sean correctas. Una transacción duplicada puede inflar un total; una cuenta inexistente puede dejar movimientos sin relacionar; una tasa de cambio ausente puede impedir comparar monedas.
+Una operación de $100 registrada dos veces aparece como $200 en el reporte. El proceso puede terminar sin errores y, aun así, entregar una cifra incorrecta.
 
-En un reporte bancario, esos detalles cambian la lectura de los resultados. Por eso, el desafío de este proyecto fue controlar la calidad durante todo el recorrido de los datos, desde los archivos originales hasta Power BI.
+Ese es el problema que aborda este proyecto: reunir transacciones, cuentas, clientes y tipos de cambio, comprobar que los datos sean consistentes y llevarlos hasta un reporte que permita explicar sus resultados.
 
-## El problema: las fuentes llegan separadas, el análisis las necesita juntas
+## El problema: las fuentes llegan separadas, el negocio necesita una sola lectura
 
-Las transacciones llegan en CSV, los clientes y las cuentas en JSON, y los tipos de cambio desde una API del Banco Central Europeo. Cada fuente aporta una pieza, pero reunirlas exige comprobar que sus identificadores, relaciones y monedas sean consistentes.
+Para analizar los movimientos de un banco, no basta con juntar archivos. Cada operación debe vincularse con una cuenta válida y los montos deben expresarse en una moneda comparable.
 
-También hay una pregunta operativa: **¿qué pasa si necesitamos ejecutar el proceso otra vez?** Volver a recibir los mismos datos no debería volver a sumar las mismas operaciones.
+Si una transacción se repite, el total se infla. Si falta su cuenta, se pierde parte del contexto. Si falta el tipo de cambio, la comparación queda incompleta.
 
-## La solución: controles antes de que el dato llegue al reporte
+Y cuando es necesario repetir una carga, los mismos movimientos deben seguir contando una sola vez.
 
-Construí una plataforma bancaria multimoneda en Azure que conserva los datos originales, valida la información y prepara un modelo para su análisis.
+## La solución: revisar los datos antes de convertirlos en cifras
 
-El flujo comienza en ADLS Gen2. Databricks procesa los datos con PySpark y Delta Lake en tres capas: **Bronze conserva el origen, Silver limpia y valida, y Gold aplica las reglas de negocio.** Los registros inválidos se separan en cuarentena y las transacciones válidas se convierten a EUR con la tasa correspondiente.
+Construí un flujo que conserva los archivos originales, revisa la información y separa los registros que necesitan atención antes de publicarlos para su análisis.
 
-Azure Data Factory coordina los tres notebooks y sus dependencias. Al finalizar, los datos se publican en Azure SQL y Power BI permite analizar clientes, cuentas, transacciones y canales.
+### Operaciones sin duplicar
 
-## El valor: que una nueva carga no cambie la historia
+El proceso reconoce los datos ya publicados. Volver a ejecutar una carga con la misma información no agrega otra vez los mismos movimientos.
 
-Repetir una publicación es una situación normal: puede ser necesario recuperar una ejecución o volver a procesar un archivo. Si el flujo vuelve a insertar los mismos movimientos, el reporte empieza a contar operaciones que nunca ocurrieron.
+### Cuentas y movimientos vinculados
 
-Por eso, una de las decisiones centrales fue diseñar **cargas que reconocen la información ya procesada** y comprobar que los registros y sus relaciones se mantengan consistentes.
+Los controles comprueban las relaciones entre los registros. Los datos inválidos se separan en cuarentena para revisarlos sin mezclarlos con la información preparada para el reporte.
 
-La trazabilidad permite seguir el recorrido desde el origen. La cuarentena mantiene identificados los registros que necesitan revisión. La reconciliación comprueba que los datos cuadren antes de utilizarlos en el análisis.
+### Montos preparados para comparar
 
-**El resultado es un flujo que permite investigar un error y repetir el proceso conservando la consistencia de la información.**
+Las operaciones válidas se convierten a EUR utilizando el tipo de cambio correspondiente. Así, los movimientos en distintas monedas comparten una misma base de análisis.
+
+## Impacto de negocio: cifras consistentes y resultados que se pueden explicar
+
+La prueba central fue publicar los mismos datos una segunda vez: **953 filas antes, 953 después y cero escrituras nuevas**. El resultado fue `NO_OP`: no había cambios que aplicar.
+
+| Resultado comprobado | Qué aporta al análisis |
+|---|---|
+| Segunda publicación sin escrituras nuevas | Evita agregar nuevamente la misma información |
+| Validaciones PK/FK 7/7 y cero registros huérfanos | Mantiene las relaciones entre las tablas publicadas |
+| Conversión de montos a EUR | Permite comparar operaciones sobre una moneda común |
+| Siete tablas y seis relaciones activas en Power BI | Conecta movimientos, clientes, cuentas y canales |
+
+**Las 953 filas corresponden al total de siete tablas; no son 953 transacciones.** El reporte validado contiene ocho transacciones, cuatro clientes y seis cuentas.
+
+Estos resultados se comprobaron con datos sintéticos y volúmenes controlados. El impacto descrito corresponde a los controles demostrados por el proyecto; no mide ahorros ni resultados comerciales de un banco.
+
+## El valor: poder explicar y repetir el resultado
+
+La trazabilidad permite seguir el dato desde su origen. La cuarentena identifica lo que necesita revisión. La reconciliación comprueba que la información publicada cuadre con los datos preparados.
+
+Juntos, estos controles permiten investigar una diferencia y repetir el proceso conservando la consistencia de las cifras.
 
 ## Objetivos: conectar, validar y entregar
 
-El proyecto se construyó con cuatro objetivos: **integrar archivos y API en un mismo flujo; proteger la calidad antes del consumo; repetir las cargas sin duplicar; y entregar un modelo listo para Power BI.**
+- Integrar transacciones, cuentas, clientes y tipos de cambio en un mismo flujo.
+- Detectar datos inválidos antes de su consumo analítico.
+- Repetir las cargas sin duplicar la información publicada.
+- Entregar un modelo relacionado y listo para Power BI.
 
 La seguridad y el costo también forman parte del diseño: las credenciales se gestionan fuera del código y los recursos cuentan con medidas de control de consumo.
 
@@ -67,28 +91,7 @@ flowchart TD
 
 Data Factory ejecuta los tres notebooks en orden. Azure SQL recibe las tablas preparadas y Power BI las utiliza para explorar movimientos, clientes, cuentas y canales. Esta separación ayuda a localizar dónde ocurrió un problema y qué etapa revisar.
 
-## La prueba decisiva: publicar de nuevo
-
-La primera ejecución completó el recorrido. La segunda puso a prueba una condición distinta: recibir los mismos datos sin volver a escribirlos.
-
-**El resultado fue 953 filas antes, 953 después y cero escrituras nuevas.** La publicación terminó como `NO_OP`: no había cambios que aplicar.
-
-También se verificó que las relaciones entre tablas fueran válidas y que la información pudiera consumirse desde Power BI.
-
-**Resultados comprobados en el proyecto:**
-
-- **Flujo completo:** tres notebooks ejecutados correctamente en **10 min 17 s**.
-- **Integridad:** validaciones PK/FK **7/7**, con **cero registros huérfanos**.
-- **Reejecución:** **953 → 953 filas**, sin escrituras nuevas.
-- **Consumo analítico:** modelo de Power BI con **siete tablas y seis relaciones activas**.
-
-Estas comprobaciones se realizaron con datos sintéticos y volúmenes controlados. Demuestran el comportamiento de la implementación; no corresponden a una prueba de rendimiento a escala ni a resultados comerciales de un cliente.
-
-## La confianza en el reporte empieza antes del dashboard
-
-El proyecto conecta ingesta, transformación, calidad y publicación en un recorrido comprobable. Cada control responde a una pregunta concreta: de dónde viene el dato, si puede utilizarse y qué ocurre cuando se procesa otra vez.
-
-**Un pipeline aporta valor cuando podemos confiar en lo que entrega y explicar cómo llegó hasta ahí.**
+La ejecución de los tres notebooks orquestados por Data Factory se completó en **10 min 17 s**. Esta duración corresponde a esa ejecución documentada y no representa una prueba de rendimiento a escala.
 
 ## Implementación y evidencias
 

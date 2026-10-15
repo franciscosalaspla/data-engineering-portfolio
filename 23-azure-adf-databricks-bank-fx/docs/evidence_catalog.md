@@ -2,7 +2,9 @@
 
 ## Política
 
-Las capturas originales y sus copias sanitizadas se conservan fuera del repositorio público. No se generaron ni reconstruyeron imágenes con IA.
+Las capturas originales y sus copias sanitizadas se conservan fuera del repositorio público. Las capturas utilizadas como evidencia técnica no se generaron ni reconstruyeron con IA.
+
+La imagen `docs/images/pipeline-azure-storytelling.png` es una ilustración generada con IA para comunicar el problema, la solución y el impacto de negocio. No es una captura de Azure o Power BI ni sustituye las evidencias y validaciones descritas en este catálogo.
 
 Antes de conservar una evidencia se eliminaron o recortaron:
 
