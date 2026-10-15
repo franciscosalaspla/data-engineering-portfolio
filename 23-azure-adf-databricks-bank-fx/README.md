@@ -1,16 +1,34 @@
 # Pipeline bancario en Azure
 
-> **La misma transacción dos veces. El doble de problemas.**
+![El pipeline terminó en verde. ¿Y los datos? Problema, solución y resultados del pipeline bancario en Azure.](./docs/images/pipeline-azure-storytelling.png)
 
-Una transacción llega en un CSV, el cliente aparece en un JSON y el tipo de cambio viene de una API. Para analizarlos juntos, primero hay que comprobar que las piezas encajen: que la cuenta exista, que la moneda tenga una tasa disponible y que el movimiento no esté duplicado.
+**El pipeline terminó en verde. El reporte podía seguir estando mal.**
 
-Este proyecto parte de ese desafío: **conectar información bancaria y mantenerla confiable durante todo su recorrido hasta Power BI.** Es una implementación de portafolio con datos sintéticos y volúmenes controlados, ejecutada en Azure.
+Una ejecución exitosa no garantiza que las cifras sean correctas. Una transacción duplicada puede inflar un total; una cuenta inexistente puede dejar movimientos sin relacionar; una tasa de cambio ausente puede impedir comparar monedas.
 
-## El problema que quería resolver
+En un reporte bancario, esos detalles cambian la lectura de los resultados. Por eso, el desafío de este proyecto fue controlar la calidad durante todo el recorrido de los datos, desde los archivos originales hasta Power BI.
 
-Reprocesar un archivo no debería volver a sumar sus transacciones. Tampoco debería llegar al reporte un movimiento asociado a una cuenta inexistente o convertido sin una tasa de cambio disponible.
+## El problema: las fuentes llegan separadas, el análisis las necesita juntas
 
-El desafío fue construir un flujo único y trazable que detectara esos casos, separara los registros inválidos y permitiera repetir la ejecución sin duplicar información.
+Las transacciones llegan en CSV, los clientes y las cuentas en JSON, y los tipos de cambio desde una API del Banco Central Europeo. Cada fuente aporta una pieza, pero reunirlas exige comprobar que sus identificadores, relaciones y monedas sean consistentes.
+
+También hay una pregunta operativa: **¿qué pasa si necesitamos ejecutar el proceso otra vez?** Volver a recibir los mismos datos no debería volver a sumar las mismas operaciones.
+
+## La solución: controles antes de que el dato llegue al reporte
+
+Construí una plataforma bancaria multimoneda en Azure que conserva los datos originales, valida la información y prepara un modelo para su análisis.
+
+El flujo comienza en ADLS Gen2. Databricks procesa los datos con PySpark y Delta Lake en tres capas: **Bronze conserva el origen, Silver limpia y valida, y Gold aplica las reglas de negocio.** Los registros inválidos se separan en cuarentena y las transacciones válidas se convierten a EUR con la tasa correspondiente.
+
+Azure Data Factory coordina los tres notebooks y sus dependencias. Al finalizar, los datos se publican en Azure SQL y Power BI permite analizar clientes, cuentas, transacciones y canales.
+
+## El valor: poder explicar y repetir el resultado
+
+La preparación de los datos queda automatizada, las reglas de negocio se concentran en el flujo y cada etapa mantiene trazabilidad. Esto permite revisar cómo se obtuvo una cifra y detectar problemas antes del consumo analítico.
+
+La prueba decisiva llegó al repetir la publicación: **953 filas antes, 953 después y ninguna escritura nueva.** El proceso conservó el resultado sin duplicar la información.
+
+Esta implementación de portafolio utiliza datos sintéticos y volúmenes controlados para comprobar el diseño, la calidad y las reejecuciones seguras.
 
 ## Objetivos
 
@@ -18,14 +36,6 @@ El desafío fue construir un flujo único y trazable que detectara esos casos, s
 - **Proteger la calidad:** validar los datos por etapas, separar errores y comprobar que los registros y los totales cuadren.
 - **Repetir sin duplicar:** permitir reejecuciones seguras y dejar registro del recorrido de los datos.
 - **Facilitar el análisis:** publicar un modelo estrella en Azure SQL para Power BI, con credenciales y costos bajo control.
-
-## Qué construí y qué valor aporta
-
-Implementé un pipeline que recibe archivos y tipos de cambio en ADLS Gen2, conserva los datos originales y los transforma por etapas con Databricks, PySpark y Delta Lake. Azure Data Factory coordina las ejecuciones y la información validada se publica en Azure SQL para su consumo desde Power BI.
-
-El valor está en **automatizar la preparación de los datos, concentrar las reglas de negocio y poder comprobar cómo se obtuvo cada resultado.**
-
-Por ejemplo, una transacción válida se relaciona con su cliente y cuenta y se convierte a EUR con la tasa correspondiente. Un registro inválido se separa para revisión. Al repetir la publicación con los mismos datos, el resultado se mantiene sin nuevas escrituras.
 
 ## Arquitectura implementada
 
