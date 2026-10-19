@@ -34,13 +34,7 @@ Proyecto validado con datos sintéticos y volumen controlado.
 
 ## Arquitectura
 
-![Arquitectura del pipeline en Azure: ingesta, preparación en Databricks y publicación en Azure SQL y Power BI.](./docs/images/arquitectura-azure.svg)
-
-**1. Recibir y conservar.** Las transacciones, cuentas, clientes y tipos de cambio llegan a ADLS Gen2. Bronze conserva la información original y su origen para poder seguir el recorrido.
-
-**2. Revisar y preparar.** Silver limpia los datos, comprueba duplicados y relaciones, y separa los registros que necesitan revisión. Gold convierte los montos a EUR y organiza el modelo para el análisis.
-
-**3. Publicar y analizar.** Azure SQL recibe las tablas preparadas. Power BI las conecta para explorar movimientos, clientes y canales sobre una misma base.
+![Arquitectura del pipeline Azure con flujo vertical, controles laterales e iconos de las tecnologías.](./docs/images/arquitectura-azure.svg)
 
 ## Implementación y evidencias
 
