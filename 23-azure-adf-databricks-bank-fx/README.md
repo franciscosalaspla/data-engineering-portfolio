@@ -34,7 +34,10 @@ Proyecto validado con datos sintéticos y volumen controlado.
 
 ## Arquitectura
 
-![Arquitectura del pipeline Azure con flujo vertical, controles laterales e iconos de las tecnologías.](./docs/images/arquitectura-azure.svg)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./docs/images/arquitectura-azure-dark.png">
+  <img src="./docs/images/arquitectura-azure-light.png" alt="Azure Cloud: arquitectura vertical con control lateral, iconos de las tecnologías y marca personal de alien abajo a la derecha." width="736">
+</picture>
 
 ## Implementación y evidencias
 
