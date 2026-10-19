@@ -42,13 +42,15 @@ Proyecto validado con datos sintéticos y volumen controlado.
 ## Implementación
 
 <details>
-<summary><strong>Ver decisiones de implementación</strong></summary>
+<summary><strong>Cómo lo llevé a la práctica</strong></summary>
 
-- **Separación por capas:** Bronze conserva los datos de origen; Silver valida y normaliza; Gold aplica la conversión a EUR y construye el modelo estrella. Cada capa tiene una responsabilidad definida.
-- **Tratamiento de errores:** los registros que incumplen las reglas se separan en cuarentena con su motivo, para poder investigarlos sin incorporarlos al modelo analítico.
-- **Publicación repetible:** se comprueban las relaciones y la reconciliación entre Gold y Azure SQL. Una segunda publicación con los mismos datos se validó como `NO_OP`, sin nuevas escrituras.
+Primero conecté las fuentes y conservé una copia de los datos originales para poder revisar cualquier transformación. Después separé el procesamiento en tres capas: recibir los datos, validarlos y preparar el modelo de análisis.
 
-[Código](./src/) · [Implementación técnica](./docs/cloud_implementation.md) · [Validaciones y alcance](./docs/evidence_catalog.md)
+El paso clave fue decidir qué podía avanzar. Los registros con errores quedaron en cuarentena con su motivo; los válidos continuaron hacia la conversión de monedas y el modelo estrella.
+
+Con las capas funcionando, coordiné los tres notebooks desde Data Factory y publiqué el resultado en Azure SQL para consumirlo en Power BI. Antes de cerrar, comprobé las relaciones y contrasté las cifras entre Gold y SQL.
+
+La última prueba fue volver a publicar los mismos datos: el proceso reconoció que no había cambios y evitó nuevas escrituras.
 
 </details>
 
