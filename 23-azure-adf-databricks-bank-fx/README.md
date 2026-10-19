@@ -32,34 +32,15 @@ Para el negocio, el aporte está en disponer de información consistente para co
 
 Proyecto validado con datos sintéticos y volumen controlado.
 
-## La arquitectura detrás del resultado
+## Arquitectura
 
-La información avanza por etapas con responsabilidades definidas. Primero se conserva el origen, después se validan los registros y finalmente se aplican las reglas del modelo analítico.
+![Arquitectura del pipeline en Azure: ingesta, preparación en Databricks y publicación en Azure SQL y Power BI.](./docs/images/arquitectura-azure.svg)
 
-```mermaid
-flowchart TD
-    SRC["ECB API + CSV + JSON"] --> LAND["ADLS Gen2 · Landing"]
-    ADF["Azure Data Factory"] -->|"Orquesta 3 notebooks"| BRONZE
+**1. Recibir y conservar.** Las transacciones, cuentas, clientes y tipos de cambio llegan a ADLS Gen2. Bronze conserva la información original y su origen para poder seguir el recorrido.
 
-    subgraph DBX["Azure Databricks · PySpark + Delta Lake"]
-        direction LR
-        BRONZE["Bronze · Raw + metadata"] -->|"Quality Gate"| SILVER["Silver · Limpieza + cuarentena"]
-        SILVER -->|"Quality Gate"| GOLD["Gold · Modelo estrella + FX"]
-    end
+**2. Revisar y preparar.** Silver limpia los datos, comprueba duplicados y relaciones, y separa los registros que necesitan revisión. Gold convierte los montos a EUR y organiza el modelo para el análisis.
 
-    LAND --> BRONZE
-    GOLD -->|"JDBC"| SQL["Azure SQL · Serving"]
-    SQL --> BI["Power BI · Consumo"]
-    KV["Key Vault + Secret Scope"] -->|"Secretos"| GOLD
-```
-
-**Bronze conserva la evidencia.** Mantiene el dato recibido junto con información técnica para seguir su recorrido.
-
-**Silver controla la calidad.** Normaliza tipos, elimina duplicados y separa registros inválidos en cuarentena.
-
-**Gold prepara la lectura del negocio.** Aplica la conversión a EUR y organiza dimensiones y transacciones en un modelo estrella.
-
-Data Factory ejecuta los tres notebooks en orden. Azure SQL recibe las tablas preparadas y Power BI las utiliza para explorar movimientos, clientes, cuentas y canales. Esta separación ayuda a localizar dónde ocurrió un problema y qué etapa revisar.
+**3. Publicar y analizar.** Azure SQL recibe las tablas preparadas. Power BI las conecta para explorar movimientos, clientes y canales sobre una misma base.
 
 ## Implementación y evidencias
 
