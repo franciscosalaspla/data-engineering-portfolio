@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1080" viewBox="0 0 1440 1080" role="img" aria-labelledby="title desc">
+<title id="title">Arquitectura del pipeline bancario en Azure</title>
+<desc id="desc">Archivos CSV y JSON y API del Banco Central Europeo llegan a Landing en ADLS Gen2. Databricks conserva el origen en Bronze, valida en Silver y prepara el modelo y los montos en EUR en Gold. Silver separa registros inválidos en cuarentena. Gold se publica en Azure SQL para su análisis con Power BI. Data Factory coordina tres notebooks y Key Vault con Secret Scope protege las credenciales.</desc>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#2563eb"/></marker>
+<marker id="amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#b7791f"/></marker>
+</defs>
+<rect width="1440" height="1080" rx="24" fill="#ffffff"/>
+<g font-family="DejaVu Sans,Arial,sans-serif">
+<text x="60" y="60" font-size="23" font-weight="700" fill="#334155" letter-spacing="2">DEL ORIGEN AL ANÁLISIS</text>
+<rect x="60" y="100" width="1320" height="66" rx="14" fill="#eff6ff" stroke="#bfdbfe" stroke-width="2"/>
+<text x="88" y="141" font-size="25" font-weight="700" fill="#1e40af">Azure Data Factory</text>
+<text x="450" y="141" font-size="23" fill="#334155">Coordina los tres notebooks en secuencia</text>
+<text x="60" y="225" font-size="20" font-weight="700" fill="#64748b" letter-spacing="1.5">01 · INGESTA</text>
+<rect x="60" y="455" width="1320" height="335" rx="22" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
+<text x="100" y="498" font-size="25" font-weight="700" fill="#0f172a">02 · PREPARACIÓN EN AZURE DATABRICKS</text>
+<text x="1060" y="498" font-size="20" fill="#64748b">PySpark + Delta Lake</text>
+<g fill="none" stroke="#2563eb" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow)">
+<path d="M650 320 H790"/>
+<path d="M1050 390 V420 H78 V600 H100"/>
+<path d="M440 600 H550"/>
+<path d="M890 600 H1000"/>
+<path d="M1170 665 V818 H520 V872"/>
+<path d="M690 930 H850"/>
+</g>
+<path d="M1360 166 V455" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-dasharray="7 7" marker-end="url(#arrow)"/>
+<path d="M720 665 V700" fill="none" stroke="#b7791f" stroke-width="2.5" marker-end="url(#amber)"/>
+<text x="495" y="582" text-anchor="middle" font-size="17" fill="#64748b">Validar</text>
+<text x="945" y="582" text-anchor="middle" font-size="17" fill="#64748b">Modelar</text>
+<text x="60" y="850" font-size="20" font-weight="700" fill="#64748b" letter-spacing="1.5">03 · PUBLICACIÓN Y CONSUMO</text><rect x="130" y="250" width="520" height="140" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/><rect x="130" y="270" width="5" height="100" rx="2.5" fill="#2563eb"/><text x="158" y="293" font-size="29" font-weight="700" fill="#0f172a">Fuentes</text><text x="158" y="324" font-size="19" fill="#475569">Transacciones CSV · Cuentas y clientes JSON</text><text x="158" y="350" font-size="19" fill="#475569">Tipos de cambio · API del</text><text x="158" y="376" font-size="19" fill="#475569">Banco Central Europeo</text><rect x="790" y="250" width="520" height="140" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/><rect x="790" y="270" width="5" height="100" rx="2.5" fill="#2563eb"/><text x="818" y="293" font-size="29" font-weight="700" fill="#0f172a">Landing · ADLS Gen2</text><text x="818" y="328" font-size="21" fill="#475569">Archivos recibidos</text><text x="818" y="356" font-size="21" fill="#475569">Punto de entrada al procesamiento</text><rect x="100" y="535" width="340" height="130" rx="16" fill="#fff7ed" stroke="#fed7aa" stroke-width="2"/><rect x="100" y="555" width="5" height="90" rx="2.5" fill="#b45309"/><text x="128" y="578" font-size="29" font-weight="700" fill="#0f172a">Bronze</text><text x="128" y="613" font-size="21" fill="#475569">Datos originales</text><text x="128" y="641" font-size="21" fill="#475569">Origen y metadata</text><rect x="550" y="535" width="340" height="130" rx="16" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="2"/><rect x="550" y="555" width="5" height="90" rx="2.5" fill="#64748b"/><text x="578" y="578" font-size="29" font-weight="700" fill="#0f172a">Silver</text><text x="578" y="613" font-size="21" fill="#475569">Datos validados</text><text x="578" y="641" font-size="21" fill="#475569">Duplicados y relaciones</text><rect x="1000" y="535" width="340" height="130" rx="16" fill="#fefce8" stroke="#fde68a" stroke-width="2"/><rect x="1000" y="555" width="5" height="90" rx="2.5" fill="#ca8a04"/><text x="1028" y="578" font-size="29" font-weight="700" fill="#0f172a">Gold</text><text x="1028" y="613" font-size="21" fill="#475569">Modelo de negocio</text><text x="1028" y="641" font-size="21" fill="#475569">Montos en EUR</text><rect x="550" y="700" width="340" height="58" rx="12" fill="#fffbeb" stroke="#fcd34d" stroke-width="2"/><text x="720" y="736" text-anchor="middle" font-size="20" font-weight="700" fill="#92400e">Cuarentena · Revisión</text><rect x="350" y="872" width="340" height="115" rx="16" fill="#eff6ff" stroke="#bfdbfe" stroke-width="2"/><rect x="350" y="892" width="5" height="75" rx="2.5" fill="#2563eb"/><text x="378" y="915" font-size="29" font-weight="700" fill="#0f172a">Azure SQL</text><text x="378" y="950" font-size="21" fill="#475569">Tablas listas para consultar</text><rect x="850" y="872" width="340" height="115" rx="16" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="2"/><rect x="850" y="892" width="5" height="75" rx="2.5" fill="#15803d"/><text x="878" y="915" font-size="29" font-weight="700" fill="#0f172a">Power BI</text><text x="878" y="950" font-size="21" fill="#475569">Análisis de movimientos</text><text x="720" y="1035" text-anchor="middle" font-size="20" fill="#64748b">Seguridad · Key Vault + Secret Scope protegen las credenciales de publicación</text></g></svg>
