@@ -1,5 +1,7 @@
 ![Del doble conteo a cifras confiables: problema, solución y resultados del pipeline bancario en Azure.](./docs/images/pipeline-azure-aprobada.png)
 
+## El problema de negocio
+
 **Cuando las cifras no cuadran, el negocio termina esperando.**
 
 En un cierre de gestión, el equipo necesita entender cuánto dinero se movió, por qué canales y en qué monedas. Si los reportes entregan cifras distintas, la conversación termina girando alrededor de cuál está bien.
@@ -8,7 +10,7 @@ Una operación de 100 € que aparece dos veces puede convertirse en 200 €. Un
 
 Resolver esas diferencias obliga a revisar archivos y reconstruir cálculos. El análisis del negocio queda esperando.
 
-**La solución: resolver las diferencias antes del reporte**
+## La solución: resolver las diferencias antes del reporte
 
 Con ese escenario como punto de partida, construí un pipeline bancario en Azure con Databricks que conecta las fuentes y revisa la información antes de publicarla.
 
@@ -18,7 +20,7 @@ Así, el equipo cuenta con un recorrido para investigar una diferencia y una bas
 
 También incorporé una condición práctica: repetir una carga con los mismos datos debe conservar el resultado.
 
-**Los resultados y su valor para el negocio**
+## Los resultados y su valor para el negocio
 
 La publicación dejó **siete tablas y 953 filas totales**, con sus relaciones validadas y **cero registros huérfanos**.
 
