@@ -44,15 +44,17 @@ Proyecto validado con datos sintéticos y volumen controlado.
 ## Implementación
 
 <details>
-<summary><strong>Cómo lo llevé a la práctica</strong></summary>
+<summary><strong>De los archivos al análisis</strong></summary>
 
-Primero conecté las fuentes y conservé una copia de los datos originales para poder revisar cualquier transformación. Después separé el procesamiento en tres capas: recibir los datos, validarlos y preparar el modelo de análisis.
+Para llegar a cifras consistentes, cada etapa resolvió una parte del problema: conservar el origen, controlar los errores y comprobar que el resultado pudiera publicarse y repetirse.
 
-El paso clave fue decidir qué podía avanzar. Los registros con errores quedaron en cuarentena con su motivo; los válidos continuaron hacia la conversión de monedas y el modelo estrella.
-
-Con las capas funcionando, coordiné los tres notebooks desde Data Factory y publiqué el resultado en Azure SQL para consumirlo en Power BI. Antes de cerrar, comprobé las relaciones y contrasté las cifras entre Gold y SQL.
-
-La última prueba fue volver a publicar los mismos datos: el proceso reconoció que no había cambios y evitó nuevas escrituras.
+| Etapa | Problema | Cómo lo resolví y qué aporta |
+|---|---|---|
+| **Conservar el origen**<br><img src="./docs/images/icons/adls-gen2.svg" width="22" height="22" alt=""> ADLS Gen2 | La información llegaba en distintos formatos y desde varias fuentes. | Centralicé los archivos y conservé los originales para poder investigar de dónde salió una cifra. |
+| **Preparar los datos**<br><img src="./docs/images/icons/databricks.svg" width="22" height="22" alt=""> Databricks | Duplicados, relaciones inválidas y distintas monedas podían distorsionar el análisis. | Apliqué validaciones, separé errores en cuarentena y convertí los montos a EUR, preparando una base consistente para comparar movimientos y canales. |
+| **Conectar las etapas**<br><img src="./docs/images/icons/data-factory.svg" width="22" height="22" alt=""> Data Factory | Cada transformación necesitaba el resultado correcto de la anterior. | Coordiné tres notebooks en secuencia, con dependencias de éxito para controlar el avance del proceso. |
+| **Comprobar la entrega**<br><img src="./docs/images/icons/azure-sql.svg" width="22" height="22" alt=""> Azure SQL | Publicar datos incompletos o duplicarlos al repetir una carga cambiaría las cifras. | Validé relaciones y reconcilié Gold con SQL. La segunda publicación conservó el resultado sin nuevas escrituras. |
+| **Mostrar el resultado**<br><img src="./docs/images/icons/power-bi.svg" width="22" height="22" alt=""> Power BI | Las tablas necesitaban una forma clara de consulta. | Relacioné el modelo y publiqué indicadores de transacciones, clientes, cuentas y canales para facilitar su lectura. |
 
 </details>
 
