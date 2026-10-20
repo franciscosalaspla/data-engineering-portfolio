@@ -20,45 +20,11 @@ En la empresa familiar [Taller Café](https://taller.cafe/), diseño interiores,
 
 ## Proyectos destacados
 
-### [Plataforma bancaria en Azure](./23-azure-adf-databricks-bank-fx/README.md#azure-inicio)
-
-<p>
-  <img src="./assets/icons/azure.svg" alt="Azure" title="Azure" width="20" height="20">
-  &nbsp;
-  <img src="./23-azure-adf-databricks-bank-fx/docs/images/icons/databricks.svg" alt="Databricks" title="Databricks" width="20" height="20">
-</p>
-
-Una operación duplicada puede cambiar las cifras del negocio. Construí un pipeline para validar los datos antes del reporte y repetir la publicación sin duplicar movimientos.
-
-**7 tablas · 953 filas · 0 escrituras nuevas al repetir la publicación.**
-
-<sub>Validado con datos sintéticos y volumen controlado.</sub>
-
----
-
-### [Data Lake bancario con enfoque AWS](./20-aws-style-banking-data-lake/README.md#pipeline-end-to-end-en-aws)
-
-<p>
-  <img src="./assets/icons/python.svg" alt="Python" title="Python" width="20" height="20">
-  &nbsp;
-  <img src="./assets/icons/duckdb.svg" alt="DuckDB" title="DuckDB" width="20" height="20">
-</p>
-
-Guardar archivos no basta para analizarlos. Construí un Data Lake local con enfoque AWS para preparar los datos por capas, separar errores y consultar el resultado.
-
-**Datos organizados por capas y errores separados para revisión.**
-
----
-
-### [Clasificación de RUT y giros — SII](./rut-classification-data-quality-case/clasificacion-calidad-datos-presentacion.pdf)
-
-<p>
-  <img src="./assets/icons/python.svg" alt="Python" title="Python" width="20" height="20">
-</p>
-
-Clasificar empresas con criterios ambiguos puede generar resultados inconsistentes. Apliqué reglas de negocio y trazabilidad para explicar cómo se obtuvo cada clasificación.
-
-**Clasificaciones trazables y casos que requieren revisión identificados.**
+| Proyecto | De qué trata |
+|---|---|
+| **[Plataforma bancaria en Azure](./23-azure-adf-databricks-bank-fx/README.md#azure-inicio)**<br><br><img src="./assets/icons/azure.svg" alt="Azure" title="Azure" width="20" height="20"> &nbsp; <img src="./23-azure-adf-databricks-bank-fx/docs/images/icons/databricks.svg" alt="Databricks" title="Databricks" width="20" height="20"> &nbsp; <img src="./23-azure-adf-databricks-bank-fx/docs/images/icons/data-factory.svg" alt="ADF" title="Azure Data Factory" width="20" height="20"> | Del doble conteo a cifras consistentes: integrar, validar y publicar sin duplicar operaciones. |
+| **[Data Lake bancario con enfoque AWS](./20-aws-style-banking-data-lake/README.md#pipeline-end-to-end-en-aws)**<br><br><picture><source media="(prefers-color-scheme: dark)" srcset="./assets/icons/aws-dark.svg"><img src="./assets/icons/aws.svg" alt="AWS" title="Enfoque AWS — implementación local" width="20" height="20"></picture> &nbsp; <img src="./assets/icons/python.svg" alt="Python" title="Python" width="20" height="20"> &nbsp; <img src="./assets/icons/duckdb.svg" alt="DuckDB" title="DuckDB" width="20" height="20"> | De archivos dispersos a datos preparados para analizar, con controles por capa en una implementación local con enfoque AWS. |
+| **[Clasificación de RUT y giros — SII](./rut-classification-data-quality-case/clasificacion-calidad-datos-presentacion.pdf)**<br><br><img src="./assets/icons/python.svg" alt="Python" title="Python" width="20" height="20"> | De criterios ambiguos a clasificaciones que se pueden explicar, con reglas de negocio y trazabilidad. |
 
 ## Certificaciones
 
