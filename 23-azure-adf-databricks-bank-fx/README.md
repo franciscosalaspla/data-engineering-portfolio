@@ -79,23 +79,17 @@ El cierre fue comprobar que los datos cuadraran, las relaciones fueran válidas 
 <details>
 <summary><strong>Cómo organicé el proyecto</strong></summary>
 
-Separé la lógica de procesamiento, la configuración y las pruebas para poder revisar cada parte sin recorrer todo el proyecto. Los notebooks llaman a módulos reutilizables; los scripts permiten ejecutar y validar el flujo localmente.
+La lógica, los notebooks y las pruebas están separados para poder revisar cómo se transforma un dato y qué controles debe superar.
 
-| Carpeta | Qué contiene |
+| Carpeta | Su papel en el proyecto |
 |---|---|
-| [adf/](./adf/) | Diseño local versionado de pipelines, conexiones y datasets. |
-| [config/](./config/) | Parámetros de fuentes y procesamiento Silver y Gold. |
-| [contracts/](./contracts/) | Reglas y contratos que deben cumplir los datos. |
-| [schemas/](./schemas/) | Estructuras esperadas para clientes, cuentas, transacciones y tasas. |
-| [data/fixtures/](./data/fixtures/) | Datos sintéticos válidos e inválidos para las pruebas. |
-| [data/output/](./data/output/) | Salidas locales y registros del procesamiento. |
-| [src/](./src/) | Lógica reutilizable de ingesta, Silver y Gold. |
-| [databricks/notebooks/](./databricks/notebooks/) | Notebooks portables que ejecutan y validan las capas. |
-| [scripts/](./scripts/) | Ejecución local, generación de datos y validaciones. |
-| [tests/](./tests/) | Pruebas automatizadas del procesamiento y sus reglas. |
-| [manifest/](./manifest/) | Resultados esperados para contrastar las ejecuciones. |
-| [sql/](./sql/) | Consultas analíticas sobre el modelo Gold. |
-| [docs/](./docs/) | Arquitectura, implementación, validaciones y operación. |
+| [data/fixtures/](./data/fixtures/) | Datos sintéticos válidos e inválidos para probar el flujo. |
+| [config/](./config/) | Configuración de fuentes y parámetros de Silver y Gold. |
+| [src/](./src/) | Reglas de ingesta, limpieza, conversión de monedas y reconciliación. |
+| [databricks/notebooks/](./databricks/notebooks/) | Notebooks portables para ejecutar y validar las capas. |
+| [adf/](./adf/) | Diseño local de la ingesta y sus conexiones. |
+| [tests/](./tests/) | Pruebas automatizadas de calidad, transformaciones y repetición de cargas. |
+| [sql/](./sql/) | Consultas para analizar los movimientos del modelo Gold. |
 
 *La carpeta `adf/` contiene el diseño local; la exportación del pipeline cloud definitivo no está versionada.*
 
