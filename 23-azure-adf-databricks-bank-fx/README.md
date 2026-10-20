@@ -83,19 +83,19 @@ Separé la lógica de procesamiento, la configuración y las pruebas para poder 
 
 | Carpeta | Qué contiene |
 |---|---|
-| `adf/` | Diseño local versionado de pipelines, conexiones y datasets. |
-| `config/` | Parámetros de fuentes y procesamiento Silver y Gold. |
-| `contracts/` | Reglas y contratos que deben cumplir los datos. |
-| `schemas/` | Estructuras esperadas para clientes, cuentas, transacciones y tasas. |
-| `data/fixtures/` | Datos sintéticos válidos e inválidos para las pruebas. |
-| `data/output/` | Salidas locales y registros del procesamiento. |
-| `src/` | Lógica reutilizable de ingesta, Silver y Gold. |
-| `databricks/notebooks/` | Notebooks portables que ejecutan y validan las capas. |
-| `scripts/` | Ejecución local, generación de datos y validaciones. |
-| `tests/` | Pruebas automatizadas del procesamiento y sus reglas. |
-| `manifest/` | Resultados esperados para contrastar las ejecuciones. |
-| `sql/` | Consultas analíticas sobre el modelo Gold. |
-| `docs/` | Arquitectura, implementación, validaciones y operación. |
+| [adf/](./adf/) | Diseño local versionado de pipelines, conexiones y datasets. |
+| [config/](./config/) | Parámetros de fuentes y procesamiento Silver y Gold. |
+| [contracts/](./contracts/) | Reglas y contratos que deben cumplir los datos. |
+| [schemas/](./schemas/) | Estructuras esperadas para clientes, cuentas, transacciones y tasas. |
+| [data/fixtures/](./data/fixtures/) | Datos sintéticos válidos e inválidos para las pruebas. |
+| [data/output/](./data/output/) | Salidas locales y registros del procesamiento. |
+| [src/](./src/) | Lógica reutilizable de ingesta, Silver y Gold. |
+| [databricks/notebooks/](./databricks/notebooks/) | Notebooks portables que ejecutan y validan las capas. |
+| [scripts/](./scripts/) | Ejecución local, generación de datos y validaciones. |
+| [tests/](./tests/) | Pruebas automatizadas del procesamiento y sus reglas. |
+| [manifest/](./manifest/) | Resultados esperados para contrastar las ejecuciones. |
+| [sql/](./sql/) | Consultas analíticas sobre el modelo Gold. |
+| [docs/](./docs/) | Arquitectura, implementación, validaciones y operación. |
 
 *La carpeta `adf/` contiene el diseño local; la exportación del pipeline cloud definitivo no está versionada.*
 
