@@ -1,3 +1,5 @@
+<a name="azure-inicio"></a>
+
 ![Del doble conteo a cifras confiables: problema, solución y resultados del pipeline bancario en Azure.](./docs/images/pipeline-azure-aprobada.png)
 
 ## El problema de negocio
@@ -104,4 +106,4 @@ El cierre fue comprobar que los datos cuadraran, las relaciones fueran válidas 
 
 </details>
 
-[Volver al portafolio](../README.md)
+[Volver al portafolio](../README.md#portafolio-inicio)

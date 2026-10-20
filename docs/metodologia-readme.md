@@ -95,6 +95,8 @@ Debe ser natural para decirlo en voz alta, sin exigir que el entrevistador naveg
 
 ## Enlaces y evidencias
 
+- Definir un ancla estable antes de la portada y usarla en los enlaces del CV y del portafolio para entrar directamente a la presentación.
+- Mantener el enlace de regreso al inicio del portafolio y comprobar los destinos incluidos en los PDF publicados.
 - Enlazar las carpetas o archivos que existen y corresponden al contenido descrito.
 - Evitar enlaces a portales privados, recursos eliminados o documentación extensa como requisito para entender el README.
 - Incorporar capturas originales que muestren una comprobación concreta, cuando estén disponibles.
