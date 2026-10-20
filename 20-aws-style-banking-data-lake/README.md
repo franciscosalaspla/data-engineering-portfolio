@@ -1,265 +1,108 @@
-# 20 - AWS-style Banking Data Lake
+<a name="aws-inicio"></a>
+<a name="pipeline-end-to-end-en-aws"></a>
 
-## Pipeline End-to-End en AWS
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/data-lake-portada-dark.svg">
+  <img src="./assets/data-lake-portada-light.svg" alt="Los archivos llegaron. Las respuestas todavía no. Data Lake bancario local con enfoque AWS: 1.257 entradas, dos duplicados retirados, 120 registros en cuarentena y 1.135 transacciones preparadas para el análisis." width="1200">
+</picture>
 
-<p align="center">
-  <img src="./assets/aws-cloud-development-services-by-vizsphere.jpeg" alt="AWS-style Banking Data Lake" width="650">
-</p>
+## El problema de negocio
 
-> Imagen referencial utilizada para representar una arquitectura cloud AWS-style.
+**Los archivos llegaron. Las respuestas todavía no.**
 
-## 1. Valor del proyecto
+El negocio necesita comparar canales, revisar movimientos y entender qué cambió entre un mes y otro. Pero recibir los archivos de transacciones, cuentas y clientes es solo el comienzo.
 
-Este proyecto demuestra cómo transformar datos bancarios crudos en información confiable, estructurada y lista para análisis, usando una arquitectura Data Lake tipo AWS ejecutada de forma local.
+Una fecha imposible deja un movimiento fuera del período correcto. Una cuenta inexistente le quita contexto a una operación. Y llamar «mobile» y «mobile_app» al mismo canal divide lo que debería analizarse junto.
 
-El valor principal está en mostrar criterio de Ingeniería de Datos: organización por capas, control de calidad, trazabilidad, separación de errores, consultas analíticas y diseño cloud-style sin depender de infraestructura real ni generar costos.
+Cuando cada consulta obliga a limpiar y cruzar archivos otra vez, el equipo dedica su tiempo a preparar la información antes de poder usarla.
 
-## 2. Problema y enfoque
+## La solución: preparar los datos antes de analizarlos
 
-En un contexto bancario, los datos operacionales suelen llegar desde distintas fuentes, como transacciones, cuentas, clientes y sucursales. Antes de que puedan usarse para análisis, estos datos deben pasar por procesos de limpieza, validación y organización, porque pueden contener duplicados, nulos, fechas inválidas, montos faltantes, tipos inconsistentes o referencias incorrectas.
+Construí un Data Lake bancario local con enfoque AWS para darle un recorrido claro a esa información.
 
-El enfoque del proyecto fue construir una simulación local de una arquitectura Data Lake tipo AWS, donde los datos avanzan desde una zona cruda hacia capas más confiables y analíticas. Para esto se usaron carpetas locales como equivalente de S3, Python como motor de transformación tipo Glue/Lambda, DuckDB para consultas Athena-like y archivos JSON como evidencia de ejecución.
+El proceso guarda las entradas, organiza los datos por capas y aplica controles antes de preparar las salidas analíticas. Los registros con errores críticos quedan separados, con un motivo identificado para su revisión.
 
-La decisión de implementarlo localmente permite demostrar el diseño técnico sin desplegar recursos reales en AWS, manteniendo foco en arquitectura, calidad de datos, trazabilidad y control de costos.
+Con Python preparé las transformaciones y los archivos Parquet. Con DuckDB incorporé consultas sobre canales, meses, tipos de transacción y clientes. Un único proceso coordina el recorrido y deja un resumen de lo que ocurrió.
 
-## 3. Objetivo
+## Los resultados y su valor para el negocio
 
-Implementar un pipeline end-to-end tipo AWS Data Lake para datos bancarios, usando Python, DuckDB y Parquet.
+La ejecución documentada partió de **1.257 registros de transacciones**. Se retiraron **dos duplicados**, se separaron **120 registros en cuarentena** y quedaron **1.135 transacciones preparadas**.
 
-El proyecto organiza los datos en capas `landing`, `bronze`, `silver` y `gold`. No usa AWS real, credenciales, `boto3` ni recursos cloud, por lo que no genera costos.
+Con esa base se generaron **cinco conjuntos analíticos** y se ejecutaron **cinco consultas SQL**.
 
-## 4. Arquitectura tipo AWS
+El aporte está en contar con datos preparados para distintas preguntas y concentrar la revisión en los casos identificados. Para el equipo, queda un recorrido que permite entender cómo se construyó cada salida.
 
-El flujo local representa S3, Glue/Lambda, Athena y logs estilo CloudWatch sin desplegar servicios reales en AWS.
+*Implementación local con enfoque AWS, datos sintéticos y volumen controlado. Cifras documentadas de una ejecución en Codespaces.*
 
-```mermaid
-flowchart LR
-    A["landing<br/>CSV crudo<br/>S3 landing/raw"] --> B["bronze<br/>Parquet normalizado<br/>S3 bronze"]
-    B --> C["silver<br/>limpieza + validación + enriquecimiento<br/>Glue/Lambda transform"]
-    C --> D["gold<br/>métricas analíticas<br/>S3 gold"]
-    D --> E["Athena-like queries<br/>DuckDB sobre Parquet"]
-    E --> F["outputs<br/>query results + summaries JSON<br/>CloudWatch-style logs"]
-```
+## Arquitectura
 
-## 5. Estructura del proyecto
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/arquitectura-data-lake-dark.svg">
+  <img src="./assets/arquitectura-data-lake-light.svg" alt="Arquitectura vertical de la implementación local: CSV, Bronze, Silver con cuarentena lateral, Gold, DuckDB y resumen JSON. Python coordina el recorrido; los servicios AWS representan equivalencias de diseño." width="736">
+</picture>
 
-```text
-20-aws-style-banking-data-lake/
-|-- app/
-|   |-- generate_banking_landing_data.py
-|   |-- build_data_lake.py
-|   |-- run_athena_like_queries.py
-|   `-- run_pipeline.py
-|-- data_lake/
-|   |-- landing/
-|   |-- bronze/
-|   |-- silver/
-|   `-- gold/
-|-- docs/
-|   |-- aws_architecture_mapping.md
-|   |-- cost_control.md
-|   `-- iam_least_privilege.md
-|-- queries/
-|   `-- athena_like_queries.sql
-|-- output/
-|   `-- .gitkeep
-|-- README.md
-|-- requirements.txt
-`-- .gitignore
-```
+## Implementación
 
-| Carpeta | Rol |
-| --- | --- |
-| `app/` | Scripts Python del pipeline. |
-| `data_lake/` | Capas locales que simulan S3 landing, bronze, silver y gold. |
-| `queries/` | SQL usado por DuckDB para simular consultas Athena-like. |
-| `output/` | Summaries y resultados generados localmente, ignorados por Git. |
-| `docs/` | Documentación de arquitectura AWS equivalente, costos e IAM. |
+<details>
+<summary><strong>De los archivos al análisis</strong></summary>
 
-### Componentes principales
+Cada etapa prepara la siguiente: organizar el origen, separar los problemas y dejar datos que permitan responder preguntas.
 
-- `generate_banking_landing_data.py`: genera datos bancarios crudos con errores controlados para probar reglas de calidad.
-- `build_data_lake.py`: componente central del proyecto. Cumple el rol tipo Glue/Lambda porque construye bronze, silver y gold, aplica validaciones, enriquece datos, particiona Parquet y genera estimación conceptual de costos.
-- `run_athena_like_queries.py`: ejecuta consultas SQL con DuckDB sobre los Parquet generados, simulando Athena.
-- `run_pipeline.py`: orquesta el flujo completo y consolida la evidencia de ejecución en `output/pipeline_summary.json`.
+| Etapa y tecnología | Problema | Cómo lo resolví y qué aporta |
+|---|---|---|
+| **Preparar las entradas**<br><img src="../assets/icons/python.svg" width="22" height="22" alt=""> Python | Necesitaba comprobar qué ocurría con archivos correctos y con errores. | Generé CSV de transacciones, cuentas, clientes y sucursales con casos controlados para probar el recorrido. |
+| **Organizar el origen**<br>Parquet · Bronze | Los archivos necesitaban una estructura común y una referencia a su procedencia. | Normalicé columnas y guardé Parquet con archivo fuente y fecha de carga, manteniendo una base cercana a la entrada. |
+| **Revisar y relacionar**<br><img src="../assets/icons/python.svg" width="22" height="22" alt=""> Python · Silver | Duplicados, fechas inválidas y cuentas inexistentes podían distorsionar el análisis. | Apliqué validaciones, separé errores en cuarentena y enriquecí las transacciones con cuentas, clientes y sucursales. |
+| **Preparar las salidas**<br>Parquet · Gold | Las transacciones individuales requerían agregaciones para comparar el negocio. | Construí cinco conjuntos por canal, tipo de transacción, mes, cliente y sucursal. |
+| **Consultar y registrar**<br><img src="../assets/icons/duckdb.svg" width="22" height="22" alt=""> DuckDB | Las salidas debían permitir responder preguntas y conocer cómo terminó el proceso. | Ejecuté cinco consultas SQL y guardé resultados y resúmenes JSON con estados, conteos y rutas. |
 
-## 6. Flujo del pipeline
+</details>
 
-```text
-CSV crudos -> landing -> bronze Parquet -> silver limpio + cuarentena -> gold analítico -> queries DuckDB -> summaries JSON
-```
+<details>
+<summary><strong>Cómo construí el proyecto, paso a paso</strong></summary>
 
-1. **Landing:** genera CSV bancarios crudos con datos messy controlados.
-2. **Bronze:** convierte landing a Parquet, normaliza columnas y conserva una estructura cercana al raw.
-3. **Silver:** limpia, valida y enriquece transacciones con clientes, cuentas y sucursales; los registros críticos inválidos se separan en cuarentena.
-4. **Gold:** produce datasets analíticos por canal, tipo de transacción, mes, cliente y sucursal.
-5. **Athena-like queries:** ejecuta SQL con DuckDB sobre los Parquet generados, sin usar Athena real.
-6. **Output:** genera resultados de queries y summaries JSON con estado final, conteos, checks de calidad, rutas generadas y notas de costos.
+Estos son los archivos y carpetas que sostienen el recorrido.
 
-Los CSV, Parquet y summaries generados están ignorados por Git para evitar subir datos locales o artefactos de ejecución.
+| Paso y código | Tecnología | Problema → solución |
+|---|---|---|
+| **1. Preparar los casos**<br>[Generador de entradas](./app/generate_banking_landing_data.py) | <img src="../assets/icons/python.svg" width="22" height="22" alt=""> Python | Necesitaba datos de prueba reproducibles → definí una semilla fija y casos con duplicados, valores vacíos y referencias inválidas. |
+| **2. Separar las etapas**<br>[data_lake/](./data_lake/) | CSV · Parquet | Mezclar entrada y resultados dificultaba seguir el dato → organicé Landing, Bronze, Silver y Gold. |
+| **3. Transformar y validar**<br>[Construcción de las capas](./app/build_data_lake.py) | <img src="../assets/icons/python.svg" width="22" height="22" alt=""> Python | Los archivos requerían reglas comunes → centralicé limpieza, cruces, cuarentena, particiones y agregaciones. |
+| **4. Definir las preguntas**<br>[Consultas analíticas](./queries/athena_like_queries.sql) | SQL | Las salidas debían responder preguntas concretas → separé las consultas por canal, mes, tipo, cliente y período. |
+| **5. Ejecutar las consultas**<br>[Motor de consulta](./app/run_athena_like_queries.py) | <img src="../assets/icons/duckdb.svg" width="22" height="22" alt=""> DuckDB | Necesitaba consultar Parquet y guardar lo obtenido → ejecuté SQL y generé resultados CSV y un resumen JSON. |
+| **6. Coordinar el recorrido**<br>[Ejecución completa](./app/run_pipeline.py) | <img src="../assets/icons/python.svg" width="22" height="22" alt=""> Python | Las etapas necesitaban una secuencia y un cierre → coordiné generación, transformación, consultas y resumen de ejecución. |
 
-## 7. Resultados de la implementación
+*Los datos y resúmenes se generan localmente; por eso las carpetas de salida contienen solo archivos de estructura en GitHub. Cada ejecución regenera las entradas y reconstruye las capas.*
 
-- **Situación:** el proyecto necesitaba demostrar una arquitectura Data Lake end-to-end sin depender de infraestructura cloud real.
-- **Tarea:** generar datos bancarios crudos, procesarlos por capas, ejecutar consultas analíticas y dejar evidencia clara de calidad y ejecución.
-- **Acciones:** se implementó un pipeline local con generación de landing, construcción bronze/silver/gold, cuarentena de registros inválidos, queries DuckDB y summaries JSON.
-- **Resultados validados en Codespaces:**
+</details>
 
-| Resultado | Valor |
-| --- | --- |
-| `final_status` | `PASSED` |
-| Transacciones en landing | 1257 |
-| `enriched_transactions` en silver | 1135 |
-| Registros en cuarentena | 120 |
-| Datasets gold generados | 5 |
-| Queries Athena-like ejecutadas | 5 PASSED |
+<details>
+<summary><strong>Las pruebas detrás de las cifras</strong></summary>
 
-Checks de calidad registrados:
+Estos resultados corresponden a la ejecución local documentada en Codespaces. El código permite identificar los controles y seguir la conciliación de filas.
 
-- duplicados removidos;
-- `transaction_id` faltante;
-- fechas inválidas;
-- montos faltantes;
-- referencias inválidas de cuenta;
-- tipos de transacción desconocidos;
-- registros críticos enviados a cuarentena.
+| Control | Resultado documentado | Qué aporta |
+|---|---|---|
+| **Entrada** | **1.257 registros de transacciones** | Un punto de partida para comparar qué continuó y qué se separó. |
+| **Calidad** | **2 duplicados retirados · 120 en cuarentena** | Separar los casos que no deben alimentar las salidas analíticas. |
+| **Silver** | **1.135 transacciones preparadas** | Una base relacionada con cuentas, clientes y sucursales. |
+| **Gold** | **5 conjuntos analíticos** | Salidas para analizar canales, tipos, meses, clientes y sucursales. |
+| **Consultas** | **5/5 ejecutadas** | SQL sobre Parquet para explorar los datos preparados. |
+| **Cierre** | Estado final **PASSED** | Registro de que el recorrido terminó sin excepciones en esa ejecución. |
 
-Estos resultados corresponden a una ejecución local y no implican uso real de AWS, grandes volúmenes ni costos reales de nube.
+**Las filas cuadran: 1.257 = 2 duplicados + 120 en cuarentena + 1.135 preparadas.**
 
-## 8. Equivalencia local vs AWS
+*Las consultas ejecutadas son comprobaciones de ejecución, no una suite de pruebas automatizadas. El [detalle de las cifras](./docs/resultados-documentados.md) distingue los resultados históricos y lo comprobable en el código.*
 
-| Local | AWS equivalente | Rol |
-| --- | --- | --- |
-| `data_lake/landing/` | S3 landing/raw | Ingesta cruda en CSV |
-| `data_lake/bronze/` | S3 bronze | Datos normalizados en Parquet |
-| `data_lake/silver/` | S3 silver + Glue/Lambda | Datos limpios, enriquecidos y particionados |
-| `data_lake/gold/` | S3 gold | Métricas analíticas |
-| `DuckDB` | Athena | SQL sobre Parquet |
-| `output/pipeline_summary.json` | CloudWatch-style log | Trazabilidad de ejecución |
-| `docs/iam_least_privilege.md` | IAM design | Permisos mínimos conceptuales |
-| `docs/cost_control.md` | AWS cost controls | Buenas prácticas de costos |
+</details>
 
-Para migrarlo a AWS real, el diseño podría llevarse a un bucket S3 con prefixes `landing/`, `bronze/`, `silver/` y `gold/`, Glue Crawler/Data Catalog, Glue Job o Lambda para transformar, Athena para consultar, IAM least privilege, billing alerts y lifecycle policies. Esa migración no está implementada en este proyecto.
+<details>
+<summary><strong>Cómo lo cuento en una entrevista técnica</strong></summary>
 
-## 9. Aprendizajes técnicos del proyecto
+> Partí de archivos bancarios con errores para construir un Data Lake local con enfoque AWS. Usé Python para preparar las capas, retirar duplicados y separar registros inválidos. Guardé los datos en Parquet y utilicé DuckDB para consultar las salidas.
+>
+> En la ejecución documentada, de 1.257 registros quedaron 1.135 transacciones preparadas, 120 en cuarentena y dos duplicados retirados. Generé cinco conjuntos analíticos y ejecuté cinco consultas. El aporte es tener una base preparada para analizar y un recorrido claro para explicar qué ocurrió con los datos.
 
-Esta sección funciona como material de estudio personal para defender el proyecto técnicamente. Resume los conceptos, archivos y decisiones que conviene explicar con claridad.
+</details>
 
-### 9.1 Conceptos clave
-
-| Concepto | Qué significa en este proyecto |
-| --- | --- |
-| Landing | Zona local donde se generan CSV crudos que simulan una ingesta bancaria inicial. |
-| Bronze | Capa Parquet cercana al raw, con columnas normalizadas y metadata técnica de carga. |
-| Silver | Capa limpia, validada, enriquecida y particionada para análisis confiable. |
-| Gold | Capa analítica con métricas agregadas por canal, tipo, mes, cliente y sucursal. |
-| Parquet | Formato columnar usado para reducir datos escaneados y mejorar consultas analíticas. |
-| Particionamiento | Organización de transacciones silver por `year/month` para simular pruning por fecha. |
-| Cuarentena | Separación de registros críticos inválidos para trazabilidad sin contaminar silver. |
-| Data Quality Checks | Validaciones de duplicados, fechas, montos, IDs, cuentas y tipos de transacción. |
-| Glue/Lambda equivalente | Rol conceptual implementado por `build_data_lake.py` para transformar capas. |
-| Athena-like queries | Consultas SQL ejecutadas con DuckDB sobre archivos Parquet locales. |
-| CloudWatch-style summary | JSON de ejecución con estado final, conteos, checks, rutas y notas de costos. |
-| IAM least privilege | Diseño documental de permisos mínimos para una migración futura a AWS real. |
-| Control de costos | Uso conceptual de Parquet, particiones, límites de escaneo y alertas de billing. |
-
-### 9.2 Archivos más importantes
-
-| Archivo | Rol principal | Qué aprendí |
-| --- | --- | --- |
-| `generate_banking_landing_data.py` | Genera datos bancarios crudos y controladamente imperfectos. | Diseñar datos de prueba realistas permite validar reglas de calidad antes de tener datos reales. |
-| `build_data_lake.py` | Construye bronze, silver, gold, cuarentena y estimación de costos. | El componente central de un pipeline debe organizar transformaciones, calidad, particiones y evidencia. |
-| `run_athena_like_queries.py` | Ejecuta consultas SQL con DuckDB sobre Parquet. | Separar SQL del código Python mejora mantenibilidad y simula mejor un patrón Athena. |
-| `run_pipeline.py` | Orquesta el flujo completo y escribe el summary final. | Un pipeline profesional debe tener una entrada clara, logging, manejo de errores y salida trazable. |
-| `athena_like_queries.sql` | Contiene las consultas analíticas finales. | Las queries deben responder preguntas de negocio sin depender de `SELECT *` ni de infraestructura cloud real. |
-
-### 9.3 Funciones y códigos destacables
-
-`generate_banking_landing_data.py`
-
-| Función | Por qué importa |
-| --- | --- |
-| `reset_landing_csvs()` | Limpia CSV generados previamente para que cada ejecución sea reproducible. |
-| `write_csv()` | Centraliza la escritura de archivos landing con estructura consistente. |
-| `random_date()` | Genera fechas de ejemplo para simular actividad bancaria distribuida. |
-| `build_branches()` | Crea sucursales base para enriquecer clientes y métricas posteriores. |
-| `build_customers()` | Genera clientes asociados a sucursales, incluyendo variaciones controladas. |
-| `build_accounts()` | Crea cuentas bancarias vinculadas a clientes. |
-| `build_transactions()` | Es clave porque genera datos messy: duplicados, fechas inválidas, montos faltantes, cuentas inválidas, tipos inconsistentes e IDs vacíos. |
-| `generate_landing_data()` | Coordina la generación de todos los CSV landing y devuelve conteos/rutas. |
-
-`build_data_lake.py`
-
-| Función | Por qué importa |
-| --- | --- |
-| `load_landing_csvs()` | Lee los CSV crudos desde landing para iniciar el procesamiento. |
-| `clear_generated_children()` | Limpia artefactos generados sin borrar archivos base como `.gitkeep`. |
-| `normalize_text()` | Estandariza texto para reducir inconsistencias de formato. |
-| `normalize_key()` | Normaliza claves de negocio usadas en joins y validaciones. |
-| `write_single_parquet()` | Escribe datasets Parquet no particionados de forma controlada. |
-| `write_partitioned_parquet()` | Escribe Parquet particionado, especialmente útil para silver por `year/month`. |
-| `build_bronze_layer()` | Convierte landing a bronze manteniendo cercanía con el raw y agregando metadata. |
-| `clean_branches()` | Limpia la dimensión de sucursales. |
-| `clean_customers()` | Valida y normaliza clientes contra sucursales válidas. |
-| `clean_accounts()` | Valida cuentas contra clientes válidos. |
-| `normalize_transactions()` | Aplica reglas críticas de limpieza, normalización y cuarentena de transacciones. |
-| `build_silver_layer()` | Construye datos limpios, enriquecidos y particionados para análisis. |
-| `build_gold_layer()` | Genera agregados analíticos listos para consulta. |
-| `write_cost_estimation()` | Calcula una estimación conceptual local de bytes y reducción por Parquet. |
-| `build_data_lake()` | Orquesta bronze, silver, gold, quality checks, costos y rutas generadas. |
-
-`build_data_lake.py` es el archivo central del proyecto porque cumple el rol tipo Glue/Lambda: transforma datos entre capas, aplica validaciones, produce datasets analíticos y genera evidencia técnica de ejecución.
-
-`run_athena_like_queries.py`
-
-| Función | Por qué importa |
-| --- | --- |
-| `parse_named_queries()` | Lee queries nombradas desde SQL para mantenerlas fuera del código Python. |
-| `run_queries()` | Ejecuta las consultas con DuckDB sobre Parquet y guarda resultados/summaries. |
-| `main()` | Permite ejecutar el módulo de consultas como script independiente. |
-
-Este archivo separa SQL del código Python y ejecuta consultas DuckDB sobre Parquet, representando el rol conceptual de Athena sin usar AWS real.
-
-`run_pipeline.py`
-
-| Función | Por qué importa |
-| --- | --- |
-| `configure_logging()` | Configura logs básicos para seguir la ejecución. |
-| `write_summary()` | Escribe el summary final de ejecución. |
-| `aws_equivalent_services()` | Documenta la equivalencia conceptual entre componentes locales y servicios AWS. |
-| `cost_control_notes()` | Resume decisiones de control de costos relevantes para una migración futura. |
-| `failed_summary()` | Genera evidencia estructurada si el pipeline falla. |
-| `main()` | Orquesta el flujo end-to-end del proyecto. |
-
-`main()` orquesta el flujo completo:
-
-```text
-generate_landing_data()
--> build_data_lake()
--> run_queries()
--> write_summary()
-```
-
-### 9.4 Qué debo saber explicar técnicamente
-
-- Por qué existen landing, bronze, silver y gold.
-- Por qué uso Parquet en vez de dejar todo como CSV.
-- Por qué particiono transacciones por `year/month`.
-- Qué hace la cuarentena y por qué no conviene mezclar registros inválidos con silver.
-- Qué representa DuckDB dentro de una simulación Athena-like.
-- Qué representa `build_data_lake.py` como equivalente local de Glue/Lambda.
-- Qué representa `run_pipeline.py` como orquestador end-to-end.
-- Por qué `data_lake/` y `output/` aparecen casi vacíos en GitHub: los datos generados, Parquet y summaries se crean localmente y están ignorados por Git.
-
-### 9.5 Aprendizaje principal
-
-Un Data Engineer no solo construye pipelines que corren. También diseña arquitectura, capas de datos, reglas de calidad, control de costos, permisos mínimos y evidencia de ejecución para que el proceso sea entendible, auditable y defendible técnicamente.
-
-### 9.6 Resumen técnico corto
-
-```text
-generate_banking_landing_data.py crea datos crudos.
-build_data_lake.py transforma esos datos en capas bronze, silver y gold.
-run_athena_like_queries.py consulta los Parquet con SQL usando DuckDB.
-run_pipeline.py orquesta todo el flujo y genera evidencia de ejecución.
-```
+[Volver al portafolio](../README.md#portafolio-inicio) · [Ejecutar el proyecto y profundizar](./docs/guia-tecnica.md)
