@@ -58,4 +58,22 @@ Para llegar a cifras consistentes, cada etapa resolvió una parte del problema: 
 
 </details>
 
+<details>
+<summary><strong>Las pruebas detrás de las cifras</strong></summary>
+
+El cierre fue comprobar que los datos cuadraran, las relaciones fueran válidas y repetir el proceso conservara el resultado.
+
+| Control | Resultado | Qué aporta |
+|---|---|---|
+| **Orquestación** | 3/3 notebooks correctos en **10 min 17 s** | Un recorrido completo con ejecución y duración registradas. |
+| **Publicación** | **7 tablas · 953 filas** | Una base común disponible para el análisis. |
+| **Integridad** | PK/FK **7/7** y **0 huérfanos** | Movimientos vinculados con sus dimensiones para analizarlos correctamente. |
+| **Reconciliación** | **PASSED** entre Gold y SQL | Comprobar que las cifras se conservaron al publicarlas. |
+| **Idempotencia** | **953 → 953 · 0 escrituras nuevas** | Repetir una publicación sin duplicar operaciones. |
+| **Pruebas locales** | **37/37 aprobadas** | Reglas de procesamiento verificadas con pruebas automatizadas. |
+
+*Validado con datos sintéticos y volumen controlado. Las comprobaciones cloud fueron manuales.*
+
+</details>
+
 [Volver al portafolio](../README.md)
