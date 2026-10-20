@@ -77,21 +77,21 @@ El cierre fue comprobar que los datos cuadraran, las relaciones fueran válidas 
 </details>
 
 <details>
-<summary><strong>Cómo organicé el proyecto</strong></summary>
+<summary><strong>Cómo construí el proyecto, paso a paso</strong></summary>
 
-La lógica, los notebooks y las pruebas están separados para poder revisar cómo se transforma un dato y qué controles debe superar.
+Este recorrido conecta las carpetas con las decisiones de implementación: definir las entradas, preparar los datos, transformarlos y comprobar que el resultado sirva para el análisis.
 
-| Carpeta | Su papel en el proyecto |
-|---|---|
-| [data/fixtures/](./data/fixtures/) | Datos sintéticos válidos e inválidos para probar el flujo. |
-| [config/](./config/) | Configuración de fuentes y parámetros de Silver y Gold. |
-| [src/](./src/) | Reglas de ingesta, limpieza, conversión de monedas y reconciliación. |
-| [databricks/notebooks/](./databricks/notebooks/) | Notebooks portables para ejecutar y validar las capas. |
-| [adf/](./adf/) | Diseño local de la ingesta y sus conexiones. |
-| [tests/](./tests/) | Pruebas automatizadas de calidad, transformaciones y repetición de cargas. |
-| [sql/](./sql/) | Consultas para analizar los movimientos del modelo Gold. |
+| Paso y carpeta | Tecnología | Problema → solución |
+|---|---|---|
+| **1. Definir las entradas**<br>[config/](./config/) | ⚙️ JSON | Las fuentes tenían estructuras distintas → separé su configuración de la lógica de procesamiento. |
+| **2. Preparar los casos**<br>[data/fixtures/](./data/fixtures/) | 🐍 Python | Necesitaba comprobar qué ocurría con datos correctos y errores → preparé casos sintéticos para ambos escenarios. |
+| **3. Transformar los datos**<br>[src/](./src/) | 🐍 Python · PySpark | Duplicados, relaciones inválidas y monedas diferentes → implementé reglas reutilizables de limpieza, conversión y reconciliación. |
+| **4. Ejecutar las capas**<br>[databricks/notebooks/](./databricks/notebooks/) | <img src="./docs/images/icons/databricks.svg" width="22" height="22" alt=""> Databricks | El procesamiento necesitaba etapas identificables → separé la ejecución y validación de las capas en notebooks. |
+| **5. Diseñar la ingesta**<br>[adf/](./adf/) | <img src="./docs/images/icons/data-factory.svg" width="22" height="22" alt=""> Data Factory | Las fuentes requerían conexiones y una secuencia de carga → versioné el diseño local de la ingesta. |
+| **6. Comprobar las reglas**<br>[tests/](./tests/) | 🧪 Pruebas automatizadas | Un cambio podía alterar las cifras → verifiqué transformaciones, calidad y repetición de cargas. |
+| **7. Consultar el resultado**<br>[sql/](./sql/) | 🗃️ SQL | El modelo debía permitir responder preguntas → preparé consultas analíticas sobre Gold. |
 
-*La carpeta `adf/` contiene el diseño local; la exportación del pipeline cloud definitivo no está versionada.*
+*Las pruebas acompañan el desarrollo, aunque aparezcan como un paso del recorrido. La carpeta `adf/` contiene el diseño local; la exportación del pipeline cloud definitivo no está versionada.*
 
 </details>
 
