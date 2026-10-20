@@ -59,6 +59,25 @@ Para llegar a cifras consistentes, cada etapa resolvió una parte del problema: 
 </details>
 
 <details>
+<summary><strong>Cómo construí el proyecto, paso a paso</strong></summary>
+
+Este recorrido conecta las carpetas con las decisiones de implementación: definir las entradas, preparar los datos, transformarlos y comprobar que el resultado sirva para el análisis.
+
+| Paso y carpeta | Tecnología | Problema → solución |
+|---|---|---|
+| **1. Definir las entradas**<br>[config/](./config/) | ⚙️ JSON | Las fuentes tenían estructuras distintas → separé su configuración de la lógica de procesamiento. |
+| **2. Preparar los casos**<br>[data/fixtures/](./data/fixtures/) | 🐍 Python | Necesitaba comprobar qué ocurría con datos correctos y errores → preparé casos sintéticos para ambos escenarios. |
+| **3. Transformar los datos**<br>[src/](./src/) | 🐍 Python · PySpark | Duplicados, relaciones inválidas y monedas diferentes → implementé reglas reutilizables de limpieza, conversión y reconciliación. |
+| **4. Ejecutar las capas**<br>[databricks/notebooks/](./databricks/notebooks/) | <img src="./docs/images/icons/databricks.svg" width="22" height="22" alt=""> Databricks | El procesamiento necesitaba etapas identificables → separé la ejecución y validación de las capas en notebooks. |
+| **5. Diseñar la ingesta**<br>[adf/](./adf/) | <img src="./docs/images/icons/data-factory.svg" width="22" height="22" alt=""> Data Factory | Las fuentes requerían conexiones y una secuencia de carga → versioné el diseño local de la ingesta. |
+| **6. Comprobar las reglas**<br>[tests/](./tests/) | 🧪 Pruebas automatizadas | Un cambio podía alterar las cifras → verifiqué transformaciones, calidad y repetición de cargas. |
+| **7. Consultar el resultado**<br>[sql/](./sql/) | 🗃️ SQL | El modelo debía permitir responder preguntas → preparé consultas analíticas sobre Gold. |
+
+*Las pruebas acompañan el desarrollo, aunque aparezcan como un paso del recorrido. La carpeta `adf/` contiene el diseño local; la exportación del pipeline cloud definitivo no está versionada.*
+
+</details>
+
+<details>
 <summary><strong>Las pruebas detrás de las cifras</strong></summary>
 
 El cierre fue comprobar que los datos cuadraran, las relaciones fueran válidas y repetir el proceso conservara el resultado.
@@ -77,21 +96,11 @@ El cierre fue comprobar que los datos cuadraran, las relaciones fueran válidas 
 </details>
 
 <details>
-<summary><strong>Cómo construí el proyecto, paso a paso</strong></summary>
+<summary><strong>Cómo lo cuento en una entrevista técnica</strong></summary>
 
-Este recorrido conecta las carpetas con las decisiones de implementación: definir las entradas, preparar los datos, transformarlos y comprobar que el resultado sirva para el análisis.
-
-| Paso y carpeta | Tecnología | Problema → solución |
-|---|---|---|
-| **1. Definir las entradas**<br>[config/](./config/) | ⚙️ JSON | Las fuentes tenían estructuras distintas → separé su configuración de la lógica de procesamiento. |
-| **2. Preparar los casos**<br>[data/fixtures/](./data/fixtures/) | 🐍 Python | Necesitaba comprobar qué ocurría con datos correctos y errores → preparé casos sintéticos para ambos escenarios. |
-| **3. Transformar los datos**<br>[src/](./src/) | 🐍 Python · PySpark | Duplicados, relaciones inválidas y monedas diferentes → implementé reglas reutilizables de limpieza, conversión y reconciliación. |
-| **4. Ejecutar las capas**<br>[databricks/notebooks/](./databricks/notebooks/) | <img src="./docs/images/icons/databricks.svg" width="22" height="22" alt=""> Databricks | El procesamiento necesitaba etapas identificables → separé la ejecución y validación de las capas en notebooks. |
-| **5. Diseñar la ingesta**<br>[adf/](./adf/) | <img src="./docs/images/icons/data-factory.svg" width="22" height="22" alt=""> Data Factory | Las fuentes requerían conexiones y una secuencia de carga → versioné el diseño local de la ingesta. |
-| **6. Comprobar las reglas**<br>[tests/](./tests/) | 🧪 Pruebas automatizadas | Un cambio podía alterar las cifras → verifiqué transformaciones, calidad y repetición de cargas. |
-| **7. Consultar el resultado**<br>[sql/](./sql/) | 🗃️ SQL | El modelo debía permitir responder preguntas → preparé consultas analíticas sobre Gold. |
-
-*Las pruebas acompañan el desarrollo, aunque aparezcan como un paso del recorrido. La carpeta `adf/` contiene el diseño local; la exportación del pipeline cloud definitivo no está versionada.*
+> Construí un pipeline bancario en Azure con datos sintéticos para abordar diferencias entre reportes. Conservé el origen en ADLS Gen2 y usé Databricks para validar datos, separar errores y convertir montos a EUR. Coordiné tres notebooks con Data Factory y publiqué el modelo en Azure SQL para consumirlo en Power BI.
+>
+> Validé siete tablas, 953 filas y cero registros huérfanos. Al repetir la publicación, no hubo nuevas escrituras. El aporte está en poder explicar una cifra y repetir el proceso sin duplicar operaciones.
 
 </details>
 
