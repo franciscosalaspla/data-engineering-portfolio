@@ -2,7 +2,7 @@
 
 # Portafolio de Ingeniería de Datos
 
-<img align="right" src="./assets/alien-portrait.jpeg" alt="Retrato en blanco y negro de un extraterrestre con traje" width="25%" hspace="16">
+<img align="right" src="./assets/alien-portrait.jpeg" alt="Retrato en blanco y negro de un extraterrestre con traje" width="20%" hspace="16">
 
 Soy Ingeniero Civil Industrial con especialización en Analítica de Negocios y más de cuatro años de experiencia en datos.
 
