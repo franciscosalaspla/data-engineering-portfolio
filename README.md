@@ -4,13 +4,17 @@
 
 <img align="right" src="./assets/alien-portrait.jpeg" alt="Retrato en blanco y negro de un extraterrestre con traje" width="20%" hspace="16">
 
-Soy Francisco, Ingeniero Civil Industrial especializado en Analítica de Negocios, con más de cuatro años trabajando con datos.
+Soy Francisco, Ingeniero Civil Industrial especializado en Analítica de Negocios, con más de cuatro años trabajando con datos. Mi experiencia combina consultoría financiera con proyectos de Analytics e Ingeniería de Datos en banca, seguros y previsión.
 
-Me gusta seguir el recorrido completo: entender qué necesita el negocio, conectar las etapas del funnel y convertir los datos en decisiones claras. ¿Dónde se frena el cliente? ¿Qué está funcionando? ¿Qué conviene mejorar? Para responder, integro fuentes, automatizo procesos y cuido la calidad de la información.
+Me hago cargo del ciclo completo de los proyectos de datos, end to end: desde entender el problema del negocio e integrar las fuentes hasta automatizar pipelines y entregar datos confiables para decidir. Cuando algo falla, rastreo el flujo desde la ingesta hasta el consumo, priorizo por impacto y urgencia, mantengo al negocio informado y hago seguimiento hasta restablecerlo. Después documento la causa raíz e incorporo controles para que no vuelva a ocurrir.
 
-He participado en proyectos de satisfacción de clientes, telemedicina, biometría facial y transacciones digitales, además de desarrollar una solución para clasificar empresas según sus actividades económicas.
+**Proyectos donde la ingeniería de datos resuelve problemas concretos**
 
-En este portafolio comparto tres proyectos que muestran ese camino: del problema de negocio al dato confiable y listo para actuar.
+- 📊 **Satisfacción de clientes:** pipeline de encuestas web y app con controles de calidad para consolidar CSAT y NPS.
+- 🩺 **Telemedicina:** integración de fuentes JSON y SFTP para medir la adopción de servicios digitales.
+- 🔎 **Biometría facial:** integración de APIs y depuración de datos; contribuyó a reducir cerca de 50 % el costo del proveedor.
+- 💳 **Transacciones digitales:** centralización de eventos para consolidar indicadores de uso y conversión por canal.
+- 🧾 **Clasificación SII:** validación de RUT, reglas de negocio y cuarentena para obtener clasificaciones trazables.
 
 <br clear="both">
 
