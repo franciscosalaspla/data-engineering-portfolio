@@ -4,13 +4,13 @@
 
 <img align="right" src="./assets/alien-portrait.jpeg" alt="Retrato en blanco y negro de un extraterrestre con traje" width="20%" hspace="16">
 
-Soy Ingeniero Civil Industrial con especialización en Analítica de Negocios y más de cuatro años de experiencia en datos.
+Soy Francisco, Ingeniero Civil Industrial especializado en Analítica de Negocios, con más de cuatro años trabajando con datos.
 
-**Me apasiona la ingeniería de datos: conectar información, automatizar procesos y construir soluciones confiables.** Trabajo por hitos, priorizo según impacto y urgencia, y colaboro con equipos de negocio y tecnología con comunicación clara.
+Me gusta seguir el recorrido completo: entender qué necesita el negocio, conectar las etapas del funnel y convertir los datos en decisiones claras. ¿Dónde se frena el cliente? ¿Qué está funcionando? ¿Qué conviene mejorar? Para responder, integro fuentes, automatizo procesos y cuido la calidad de la información.
 
-He participado en proyectos de satisfacción de clientes, telemedicina, biometría facial, transacciones digitales y clasificación de RUT y giros con información del SII.
+He participado en proyectos de satisfacción de clientes, telemedicina, biometría facial y transacciones digitales, además de desarrollar una solución para clasificar empresas según sus actividades económicas.
 
-En este portafolio comparto cómo abordo problemas de integración, automatización y calidad de datos. **Más abajo encontrarás mis tres proyectos destacados.**
+En este portafolio comparto tres proyectos que muestran ese camino: del problema de negocio al dato confiable y listo para actuar.
 
 <br clear="both">
 
