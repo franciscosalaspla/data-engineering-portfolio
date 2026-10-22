@@ -6,7 +6,11 @@
 
 Soy Francisco, Ingeniero Civil Industrial especializado en Analítica de Negocios, con más de cuatro años trabajando con datos. Mi experiencia combina consultoría financiera con proyectos de Analytics e Ingeniería de Datos en banca, seguros y previsión.
 
-Me hago cargo del ciclo completo de los proyectos de datos, end to end: desde entender el problema del negocio e integrar las fuentes hasta automatizar pipelines y entregar datos confiables para decidir. Cuando algo falla, rastreo el flujo desde la ingesta hasta el consumo, priorizo por impacto y urgencia, mantengo al negocio informado y hago seguimiento hasta restablecerlo. Después documento la causa raíz e incorporo controles para que no vuelva a ocurrir.
+Me hago cargo del ciclo completo de los proyectos de datos, end to end: desde entender el problema del negocio e integrar las fuentes hasta automatizar pipelines y entregar datos confiables para decidir.
+
+Cuando algo falla, rastreo el flujo desde la ingesta hasta el consumo. Priorizo por impacto y urgencia, mantengo al negocio informado y hago seguimiento hasta restablecerlo.
+
+Después documento la causa raíz e incorporo controles para que no vuelva a ocurrir.
 
 **Proyectos donde la ingeniería de datos resuelve problemas concretos**
 
