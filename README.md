@@ -12,10 +12,6 @@ He participado en proyectos de satisfacción de clientes, telemedicina, biometr�
 
 En este portafolio comparto cómo abordo problemas de integración, automatización y calidad de datos. **Más abajo encontrarás mis tres proyectos destacados.**
 
-En [AvanzaPyme](https://avanzapyme.cl/), junto a excompañeros de universidad, asesoro a pymes de la región en finanzas e indicadores, automatizo procesos contables y desarrollo sistemas ERP.
-
-En la empresa familiar [Taller Café](https://taller.cafe/), diseño interiores, layouts, planos 2D y 3D y flujos de circulación para cafeterías de especialidad con Autodesk Maya 2027, Python y apoyo de IA.
-
 <br clear="both">
 
 ## Proyectos destacados
